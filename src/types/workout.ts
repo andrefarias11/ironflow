@@ -45,6 +45,9 @@ export interface WorkoutHistoryEntry {
   completedSets: number;
   totalVolumeKg: number;
   durationMinutes: number;
+  caloriesBurned?: number; // calorias registradas (ex: Redmi Watch / Mi Fitness)
+  avgHeartRate?: number; // bpm médio
+  maxHeartRate?: number; // bpm máximo
 }
 
 export interface UserPreferences {

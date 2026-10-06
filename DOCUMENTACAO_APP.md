@@ -267,3 +267,4 @@ npx vercel --prod
    ```
 2. No painel do [vercel.com](https://vercel.com), importe o repositório.
 3. O build é automático e gera um link seguro `https://seu-app.vercel.app` com certificado SSL gratuito.
+

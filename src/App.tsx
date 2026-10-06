@@ -97,8 +97,11 @@ export function App() {
     }
   };
 
-  const handleConfirmFinish = (durationMinutes: number) => {
-    finishWorkout(durationMinutes);
+  const handleConfirmFinish = (
+    durationMinutes: number,
+    stats?: { caloriesBurned?: number; avgHeartRate?: number; maxHeartRate?: number }
+  ) => {
+    finishWorkout(durationMinutes, stats);
     setIsFinishWorkoutOpen(false);
     setTimerActive(false);
   };

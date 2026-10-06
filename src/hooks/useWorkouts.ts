@@ -370,7 +370,10 @@ export function useWorkouts() {
     );
   };
 
-  const finishWorkout = (durationMinutes: number) => {
+  const finishWorkout = (
+    durationMinutes: number,
+    stats?: { caloriesBurned?: number; avgHeartRate?: number; maxHeartRate?: number }
+  ) => {
     if (!activeWorkout) return;
 
     const entry: WorkoutHistoryEntry = {
@@ -381,7 +384,10 @@ export function useWorkouts() {
       totalSets: progress.totalSets,
       completedSets: progress.completedSets,
       totalVolumeKg: progress.totalVolumeKg,
-      durationMinutes: Math.max(1, durationMinutes)
+      durationMinutes: Math.max(1, durationMinutes),
+      caloriesBurned: stats?.caloriesBurned,
+      avgHeartRate: stats?.avgHeartRate,
+      maxHeartRate: stats?.maxHeartRate
     };
 
     setHistory(prev => [entry, ...prev].slice(0, 50));

@@ -72,7 +72,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                   </span>
                 </div>
 
-                <div className="flex items-center gap-4 text-xs text-zinc-400 font-mono">
+                <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400 font-mono">
                   <div className="flex items-center gap-1">
                     <span className="text-ios-accent font-semibold">{entry.completedSets}</span>
                     <span className="text-zinc-600">/</span>
@@ -88,6 +88,18 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                     <Clock className="w-3 h-3 text-zinc-500" />
                     <span>{entry.durationMinutes} min</span>
                   </div>
+
+                  {entry.caloriesBurned && (
+                    <div className="flex items-center gap-1 text-orange-400 font-semibold bg-orange-500/10 px-2 py-0.5 rounded-md border border-orange-500/20">
+                      <span>🔥 {entry.caloriesBurned} kcal</span>
+                    </div>
+                  )}
+
+                  {entry.avgHeartRate && (
+                    <div className="flex items-center gap-1 text-red-400 font-semibold bg-red-500/10 px-2 py-0.5 rounded-md border border-red-500/20">
+                      <span>❤️ {entry.avgHeartRate} bpm</span>
+                    </div>
+                  )}
                 </div>
               </div>
             ))
