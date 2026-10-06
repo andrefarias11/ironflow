@@ -107,17 +107,8 @@ export function App() {
     <div className="min-h-screen bg-black text-white flex flex-col font-sans safe-bottom">
       {/* 1. Cabeçalho iOS Minimalista */}
       <Header
-        onOpenHistory={() => setIsHistoryOpen(true)}
         onOpenCalendar={() => setIsCalendarOpen(true)}
-        onOpenInstallGuide={() => setIsInstallGuideOpen(true)}
-        onOpenNewWorkout={() => setIsNewWorkoutOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
-        onResetWorkout={() => {
-          if (confirm('Deseja zerar as séries marcadas para começar um novo treino hoje?')) {
-            resetWorkout();
-          }
-        }}
-        completedSetsCount={progress.completedSets}
         currentStreak={currentStreak}
         percentage={progress.percentage}
         isTodayRestDay={isTodayRestDay}
@@ -248,6 +239,9 @@ export function App() {
         preferences={preferences}
         onUpdatePreferences={setPreferences}
         onResetToDefaults={resetToDefault}
+        onOpenInstallGuide={() => setIsInstallGuideOpen(true)}
+        onOpenHistory={() => setIsHistoryOpen(true)}
+        onResetWorkout={resetWorkout}
       />
 
       <ExerciseGuideModal

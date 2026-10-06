@@ -1,6 +1,6 @@
 import React from 'react';
 import { UserPreferences } from '../types/workout';
-import { X, Volume2, Vibrate, PlayCircle, Clock, Settings, RotateCcw } from 'lucide-react';
+import { X, Volume2, Vibrate, PlayCircle, Clock, Settings, RotateCcw, Share2, History } from 'lucide-react';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -8,6 +8,9 @@ interface SettingsModalProps {
   preferences: UserPreferences;
   onUpdatePreferences: React.Dispatch<React.SetStateAction<UserPreferences>>;
   onResetToDefaults: () => void;
+  onOpenInstallGuide?: () => void;
+  onOpenHistory?: () => void;
+  onResetWorkout?: () => void;
 }
 
 export const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -15,13 +18,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onClose,
   preferences,
   onUpdatePreferences,
-  onResetToDefaults
+  onResetToDefaults,
+  onOpenInstallGuide,
+  onOpenHistory,
+  onResetWorkout
 }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 p-6 shadow-2xl relative">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+      <div className="w-full sm:max-w-md max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 p-6 shadow-2xl relative">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5"
@@ -34,12 +40,74 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <Settings className="w-4 h-4" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-white">Configurações</h2>
-            <p className="text-xs text-zinc-400">Preferências do seu treino</p>
+            <h2 className="text-lg font-bold text-white">Ajustes & Mais</h2>
+            <p className="text-xs text-zinc-400">Preferências e opções do app</p>
           </div>
         </div>
 
-        <div className="space-y-4">
+        {/* Atalhos Rápidos */}
+        <div className="space-y-2 mb-5">
+          {onOpenInstallGuide && (
+            <button
+              onClick={() => {
+                onClose();
+                onOpenInstallGuide();
+              }}
+              className="w-full p-3.5 rounded-2xl bg-ios-accent/10 border border-ios-accent/25 flex items-center justify-between text-left active:scale-98 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-ios-accent flex items-center justify-center text-black font-bold">
+                  <Share2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-white">Instalar no iPhone (PWA)</p>
+                  <p className="text-[11px] text-zinc-400">Adicionar à tela de início como app</p>
+                </div>
+              </div>
+              <span className="text-xs text-ios-accent font-bold">Ver ↗</span>
+            </button>
+          )}
+
+          {onOpenHistory && (
+            <button
+              onClick={() => {
+                onClose();
+                onOpenHistory();
+              }}
+              className="w-full p-3 rounded-2xl bg-zinc-950/70 border border-white/5 flex items-center justify-between text-left hover:bg-zinc-800/60 active:scale-98 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <History className="w-5 h-5 text-zinc-400" />
+                <span className="text-xs font-semibold text-zinc-200">Histórico de Treinos Anteriores</span>
+              </div>
+              <span className="text-xs text-zinc-500">›</span>
+            </button>
+          )}
+
+          {onResetWorkout && (
+            <button
+              onClick={() => {
+                if (confirm('Deseja zerar as séries marcadas de hoje para recomeçar o treino?')) {
+                  onResetWorkout();
+                  onClose();
+                }
+              }}
+              className="w-full p-3 rounded-2xl bg-zinc-950/70 border border-white/5 flex items-center justify-between text-left hover:bg-zinc-800/60 active:scale-98 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <RotateCcw className="w-5 h-5 text-orange-400" />
+                <span className="text-xs font-semibold text-zinc-200">Reiniciar Séries de Hoje</span>
+              </div>
+              <span className="text-xs text-zinc-500">Zerar</span>
+            </button>
+          )}
+        </div>
+
+        {/* Preferências de Treino */}
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400 mb-2 px-1">
+          Preferências
+        </p>
+        <div className="space-y-3">
           <div className="flex items-center justify-between p-3.5 rounded-2xl bg-zinc-950/70 border border-white/5">
             <div className="flex items-center gap-3">
               <Volume2 className="w-5 h-5 text-ios-accent" />
@@ -127,10 +195,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
 
+        {/* Restaurar treinos originais */}
         <div className="mt-5 pt-3 border-t border-white/5">
           <button
             onClick={() => {
-              if (confirm('Deseja restaurar os treinos padrão de fábrica (Treino A, B, C)? Seus treinos personalizados serão resetados.')) {
+              if (confirm('Deseja restaurar a planilha padrão Upper / Lower? Seus pesos e edições voltarão ao padrão inicial.')) {
                 onResetToDefaults();
                 onClose();
               }
@@ -138,11 +207,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             className="w-full py-2.5 rounded-xl text-xs text-zinc-500 hover:text-red-400 flex items-center justify-center gap-1.5 transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Restaurar treinos padrão de fábrica</span>
+            <span>Restaurar planilha padrão de fábrica</span>
           </button>
         </div>
       </div>
     </div>
   );
 };
-

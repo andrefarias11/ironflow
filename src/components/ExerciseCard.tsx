@@ -53,8 +53,8 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
         className="p-4 flex items-center justify-between cursor-pointer select-none active:bg-white/5 transition-colors"
       >
         <div className="flex-1 pr-3">
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/5 text-zinc-400 border border-white/5">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/5 text-zinc-400 border border-white/5 shrink-0">
               {exercise.muscleGroup || 'Geral'}
             </span>
 
@@ -65,15 +65,15 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                 e.stopPropagation();
                 onOpenGuide(exercise);
               }}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-ios-accent/15 text-ios-accent hover:bg-ios-accent/25 active:scale-95 transition-all text-[10px] font-bold"
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-ios-accent/15 text-ios-accent hover:bg-ios-accent/25 active:scale-95 transition-all text-[10px] font-bold whitespace-nowrap shrink-0"
               title="Ver movimento, postura e vídeo demonstrativo"
             >
-              <PlayCircle className="w-3 h-3" />
+              <PlayCircle className="w-3 h-3 shrink-0" />
               <span>Ver Movimento</span>
             </button>
 
             {isAllComplete && (
-              <span className="text-[10px] font-bold text-ios-accentGreen flex items-center gap-1">
+              <span className="text-[10px] font-bold text-ios-accentGreen flex items-center gap-1 shrink-0">
                 <Check className="w-3 h-3 stroke-[3]" /> Concluído
               </span>
             )}
