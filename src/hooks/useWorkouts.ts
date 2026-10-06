@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Workout, Exercise, ExerciseSet, WorkoutHistoryEntry, UserPreferences } from '../types/workout';
 import { DEFAULT_WORKOUTS } from '../data/defaultWorkouts';
-import { DayActivity, calculateStreak, formatDateToKey, isScheduledRestDay } from '../utils/streak';
+import { DayActivity, calculateStreak, formatDateToKey, isScheduledRestDay, getWeekRange, getPreviousWeekRange } from '../utils/streak';
 
 const STORAGE_KEYS = {
   WORKOUTS: 'treino_app_workouts_upper_lower_v3',
@@ -171,6 +171,53 @@ export function useWorkouts() {
       });
     }
   }, [progress.percentage, progress.completedSets, progress.totalSets]);
+
+  // Análise Inteligente do Ciclo Semanal e Rotação Contínua
+  const cycleInfo = useMemo(() => {
+    const { start: weekStart, end: weekEnd } = getWeekRange(new Date());
+    const { start: prevWeekStart, end: prevWeekEnd } = getPreviousWeekRange(new Date());
+
+    // Treinos concluídos na semana atual (pelo histórico)
+    const thisWeekHistory = history.filter(h => {
+      const d = new Date(h.completedAt);
+      return d >= weekStart && d <= weekEnd;
+    });
+
+    const completedWorkoutIdsThisWeek = new Set(thisWeekHistory.map(h => h.workoutId));
+
+    // Treinos concluídos na semana anterior
+    const prevWeekHistory = history.filter(h => {
+      const d = new Date(h.completedAt);
+      return d >= prevWeekStart && d <= prevWeekEnd;
+    });
+    const completedWorkoutIdsPrevWeek = new Set(prevWeekHistory.map(h => h.workoutId));
+
+    // Identificar qual treino ficou pendente na semana passada (se treinou pelo menos 1 vez)
+    let missedWorkoutPrevWeek: Workout | null = null;
+    if (prevWeekHistory.length > 0 && prevWeekHistory.length < workouts.length) {
+      const missed = workouts.find(w => !completedWorkoutIdsPrevWeek.has(w.id));
+      if (missed) {
+        missedWorkoutPrevWeek = missed;
+      }
+    }
+
+    // Identificar o Próximo Treino Sugerido na Fila Contínua
+    // 1) Primeiro, procura o primeiro treino do ciclo que ainda NÃO foi feito nesta semana
+    let nextSuggestedWorkout = workouts.find(w => !completedWorkoutIdsThisWeek.has(w.id));
+
+    // 2) Se todos já foram feitos nesta semana, sugere o primeiro do ciclo ou o que faz mais tempo
+    if (!nextSuggestedWorkout && workouts.length > 0) {
+      nextSuggestedWorkout = workouts[0];
+    }
+
+    return {
+      completedWorkoutIdsThisWeek,
+      nextSuggestedWorkoutId: nextSuggestedWorkout ? nextSuggestedWorkout.id : '',
+      missedWorkoutPrevWeek,
+      completedCountThisWeek: completedWorkoutIdsThisWeek.size,
+      totalCycleWorkouts: workouts.length
+    };
+  }, [history, workouts]);
 
   const currentStreak = useMemo(() => {
     return calculateStreak(streakHistory);
@@ -421,7 +468,8 @@ export function useWorkouts() {
     resetToDefault,
     currentStreak,
     streakHistory,
-    isTodayRestDay
+    isTodayRestDay,
+    cycleInfo
   };
 }
 

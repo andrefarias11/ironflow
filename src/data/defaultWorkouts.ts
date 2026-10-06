@@ -3,8 +3,8 @@ import { Workout } from '../types/workout';
 export const DEFAULT_WORKOUTS: Workout[] = [
   {
     id: 'workout-upper-a',
-    name: 'Superiores A',
-    category: 'Segunda-feira',
+    name: 'Treino A',
+    category: 'Peito, Costas & Braços',
     description: 'Foco em força e hipertrofia: peito, costas, deltoides e braços',
     exercises: [
       {
@@ -203,8 +203,8 @@ export const DEFAULT_WORKOUTS: Workout[] = [
   },
   {
     id: 'workout-lower-a',
-    name: 'Inferiores A',
-    category: 'Terça-feira',
+    name: 'Treino B',
+    category: 'Pernas & Panturrilha',
     description: 'Quadríceps dominante, posteriores e panturrilha',
     exercises: [
       {
@@ -366,8 +366,8 @@ export const DEFAULT_WORKOUTS: Workout[] = [
   },
   {
     id: 'workout-upper-b',
-    name: 'Superiores B',
-    category: 'Quinta-feira',
+    name: 'Treino C',
+    category: 'Ombros, Peito & Dorsal',
     description: 'Variação de estímulo: peitoral inclinado, remada unilateral e deltoide lateral',
     exercises: [
       {
@@ -555,8 +555,8 @@ export const DEFAULT_WORKOUTS: Workout[] = [
   },
   {
     id: 'workout-lower-b',
-    name: 'Inferiores B',
-    category: 'Sexta-feira',
+    name: 'Treino D',
+    category: 'Posterior, Glúteos & Core',
     description: 'Cadeia posterior dominante, unilateral e core',
     exercises: [
       {

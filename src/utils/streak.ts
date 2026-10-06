@@ -27,7 +27,34 @@ export function formatDateToKey(d: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-// Calcula o streak retroativo a partir de hoje
+export function getWeekRange(date: Date = new Date()): { start: Date; end: Date; startKey: string; endKey: string } {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(d);
+  monday.setDate(d.getDate() + diffToMonday);
+  monday.setHours(0, 0, 0, 0);
+
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+
+  return {
+    start: monday,
+    end: sunday,
+    startKey: formatDateToKey(monday),
+    endKey: formatDateToKey(sunday)
+  };
+}
+
+export function getPreviousWeekRange(date: Date = new Date()): { start: Date; end: Date; startKey: string; endKey: string } {
+  const currentMonday = getWeekRange(date).start;
+  const prevMonday = new Date(currentMonday);
+  prevMonday.setDate(currentMonday.getDate() - 7);
+  return getWeekRange(prevMonday);
+}
+
+// Calcula o streak retroativo a partir de hoje permitindo dias de folga normais
 export function calculateStreak(history: Record<string, DayActivity>, todayDate: Date = new Date()): number {
   let streak = 0;
   const checkDate = new Date(todayDate);
@@ -36,7 +63,7 @@ export function calculateStreak(history: Record<string, DayActivity>, todayDate:
   const todayKey = formatDateToKey(checkDate);
   const todayActivity = history[todayKey];
 
-  // Se treinou hoje (fez pelo menos alguma porcentagem relevante, ex: > 0%), conta hoje
+  // Se treinou hoje, conta hoje
   if (todayActivity && todayActivity.percentage > 0) {
     streak += 1;
   }
@@ -44,21 +71,22 @@ export function calculateStreak(history: Record<string, DayActivity>, todayDate:
   // Volta dia por dia no passado
   checkDate.setDate(checkDate.getDate() - 1);
 
-  // Percorre até 90 dias atrás
+  // Percorre até 90 dias atrás com tolerância de até 2 dias consecutivos sem quebrar se forem descanso
+  let consecutiveRestDays = 0;
+
   for (let i = 0; i < 90; i++) {
     const key = formatDateToKey(checkDate);
-    const isRest = isScheduledRestDay(checkDate);
     const activity = history[key];
 
     if (activity && activity.percentage > 0) {
-      // Treinou neste dia
       streak += 1;
-    } else if (isRest) {
-      // Dia de descanso programado (quarta ou fds): NÃO quebra o streak!
-      // Apenas continua verificando os dias anteriores
+      consecutiveRestDays = 0;
     } else {
-      // Era um dia de treino obrigatório (Seg, Ter, Qui, Sex) e não treinou: quebra a sequência
-      break;
+      consecutiveRestDays += 1;
+      // Permite até 2 dias de descanso consecutivos (ex: fim de semana ou folga entre treinos) sem quebrar
+      if (consecutiveRestDays > 2) {
+        break;
+      }
     }
 
     checkDate.setDate(checkDate.getDate() - 1);

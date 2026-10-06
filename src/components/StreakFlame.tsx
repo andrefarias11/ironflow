@@ -239,16 +239,16 @@ export const StreakFlame: React.FC<StreakFlameProps> = ({
             <div className="p-3.5 rounded-2xl bg-zinc-950/70 border border-white/5 space-y-2 mb-4 text-xs text-zinc-400">
               <div className="flex items-center gap-2 text-zinc-200 font-semibold text-[11px]">
                 <Clock className="w-3.5 h-3.5 text-ios-accent" />
-                <span>Como funciona o desconto de folgas:</span>
+                <span>Como funciona o ciclo contínuo:</span>
               </div>
               <p className="text-[11px] leading-relaxed">
-                • <strong>Quartas-feiras e Fins de Semana</strong> são seus dias de descanso programados e <strong className="text-ios-accentGreen">nunca quebram seu streak</strong>.
+                • <strong>Treinos Livres:</strong> Treine qualquer dia da semana. O app acompanha seu ciclo contínuo de A a D.
               </p>
               <p className="text-[11px] leading-relaxed">
-                • A chama <strong>acende mais forte</strong> à medida que a barra de progresso atinge 100%.
+                • <strong>Dias de Folga Protegidos:</strong> Dias de descanso entre treinos e fins de semana <strong className="text-ios-accentGreen">nunca quebram seu streak</strong>.
               </p>
               <p className="text-[11px] leading-relaxed">
-                • Se passar um dia de treino oficial (Seg, Ter, Qui ou Sex) sem treinar, a sequência é reiniciada.
+                • A chama <strong>acende no brilho máximo 🔥</strong> quando você completa todas as séries do dia!
               </p>
             </div>
 

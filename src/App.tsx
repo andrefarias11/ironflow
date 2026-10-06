@@ -39,7 +39,8 @@ export function App() {
     resetToDefault,
     currentStreak,
     streakHistory,
-    isTodayRestDay
+    isTodayRestDay,
+    cycleInfo
   } = useWorkouts();
 
   // Estados dos Modais
@@ -125,6 +126,9 @@ export function App() {
           activeWorkoutId={activeWorkoutId}
           onSelectWorkout={(id) => setActiveWorkoutId(id)}
           onNewWorkout={() => setIsNewWorkoutOpen(true)}
+          completedWorkoutIdsThisWeek={cycleInfo.completedWorkoutIdsThisWeek}
+          nextSuggestedWorkoutId={cycleInfo.nextSuggestedWorkoutId}
+          missedWorkoutPrevWeek={cycleInfo.missedWorkoutPrevWeek}
         />
       </div>
 
