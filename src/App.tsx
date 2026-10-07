@@ -17,6 +17,12 @@ import { StreakModal } from './components/StreakModal';
 import { ShareStoryModal } from './components/ShareStoryModal';
 import { Exercise, WorkoutHistoryEntry } from './types/workout';
 import { Plus, Dumbbell } from 'lucide-react';
+import { useAuth } from './contexts/AuthContext';
+import { useWorkoutRoom } from './hooks/useWorkoutRoom';
+import { AuthModal } from './components/AuthModal';
+import { WorkoutRoomModal } from './components/WorkoutRoomModal';
+import { RoomLiveBar } from './components/RoomLiveBar';
+import { workoutSyncService } from './services/workoutSync';
 
 export function App() {
   const {
@@ -44,6 +50,26 @@ export function App() {
     isTodayRestDay,
     cycleInfo
   } = useWorkouts();
+
+  // Autenticação e Perfil
+  const { user, profile } = useAuth();
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isRoomOpen, setIsRoomOpen] = useState(false);
+
+  // Sala de Treino em Dupla (Multiplayer Realtime)
+  const {
+    activeRoom,
+    members,
+    partnerSets,
+    latestReaction,
+    syncedRestTimer,
+    createRoom,
+    joinRoom,
+    leaveRoom,
+    broadcastSetProgress,
+    broadcastReaction,
+    broadcastRestTimer
+  } = useWorkoutRoom();
 
   // Estados dos Modais
   const [isStreakOpen, setIsStreakOpen] = useState(false);
@@ -93,6 +119,20 @@ export function App() {
     };
   }, [timerActive, isTimerPaused, timeLeft]);
 
+  // Sincroniza cronômetro acionado pelo parceiro de treino
+  useEffect(() => {
+    if (syncedRestTimer) {
+      startRestTimer(syncedRestTimer.seconds, `Iniciado por ${syncedRestTimer.startedBy}`);
+    }
+  }, [syncedRestTimer]);
+
+  // Sincronização em nuvem quando o usuário está autenticado
+  useEffect(() => {
+    if (user && workouts.length > 0) {
+      workoutSyncService.saveWorkoutsToCloud(user.id, workouts, activeWorkoutId);
+    }
+  }, [user, workouts, activeWorkoutId]);
+
   const startRestTimer = (seconds: number, exerciseName?: string) => {
     const validSec = Math.max(5, seconds);
     setTotalTimerTime(validSec);
@@ -105,9 +145,19 @@ export function App() {
   const handleToggleSet = (exerciseId: string, setId: string) => {
     const { justCompleted, restSeconds } = toggleSetComplete(exerciseId, setId);
 
+    const currentEx = activeWorkout?.exercises.find(e => e.id === exerciseId);
+    const targetSet = currentEx?.sets.find(s => s.id === setId);
+
     if (justCompleted && preferences.autoStartTimer) {
-      const currentEx = activeWorkout?.exercises.find(e => e.id === exerciseId);
       startRestTimer(restSeconds || preferences.defaultRestTime, currentEx?.name);
+      if (activeRoom) {
+        broadcastRestTimer(restSeconds || preferences.defaultRestTime);
+      }
+    }
+
+    // Se estiver em sala com parceiro, envia a atualização em tempo real
+    if (activeRoom && targetSet) {
+      broadcastSetProgress(exerciseId, targetSet.setNumber, justCompleted, targetSet.weight, targetSet.reps);
     }
   };
 
@@ -116,6 +166,9 @@ export function App() {
     stats?: { caloriesBurned?: number; avgHeartRate?: number; maxHeartRate?: number }
   ) => {
     finishWorkout(durationMinutes, stats);
+    if (user) {
+      workoutSyncService.saveWorkoutsToCloud(user.id, workouts, activeWorkoutId);
+    }
     setIsFinishWorkoutOpen(false);
     setTimerActive(false);
   };
@@ -127,10 +180,29 @@ export function App() {
         onOpenCalendar={() => setIsCalendarOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenStreakModal={() => setIsStreakOpen(true)}
+        onOpenRoomModal={() => setIsRoomOpen(true)}
+        onOpenAuthModal={() => setIsAuthOpen(true)}
         currentStreak={currentStreak}
         percentage={progress.percentage}
         isTodayRestDay={isTodayRestDay}
+        isInRoom={!!activeRoom}
+        userName={profile?.name}
+        userColor={profile?.color}
+        isLoggedIn={!!user}
       />
+
+      {/* Barra de Treino em Dupla (Quando sala estiver ativa) */}
+      {activeRoom && (
+        <RoomLiveBar
+          activeRoom={activeRoom}
+          members={members}
+          currentUserId={user?.id}
+          latestReaction={latestReaction}
+          onSendReaction={broadcastReaction}
+          onOpenRoomModal={() => setIsRoomOpen(true)}
+          onLeaveRoom={leaveRoom}
+        />
+      )}
 
       {/* 2. Seletor de Divisões de Treino */}
       <div className="pt-2">
@@ -170,6 +242,8 @@ export function App() {
                 onUpdateRestTime={updateExerciseRest}
                 onStartCustomTimer={(sec, name) => startRestTimer(sec, name)}
                 onOpenGuide={(ex) => setSelectedGuideExercise(ex)}
+                partnerSets={partnerSets}
+                userColor={profile?.color || '#30D158'}
               />
             ))}
 
@@ -324,6 +398,26 @@ export function App() {
           currentStreak={currentStreak}
         />
       )}
+
+      {/* Modal de Autenticação e Perfil do Atleta */}
+      <AuthModal
+        isOpen={isAuthOpen}
+        onClose={() => setIsAuthOpen(false)}
+      />
+
+      {/* Modal de Sala de Treino em Dupla */}
+      <WorkoutRoomModal
+        isOpen={isRoomOpen}
+        onClose={() => setIsRoomOpen(false)}
+        activeRoom={activeRoom}
+        members={members}
+        currentWorkoutName={activeWorkout?.name || 'Treino do Dia'}
+        category={activeWorkout?.category}
+        onCreateRoom={createRoom}
+        onJoinRoom={joinRoom}
+        onLeaveRoom={leaveRoom}
+        onOpenAuth={() => setIsAuthOpen(true)}
+      />
     </div>
   );
 }

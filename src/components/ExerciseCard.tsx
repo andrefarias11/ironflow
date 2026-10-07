@@ -13,6 +13,8 @@ interface ExerciseCardProps {
   onUpdateRestTime: (exerciseId: string, seconds: number) => void;
   onStartCustomTimer: (seconds: number, exerciseName: string) => void;
   onOpenGuide: (exercise: Exercise) => void;
+  partnerSets?: Record<string, import('../types/auth').RoomSetEvent>;
+  userColor?: string;
 }
 
 export const ExerciseCard: React.FC<ExerciseCardProps> = ({
@@ -24,7 +26,9 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   onRemoveExercise,
   onUpdateRestTime,
   onStartCustomTimer,
-  onOpenGuide
+  onOpenGuide,
+  partnerSets,
+  userColor
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showRestPicker, setShowRestPicker] = useState(false);
@@ -158,6 +162,8 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
 
           <div className="space-y-1.5 mt-0.5">
             {exercise.sets.map((set) => {
+              const partnerSet = partnerSets?.[`${exercise.id}_${set.setNumber}`];
+
               return (
                 <div
                   key={set.id}
@@ -208,15 +214,26 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                     </div>
                   </div>
 
-                  <div className="col-span-2 flex items-center justify-end">
+                  <div className="col-span-2 flex items-center justify-end gap-1.5">
+                    {partnerSet && partnerSet.completed && (
+                      <div 
+                        className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-black shadow-md ring-1 ring-white/20 animate-scaleIn shrink-0"
+                        style={{ backgroundColor: partnerSet.userColor || '#00E5FF' }}
+                        title={`${partnerSet.userName} concluiu (${partnerSet.weight || 0}kg × ${partnerSet.reps || 0})`}
+                      >
+                        {partnerSet.userName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+
                     <button
                       type="button"
                       onClick={() => handleToggle(set.id, set.completed)}
                       className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 ${
                         set.completed
-                          ? 'bg-ios-accentGreen text-black shadow-glow-green scale-100'
+                          ? 'text-black shadow-glow-green scale-100'
                           : 'bg-zinc-800/90 text-zinc-600 hover:text-zinc-400 hover:bg-zinc-700/80 border border-white/10'
                       }`}
+                      style={set.completed ? { backgroundColor: userColor || '#30D158' } : undefined}
                       aria-label={`Marcar série ${set.setNumber} como concluída`}
                     >
                       <Check className={`w-4 h-4 stroke-[3] transition-transform ${

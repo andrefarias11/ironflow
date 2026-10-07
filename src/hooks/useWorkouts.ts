@@ -228,8 +228,10 @@ export function useWorkouts() {
   }, []);
 
   const toggleSetComplete = (exerciseId: string, setId: string): { justCompleted: boolean; restSeconds: number } => {
-    let justCompleted = false;
-    let restSeconds = 60;
+    const currentEx = activeWorkout?.exercises.find(e => e.id === exerciseId);
+    const currentSet = currentEx?.sets.find(s => s.id === setId);
+    const justCompleted = currentSet ? !currentSet.completed : false;
+    const restSeconds = currentEx?.restSeconds || 60;
 
     setWorkouts(prevWorkouts =>
       prevWorkouts.map(w => {
@@ -239,17 +241,12 @@ export function useWorkouts() {
           ...w,
           exercises: w.exercises.map(ex => {
             if (ex.id !== exerciseId) return ex;
-            restSeconds = ex.restSeconds || 60;
 
             return {
               ...ex,
               sets: ex.sets.map(s => {
                 if (s.id !== setId) return s;
-                const nextState = !s.completed;
-                if (nextState) {
-                  justCompleted = true;
-                }
-                return { ...s, completed: nextState };
+                return { ...s, completed: !s.completed };
               })
             };
           })
