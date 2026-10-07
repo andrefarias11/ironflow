@@ -13,7 +13,7 @@ export interface MuscleTargetProps {
 export const MuscleFigure: React.FC<MuscleTargetProps> = ({ 
   workoutName = '', 
   category = '', 
-  className = 'w-full h-48' 
+  className = 'w-full h-44' 
 }) => {
   const text = `${workoutName} ${category}`.toLowerCase();
 
@@ -22,28 +22,25 @@ export const MuscleFigure: React.FC<MuscleTargetProps> = ({
   const isLegs = text.includes('perna') || text.includes('inferior') || text.includes('inferiores') || text.includes('quadr') || text.includes('agachamento') || text.includes('glúteo') || text.includes('gluteo');
 
   let imageSrc = '/muscle-torso-glow.jpg';
-  let targetMuscles = 'PEITORAL • OMBROS • BRAÇOS';
 
   if (isLegs) {
     imageSrc = '/muscle-legs-glow.jpg';
-    targetMuscles = 'QUADRÍCEPS • PANTURRILHAS';
   } else if (isBack) {
     imageSrc = '/muscle-back-glow.jpg';
-    targetMuscles = 'DORSAIS • TRAPÉZIO • BRAÇOS';
   }
 
   return (
-    <div className={`relative flex flex-col items-center justify-center ${className}`}>
+    <div className={`relative flex items-center justify-center ${className}`}>
       {/* Glow de fundo neon suave atrás da figura 3D */}
       <div 
-        className="absolute w-44 h-44 rounded-full pointer-events-none blur-2xl opacity-30"
+        className="absolute w-44 h-44 rounded-full pointer-events-none blur-2xl opacity-25"
         style={{
           background: 'radial-gradient(circle, rgba(255, 107, 0, 0.7) 0%, rgba(255, 107, 0, 0) 70%)'
         }}
       />
 
       {/* Modelo 3D Anatômico Renderizado */}
-      <div className="relative z-10 w-full h-40 flex items-center justify-center">
+      <div className="relative z-10 w-full h-full flex items-center justify-center py-1">
         <img
           src={imageSrc}
           alt={`Resumo Muscular - ${workoutName}`}
@@ -51,14 +48,6 @@ export const MuscleFigure: React.FC<MuscleTargetProps> = ({
           crossOrigin="anonymous"
           loading="eager"
         />
-      </div>
-
-      {/* Rótulo minimalista de músculos ativados */}
-      <div className="relative z-10 mt-1 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10">
-        <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-        <span className="text-[9px] font-mono font-bold tracking-widest text-zinc-300 uppercase">
-          {targetMuscles}
-        </span>
       </div>
     </div>
   );
