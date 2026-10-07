@@ -430,7 +430,7 @@ export function useWorkouts() {
       completedAt: new Date().toISOString(),
       totalSets: progress.totalSets,
       completedSets: progress.completedSets,
-      totalVolumeKg: progress.totalVolumeKg,
+      exercisesCount: progress.exercisesCount,
       durationMinutes: Math.max(1, durationMinutes),
       caloriesBurned: stats?.caloriesBurned,
       avgHeartRate: stats?.avgHeartRate,

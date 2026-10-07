@@ -1,11 +1,11 @@
 import React from 'react';
-import { Flame, CheckCircle2, Trophy, Weight } from 'lucide-react';
+import { Flame, CheckCircle2, Trophy, Dumbbell } from 'lucide-react';
 
 interface OverallProgressProps {
   percentage: number;
   completedSets: number;
   totalSets: number;
-  totalVolumeKg: number;
+  exercisesCount: number;
   onFinishWorkout: () => void;
 }
 
@@ -13,7 +13,7 @@ export const OverallProgress: React.FC<OverallProgressProps> = ({
   percentage,
   completedSets,
   totalSets,
-  totalVolumeKg,
+  exercisesCount,
   onFinishWorkout
 }) => {
   const isComplete = percentage === 100 && totalSets > 0;
@@ -87,10 +87,10 @@ export const OverallProgress: React.FC<OverallProgressProps> = ({
 
         <div className="mt-3.5 flex items-center justify-between text-xs text-zinc-400 pt-2 border-t border-white/5 relative z-10">
           <div className="flex items-center gap-1.5 font-medium">
-            <Weight className="w-3.5 h-3.5 text-zinc-500" />
-            <span>Volume:</span>
+            <Dumbbell className="w-3.5 h-3.5 text-ios-accent" />
+            <span>Exercícios:</span>
             <span className="font-semibold text-zinc-200 font-mono">
-              {totalVolumeKg.toLocaleString('pt-BR')} kg
+              {exercisesCount} no treino
             </span>
           </div>
 

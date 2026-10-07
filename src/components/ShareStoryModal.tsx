@@ -5,13 +5,8 @@ import {
   Share2, 
   Flame, 
   Trophy, 
-  Clock, 
-  Weight, 
-  Heart, 
   Dumbbell, 
-  Sparkles,
-  CheckCircle2,
-  Calendar
+  Sparkles
 } from 'lucide-react';
 
 interface ShareStoryModalProps {
@@ -21,7 +16,8 @@ interface ShareStoryModalProps {
   category?: string;
   completedSets: number;
   totalSets: number;
-  totalVolumeKg: number;
+  exercisesCount?: number;
+  totalVolumeKg?: number;
   durationMinutes: number;
   caloriesBurned?: number;
   avgHeartRate?: number;
@@ -35,7 +31,7 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
   category,
   completedSets,
   totalSets,
-  totalVolumeKg,
+  exercisesCount = 6,
   durationMinutes,
   caloriesBurned,
   avgHeartRate,
@@ -63,14 +59,12 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
     setIsGenerating(true);
 
     try {
-      // Gera imagem PNG em alta resolução
       const dataUrl = await toPng(cardRef.current, {
         quality: 0.98,
-        pixelRatio: 3, // Super alta definição para Story do Instagram
+        pixelRatio: 3,
         cacheBust: true,
       });
 
-      // Se o dispositivo tiver suporte a compartilhamento nativo com arquivo (iPhone/Safari)
       if (navigator.share) {
         const blob = await (await fetch(dataUrl)).blob();
         const file = new File([blob], `ironflow-${workoutName.toLowerCase().replace(/\s+/g, '-')}.png`, {
@@ -81,7 +75,7 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
           await navigator.share({
             files: [file],
             title: `Treino Concluído - ${workoutName}`,
-            text: `🔥 Treino finalizado no Ironflow! ${totalVolumeKg.toLocaleString('pt-BR')}kg levantados.`
+            text: `🔥 Treino finalizado no Ironflow! ${completedSets} séries concluídas.`
           });
           showToast('Compartilhado com sucesso!');
           setIsGenerating(false);
@@ -89,12 +83,11 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
         }
       }
 
-      // Fallback: Faz download direto da imagem
       const link = document.createElement('a');
       link.download = `ironflow-${workoutName.toLowerCase().replace(/\s+/g, '-')}.png`;
       link.href = dataUrl;
       link.click();
-      showToast('Imagem salva! Agora abra o Instagram e poste no Story 📸');
+      showToast('Imagem salva! Abra o Instagram e poste no Story 📸');
     } catch (err) {
       console.error('Erro ao gerar card de story', err);
       showToast('Toque e segure na imagem para salvar!');
@@ -105,7 +98,6 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-xl animate-fadeIn">
-      {/* Toast de Confirmação */}
       {toastMessage && (
         <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-white text-black font-semibold text-xs shadow-2xl flex items-center gap-2 animate-bounce">
           <Sparkles className="w-4 h-4 text-orange-500" />
@@ -114,7 +106,6 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
       )}
 
       <div className="w-full max-w-sm max-h-[96vh] flex flex-col items-center relative overflow-y-auto no-scrollbar py-2">
-        {/* Botão de Fechar */}
         <button
           onClick={onClose}
           className="absolute top-2 right-2 p-2.5 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-300 hover:text-white z-20 active:scale-95 transition-all"
@@ -123,176 +114,135 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
         </button>
 
         {/* ============================================================ */}
-        {/* CARD STORY 9:16 - DESIGN ULTRA LUXURY BLACK EDITION */}
+        {/* CARD STORY 9:16 - DESIGN DA FOTO (ULTRA LUXO & MINIMALISTA) */}
         {/* ============================================================ */}
         <div
           ref={cardRef}
-          className="w-[340px] h-[604px] rounded-[38px] p-6 relative flex flex-col justify-between overflow-hidden shadow-2xl select-none"
+          className="w-[340px] h-[604px] rounded-[38px] p-7 relative flex flex-col justify-between overflow-hidden shadow-2xl select-none"
           style={{
-            background: 'radial-gradient(130% 100% at 50% 0%, #1c1c20 0%, #0d0d0f 50%, #050506 100%)',
-            boxShadow: '0 25px 60px -15px rgba(0,0,0,0.9), 0 0 40px rgba(212, 255, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.2)'
+            background: 'radial-gradient(130% 100% at 20% 0%, #15180f 0%, #0a0a0c 45%, #050506 100%)',
+            boxShadow: '0 25px 60px -15px rgba(0,0,0,0.9), inset 0 1px 1px rgba(255, 255, 255, 0.15)'
           }}
         >
-          {/* Luzes de Fundo (Atmospheric Glow) */}
-          <div className="absolute -top-24 -left-24 w-60 h-60 rounded-full bg-[#D4FF00] opacity-[0.12] blur-[80px] pointer-events-none" />
-          <div className="absolute top-1/3 -right-20 w-52 h-52 rounded-full bg-[#FF5500] opacity-[0.14] blur-[80px] pointer-events-none" />
-          <div className="absolute -bottom-20 -left-20 w-64 h-64 rounded-full bg-[#30D158] opacity-[0.08] blur-[80px] pointer-events-none" />
+          {/* Atmosferas de Luz suaves (Acid Green no topo esquerdo e Warm Orange embaixo) */}
+          <div className="absolute -top-16 -left-16 w-56 h-56 rounded-full bg-[#D4FF00] opacity-[0.14] blur-[70px] pointer-events-none" />
+          <div className="absolute -bottom-16 -left-10 w-64 h-64 rounded-full bg-[#FF5500] opacity-[0.16] blur-[80px] pointer-events-none" />
 
-          {/* Textura sutil de grade estilo cyberpunk/luxo */}
-          <div 
-            className="absolute inset-0 opacity-[0.03] pointer-events-none"
-            style={{
-              backgroundImage: 'radial-gradient(circle, #ffffff 1px, transparent 1px)',
-              backgroundSize: '16px 16px'
-            }}
-          />
-
-          {/* 1. TOPO: Marca e Data */}
+          {/* 1. TOPO: Marca & Data (Exatamente igual ao print) */}
           <div className="relative z-10 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#D4FF00] to-[#99ea00] flex items-center justify-center text-black font-black shadow-[0_0_15px_rgba(212,255,0,0.4)]">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-2xl bg-[#D4FF00] flex items-center justify-center text-black font-black shadow-[0_0_15px_rgba(212,255,0,0.3)]">
                 <Dumbbell className="w-4 h-4 fill-current stroke-current" />
               </div>
-              <div>
-                <div className="flex items-center gap-1">
-                  <span className="font-extrabold tracking-tight text-white text-sm font-sans">IRONFLOW</span>
-                  <span className="text-[8px] font-mono font-bold tracking-widest uppercase px-1.5 py-0.2 rounded bg-white/10 text-zinc-300">PRO</span>
-                </div>
-                <p className="text-[9px] text-zinc-500 font-mono tracking-wider uppercase">Workout Tracker</p>
+              <div className="flex items-center gap-2">
+                <span className="font-black tracking-wider text-white text-base font-sans">IRONFLOW</span>
+                <span className="text-[9px] font-mono font-bold tracking-widest uppercase text-[#D4FF00]">PRO</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[10px] text-zinc-400 font-mono">
-              <Calendar className="w-3 h-3 text-zinc-500" />
-              <span>{todayFormatted}</span>
-            </div>
+            <span className="text-[11px] text-zinc-400 font-sans tracking-wide">
+              {todayFormatted}
+            </span>
           </div>
 
-          {/* 2. CENTRO: TÍTULO DO TREINO & BADGE DE STATUS */}
-          <div className="relative z-10 my-auto py-2">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/30 text-orange-400 text-[11px] font-bold tracking-wide uppercase mb-2 shadow-sm">
+          {/* 2. CENTRO: TÍTULO DO TREINO & NÚMERO GIGANTE */}
+          <div className="relative z-10 my-auto py-1">
+            <div className="flex items-center gap-1.5 text-orange-400 text-[10px] font-extrabold tracking-widest uppercase mb-1.5">
               <Trophy className="w-3.5 h-3.5 text-orange-400" />
-              <span>Treino Finalizado com Sucesso</span>
+              <span>TREINO FINALIZADO COM SUCESSO</span>
             </div>
 
-            <h1 className="text-3xl font-black text-white tracking-tight leading-tight">
+            <h1 className="text-4xl font-black text-white tracking-tight leading-none mb-1">
               {workoutName}
             </h1>
             {category && (
-              <p className="text-xs text-zinc-400 font-medium tracking-wide mt-0.5">
+              <p className="text-sm text-zinc-400 font-medium tracking-wide">
                 {category}
               </p>
             )}
 
-            {/* GRID DAS 4 PRINCIPAIS MÉTRICAS ESTILO APPLE FITNESS / STRAVA */}
-            <div className="grid grid-cols-2 gap-2.5 mt-5">
-              {/* Volume de Carga */}
-              <div className="rounded-2xl p-3 bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-md relative overflow-hidden group">
-                <div className="flex items-center gap-1.5 text-zinc-400 text-[10px] uppercase font-bold tracking-wider">
-                  <Weight className="w-3.5 h-3.5 text-[#D4FF00]" />
-                  <span>Volume Total</span>
-                </div>
-                <div className="flex items-baseline gap-1 mt-1.5">
-                  <span className="text-2xl font-black text-white font-mono tracking-tight">
-                    {totalVolumeKg.toLocaleString('pt-BR')}
+            {/* DESTAQUE PRINCIPAL GIGANTE: SÉRIES TOTAIS CONCLUÍDAS */}
+            <div className="mt-8 mb-6">
+              <span className="text-[10px] text-zinc-400 font-mono font-extrabold tracking-widest uppercase block mb-1">
+                SÉRIES CONCLUÍDAS
+              </span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-[88px] font-light text-white font-sans leading-none tracking-tight">
+                  {completedSets}
+                </span>
+                <span className="text-2xl font-bold text-[#D4FF00] font-sans">
+                  / {totalSets}
+                </span>
+              </div>
+            </div>
+
+            <div className="w-full h-[1px] bg-white/10 mb-5" />
+
+            {/* TRÊS MÉTRICAS ALINHADAS HORIZONTALMENTE (EXATAMENTE COMO NO PRINT) */}
+            <div className="grid grid-cols-3 gap-2 text-left">
+              {/* Métrica 1: Exercícios Feitos */}
+              <div className="border-r border-white/5 pr-2">
+                <span className="text-[9px] text-zinc-400 uppercase font-bold tracking-wider block font-sans mb-1">
+                  EXERCÍCIOS
+                </span>
+                <div className="flex items-baseline gap-0.5">
+                  <span className="text-2xl font-bold text-white font-sans">
+                    {exercisesCount}
                   </span>
-                  <span className="text-xs text-[#D4FF00] font-mono font-bold">kg</span>
+                  <span className="text-[11px] text-zinc-400 font-sans">feitos</span>
                 </div>
               </div>
 
-              {/* Séries Feitas */}
-              <div className="rounded-2xl p-3 bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-md relative overflow-hidden">
-                <div className="flex items-center gap-1.5 text-zinc-400 text-[10px] uppercase font-bold tracking-wider">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#30D158]" />
-                  <span>Séries Feitas</span>
-                </div>
-                <div className="flex items-baseline gap-1 mt-1.5">
-                  <span className="text-2xl font-black text-white font-mono tracking-tight">
-                    {completedSets}
-                  </span>
-                  <span className="text-xs text-zinc-500 font-mono">/ {totalSets}</span>
-                </div>
-              </div>
-
-              {/* Tempo de Treino */}
-              <div className="rounded-2xl p-3 bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-md relative overflow-hidden">
-                <div className="flex items-center gap-1.5 text-zinc-400 text-[10px] uppercase font-bold tracking-wider">
-                  <Clock className="w-3.5 h-3.5 text-[#0A84FF]" />
-                  <span>Tempo</span>
-                </div>
-                <div className="flex items-baseline gap-1 mt-1.5">
-                  <span className="text-2xl font-black text-white font-mono tracking-tight">
+              {/* Métrica 2: Tempo */}
+              <div className="border-r border-white/5 pr-2">
+                <span className="text-[9px] text-zinc-400 uppercase font-bold tracking-wider block font-sans mb-1">
+                  TEMPO
+                </span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-bold text-white font-sans">
                     {durationMinutes}
                   </span>
-                  <span className="text-xs text-[#0A84FF] font-mono font-bold">min</span>
+                  <span className="text-[11px] text-zinc-400 font-sans">min</span>
                 </div>
               </div>
 
-              {/* Calorias ou Frequência Cardíaca */}
-              <div className="rounded-2xl p-3 bg-gradient-to-b from-white/[0.08] to-white/[0.02] border border-white/10 backdrop-blur-md relative overflow-hidden">
-                <div className="flex items-center gap-1.5 text-zinc-400 text-[10px] uppercase font-bold tracking-wider">
-                  {caloriesBurned ? (
-                    <>
-                      <Flame className="w-3.5 h-3.5 text-orange-500" />
-                      <span>Calorias</span>
-                    </>
-                  ) : (
-                    <>
-                      <Heart className="w-3.5 h-3.5 text-red-500" />
-                      <span>Batimentos</span>
-                    </>
-                  )}
-                </div>
-                <div className="flex items-baseline gap-1 mt-1.5">
-                  <span className="text-2xl font-black text-white font-mono tracking-tight">
+              {/* Métrica 3: Calorias / Batimentos / Foco */}
+              <div>
+                <span className="text-[9px] text-zinc-400 uppercase font-bold tracking-wider block font-sans mb-1">
+                  {caloriesBurned ? 'CALORIAS' : avgHeartRate ? 'BATIMENTOS' : 'FOCO'}
+                </span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl font-bold text-white font-sans">
                     {caloriesBurned ? caloriesBurned : avgHeartRate ? avgHeartRate : '100%'}
                   </span>
-                  <span className="text-xs text-orange-400 font-mono font-bold">
-                    {caloriesBurned ? 'kcal' : avgHeartRate ? 'bpm' : 'foco'}
+                  <span className="text-[11px] text-zinc-400 font-sans">
+                    {caloriesBurned ? 'kcal' : avgHeartRate ? 'bpm' : 'total'}
                   </span>
                 </div>
               </div>
             </div>
-
-            {/* Faixa Secundária: Se tiver ambos BPM e Calorias */}
-            {caloriesBurned && avgHeartRate && (
-              <div className="mt-2.5 px-3 py-2 rounded-xl bg-white/[0.04] border border-white/5 flex items-center justify-between text-xs font-mono">
-                <div className="flex items-center gap-1.5 text-red-400 font-semibold">
-                  <Heart className="w-3.5 h-3.5 fill-red-500/30 text-red-500" />
-                  <span>{avgHeartRate} bpm médio</span>
-                </div>
-                <span className="text-zinc-600">•</span>
-                <span className="text-zinc-400 text-[11px]">Redmi Watch Sync</span>
-              </div>
-            )}
           </div>
 
-          {/* 3. RODAPÉ DO CARD: STREAK EM CHAMAS & ASSINATURA */}
-          <div className="relative z-10 pt-3 border-t border-white/10 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-orange-600 to-amber-400 flex items-center justify-center text-white shadow-[0_0_15px_rgba(255,85,0,0.4)]">
-                <Flame className="w-6 h-6 fill-white" />
+          {/* 3. RODAPÉ: LINHA DIVISÓRIA & STREAK EM CHAMAS (ESTILO DO PRINT) */}
+          <div className="relative z-10 pt-4 border-t border-white/10">
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <Flame className="w-8 h-8 text-orange-500 fill-orange-500 drop-shadow-[0_0_12px_rgba(255,85,0,0.6)]" />
               </div>
-              <div>
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-lg font-black text-white font-mono">{currentStreak}</span>
-                  <span className="text-xs font-extrabold uppercase tracking-wider text-orange-400 font-sans">
-                    {currentStreak === 1 ? 'Dia de Sequência' : 'Dias de Sequência'}
-                  </span>
-                </div>
-                <p className="text-[10px] text-zinc-400">Constância inabalável 🔥</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-3xl font-black text-white font-sans">
+                  {currentStreak}
+                </span>
+                <span className="text-xs font-black uppercase tracking-wider text-orange-400 font-sans">
+                  {currentStreak === 1 ? 'DIA DE SEQUÊNCIA' : 'DIAS DE SEQUÊNCIA'}
+                </span>
               </div>
-            </div>
-
-            <div className="text-right">
-              <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest block">APP EXCLUSIVO</span>
-              <span className="text-xs font-black text-white tracking-wider font-sans">#IRONFLOW</span>
             </div>
           </div>
         </div>
 
         {/* ============================================================ */}
-        {/* BOTÃO DE AÇÃO RÁPIDA (COMPARTILHAR NO INSTAGRAM) */}
+        {/* BOTÃO DE COMPARTILHAR */}
         {/* ============================================================ */}
         <div className="w-[340px] mt-4 space-y-2">
           <button

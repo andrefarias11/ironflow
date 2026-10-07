@@ -43,7 +43,8 @@ export interface WorkoutHistoryEntry {
   completedAt: string;
   totalSets: number;
   completedSets: number;
-  totalVolumeKg: number;
+  exercisesCount?: number;
+  totalVolumeKg?: number;
   durationMinutes: number;
   caloriesBurned?: number;
   avgHeartRate?: number;

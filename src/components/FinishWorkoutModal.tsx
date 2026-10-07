@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
-import { Trophy, CheckCircle, Clock, Weight, Flame, X, Heart, Watch, Share2 } from 'lucide-react';
+import { Trophy, CheckCircle, Clock, Dumbbell, Flame, X, Heart, Watch, Share2 } from 'lucide-react';
 import { soundManager } from '../utils/sound';
 
 interface FinishWorkoutModalProps {
@@ -17,7 +17,7 @@ interface FinishWorkoutModalProps {
   }) => void;
   completedSets: number;
   totalSets: number;
-  totalVolumeKg: number;
+  exercisesCount: number;
   workoutName: string;
 }
 
@@ -28,7 +28,7 @@ export const FinishWorkoutModal: React.FC<FinishWorkoutModalProps> = ({
   onOpenShareStory,
   completedSets,
   totalSets,
-  totalVolumeKg,
+  exercisesCount,
   workoutName
 }) => {
   const [durationMinutes, setDurationMinutes] = useState(45);
@@ -100,11 +100,11 @@ export const FinishWorkoutModal: React.FC<FinishWorkoutModalProps> = ({
 
           <div className="rounded-2xl bg-black/40 border border-white/5 p-3 text-center">
             <div className="flex items-center justify-center gap-1 text-[11px] text-zinc-400 uppercase font-semibold">
-              <Weight className="w-3 h-3 text-ios-accentGreen" />
-              <span>Carga Total</span>
+              <Dumbbell className="w-3 h-3 text-ios-accentGreen" />
+              <span>Exercícios</span>
             </div>
             <p className="text-xl font-bold font-mono text-white mt-1">
-              {totalVolumeKg.toLocaleString('pt-BR')} <span className="text-xs text-zinc-500 font-normal">kg</span>
+              {exercisesCount} <span className="text-xs text-zinc-500 font-normal">feitos</span>
             </p>
           </div>
         </div>

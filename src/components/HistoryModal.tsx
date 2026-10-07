@@ -1,6 +1,6 @@
 import React from 'react';
 import { WorkoutHistoryEntry } from '../types/workout';
-import { X, Calendar, Dumbbell, Clock, Weight, Trash2, Share2 } from 'lucide-react';
+import { X, Calendar, Dumbbell, Clock, Trash2, Share2 } from 'lucide-react';
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -92,10 +92,12 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                     <span>{entry.totalSets} séries</span>
                   </div>
 
-                  <div className="flex items-center gap-1">
-                    <Weight className="w-3 h-3 text-zinc-500" />
-                    <span>{entry.totalVolumeKg.toLocaleString('pt-BR')} kg</span>
-                  </div>
+                  {entry.exercisesCount && (
+                    <div className="flex items-center gap-1">
+                      <Dumbbell className="w-3 h-3 text-zinc-500" />
+                      <span>{entry.exercisesCount} exercícios</span>
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-1">
                     <Clock className="w-3 h-3 text-zinc-500" />

@@ -60,7 +60,7 @@ export function App() {
     category?: string;
     completedSets: number;
     totalSets: number;
-    totalVolumeKg: number;
+    exercisesCount?: number;
     durationMinutes: number;
     caloriesBurned?: number;
     avgHeartRate?: number;
@@ -150,7 +150,7 @@ export function App() {
         percentage={progress.percentage}
         completedSets={progress.completedSets}
         totalSets={progress.totalSets}
-        totalVolumeKg={progress.totalVolumeKg}
+        exercisesCount={progress.exercisesCount}
         onFinishWorkout={() => setIsFinishWorkoutOpen(true)}
       />
 
@@ -226,7 +226,7 @@ export function App() {
             category: activeWorkout?.category,
             completedSets: progress.completedSets,
             totalSets: progress.totalSets,
-            totalVolumeKg: progress.totalVolumeKg,
+            exercisesCount: progress.exercisesCount,
             durationMinutes: stats.durationMinutes,
             caloriesBurned: stats.caloriesBurned,
             avgHeartRate: stats.avgHeartRate
@@ -234,7 +234,7 @@ export function App() {
         }}
         completedSets={progress.completedSets}
         totalSets={progress.totalSets}
-        totalVolumeKg={progress.totalVolumeKg}
+        exercisesCount={progress.exercisesCount}
         workoutName={activeWorkout?.name || 'Treino'}
       />
 
@@ -252,7 +252,7 @@ export function App() {
             category: 'Treino Finalizado',
             completedSets: entry.completedSets,
             totalSets: entry.totalSets,
-            totalVolumeKg: entry.totalVolumeKg,
+            exercisesCount: entry.exercisesCount || 6,
             durationMinutes: entry.durationMinutes,
             caloriesBurned: entry.caloriesBurned,
             avgHeartRate: entry.avgHeartRate
@@ -317,7 +317,7 @@ export function App() {
           category={storyData.category}
           completedSets={storyData.completedSets}
           totalSets={storyData.totalSets}
-          totalVolumeKg={storyData.totalVolumeKg}
+          exercisesCount={storyData.exercisesCount}
           durationMinutes={storyData.durationMinutes}
           caloriesBurned={storyData.caloriesBurned}
           avgHeartRate={storyData.avgHeartRate}

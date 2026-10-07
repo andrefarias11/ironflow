@@ -296,7 +296,7 @@ export const MonthCalendarModal: React.FC<MonthCalendarModalProps> = ({
                 {selectedWorkoutLog ? (
                   <div className="p-2.5 rounded-xl bg-white/5 flex items-center gap-2">
                     <Dumbbell className="w-4 h-4 text-ios-accent" />
-                    <span>{selectedWorkoutLog.totalVolumeKg.toLocaleString('pt-BR')} kg</span>
+                    <span>{selectedWorkoutLog.exercisesCount || selectedWorkoutLog.durationMinutes + ' min'}</span>
                   </div>
                 ) : (
                   <div className="p-2.5 rounded-xl bg-white/5 flex items-center gap-2 text-zinc-400">
