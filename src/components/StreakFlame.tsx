@@ -138,10 +138,10 @@ export const StreakFlame: React.FC<StreakFlameProps> = ({
       {/* Modal de Detalhes do Streak (Estilo Strava) */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-          <div className="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 p-6 shadow-2xl relative">
+          <div className="w-full sm:max-w-md max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 p-6 shadow-2xl relative pb-8 sm:pb-6">
             <button
               onClick={() => setShowModal(false)}
-              className="absolute top-4 right-4 p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5"
+              className="absolute top-4 right-4 p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 z-20"
             >
               <X className="w-5 h-5" />
             </button>
