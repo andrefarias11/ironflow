@@ -317,3 +317,4 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
     </div>
   );
 };
+

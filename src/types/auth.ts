@@ -33,3 +33,4 @@ export interface WorkoutRoom {
   status: 'active' | 'finished';
   created_at?: string;
 }
+

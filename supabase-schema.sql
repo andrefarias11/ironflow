@@ -126,3 +126,4 @@ create policy "Host pode atualizar sala"
 
 -- 6. HABILITAR REALTIME NAS SALAS
 alter publication supabase_realtime add table public.workout_rooms;
+
