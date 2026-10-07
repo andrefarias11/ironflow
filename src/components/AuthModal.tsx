@@ -69,7 +69,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       }
     } catch (err: any) {
       console.error(err);
-      setErrorMsg(err.message || 'Ocorreu um erro. Verifique seus dados.');
+      const msg = err.message || '';
+      if (msg.includes('rate limit')) {
+        setErrorMsg('Muitas tentativas de envio. Desative "Confirm email" no painel do Supabase para entrar direto sem precisar de e-mail.');
+      } else if (msg.includes('Invalid login credentials')) {
+        setErrorMsg('E-mail ou senha incorretos.');
+      } else if (msg.includes('Email not confirmed')) {
+        setErrorMsg('E-mail ainda não confirmado. Desative "Confirm email" no painel do Supabase para entrar direto.');
+      } else if (msg.includes('User already registered') || msg.includes('already registered')) {
+        setErrorMsg('Este e-mail já possui conta cadastrada. Alterne para a aba "Entrar".');
+      } else {
+        setErrorMsg(msg || 'Ocorreu um erro. Verifique seus dados.');
+      }
     } finally {
       setLoading(false);
     }
