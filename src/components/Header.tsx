@@ -1,24 +1,23 @@
 import React from 'react';
 import { Dumbbell, Settings, Calendar } from 'lucide-react';
 import { StreakFlame } from './StreakFlame';
-import { DayActivity } from '../utils/streak';
 
 interface HeaderProps {
   onOpenCalendar: () => void;
   onOpenSettings: () => void;
+  onOpenStreakModal: () => void;
   currentStreak: number;
   percentage: number;
   isTodayRestDay: boolean;
-  streakHistory: Record<string, DayActivity>;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onOpenCalendar,
   onOpenSettings,
+  onOpenStreakModal,
   currentStreak,
   percentage,
-  isTodayRestDay,
-  streakHistory
+  isTodayRestDay
 }) => {
   const todayFormatted = new Intl.DateTimeFormat('pt-BR', {
     weekday: 'short',
@@ -57,7 +56,7 @@ export const Header: React.FC<HeaderProps> = ({
           currentStreak={currentStreak}
           percentage={percentage}
           isTodayRestDay={isTodayRestDay}
-          streakHistory={streakHistory}
+          onOpenModal={onOpenStreakModal}
         />
 
         <button

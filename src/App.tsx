@@ -13,6 +13,7 @@ import { NewWorkoutModal } from './components/NewWorkoutModal';
 import { SettingsModal } from './components/SettingsModal';
 import { ExerciseGuideModal } from './components/ExerciseGuideModal';
 import { MonthCalendarModal } from './components/MonthCalendarModal';
+import { StreakModal } from './components/StreakModal';
 import { Exercise } from './types/workout';
 import { Plus, Dumbbell } from 'lucide-react';
 
@@ -44,6 +45,7 @@ export function App() {
   } = useWorkouts();
 
   // Estados dos Modais
+  const [isStreakOpen, setIsStreakOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [isInstallGuideOpen, setIsInstallGuideOpen] = useState(false);
@@ -113,10 +115,10 @@ export function App() {
       <Header
         onOpenCalendar={() => setIsCalendarOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenStreakModal={() => setIsStreakOpen(true)}
         currentStreak={currentStreak}
         percentage={progress.percentage}
         isTodayRestDay={isTodayRestDay}
-        streakHistory={streakHistory}
       />
 
       {/* 2. Seletor de Divisões de Treino */}
@@ -261,6 +263,15 @@ export function App() {
         onClose={() => setIsCalendarOpen(false)}
         streakHistory={streakHistory}
         workoutHistory={history}
+      />
+
+      <StreakModal
+        isOpen={isStreakOpen}
+        onClose={() => setIsStreakOpen(false)}
+        currentStreak={currentStreak}
+        percentage={progress.percentage}
+        isTodayRestDay={isTodayRestDay}
+        streakHistory={streakHistory}
       />
     </div>
   );
