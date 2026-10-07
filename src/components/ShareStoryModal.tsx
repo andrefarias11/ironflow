@@ -169,7 +169,7 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
                 <MuscleFigure 
                   workoutName={workoutName} 
                   category={category} 
-                  className="w-48 h-44" 
+                  className="w-full h-44" 
                 />
               </div>
             </div>
