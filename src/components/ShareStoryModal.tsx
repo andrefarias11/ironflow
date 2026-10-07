@@ -8,6 +8,7 @@ import {
   Dumbbell, 
   Sparkles
 } from 'lucide-react';
+import { MuscleFigure } from './MuscleFigure';
 
 interface ShareStoryModalProps {
   isOpen: boolean;
@@ -30,11 +31,9 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
   workoutName,
   category,
   completedSets,
-  totalSets,
   exercisesCount = 6,
   durationMinutes,
   caloriesBurned,
-  avgHeartRate,
   currentStreak
 }) => {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -145,40 +144,39 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
             </span>
           </div>
 
-          {/* 2. CENTRO: TÍTULO DO TREINO & NÚMERO GIGANTE */}
+          {/* 2. CENTRO: TÍTULO DO TREINO & ILUSTRAÇÃO ANATÔMICA MUSCULAR (ESTILO EXATO DA FOTO) */}
           <div className="relative z-10 my-auto py-1">
-            <div className="flex items-center gap-1.5 text-orange-400 text-[10px] font-extrabold tracking-widest uppercase mb-1.5">
+            <div className="flex items-center gap-1.5 text-orange-400 text-[10px] font-extrabold tracking-widest uppercase mb-1">
               <Trophy className="w-3.5 h-3.5 text-orange-400" />
               <span>TREINO FINALIZADO COM SUCESSO</span>
             </div>
 
-            <h1 className="text-4xl font-black text-white tracking-tight leading-none mb-1">
+            <h1 className="text-[34px] font-black text-white tracking-tight leading-none mb-1">
               {workoutName}
             </h1>
             {category && (
-              <p className="text-sm text-zinc-400 font-medium tracking-wide">
+              <p className="text-xs text-zinc-400 font-medium tracking-wide">
                 {category}
               </p>
             )}
 
-            {/* DESTAQUE PRINCIPAL GIGANTE: SÉRIES TOTAIS CONCLUÍDAS */}
-            <div className="mt-8 mb-6">
-              <span className="text-[10px] text-zinc-400 font-mono font-extrabold tracking-widest uppercase block mb-1">
-                SÉRIES CONCLUÍDAS
+            {/* ILUSTRAÇÃO ANATÔMICA DOS MÚSCULOS TRABALHADOS (IGUAL AO PRINT) */}
+            <div className="my-3">
+              <span className="text-[9px] text-zinc-500 font-mono font-bold tracking-widest uppercase block mb-1">
+                RESUMO MUSCULAR
               </span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-[88px] font-light text-white font-sans leading-none tracking-tight">
-                  {completedSets}
-                </span>
-                <span className="text-2xl font-bold text-[#D4FF00] font-sans">
-                  / {totalSets}
-                </span>
+              <div className="w-full h-44 flex items-center justify-center relative">
+                <MuscleFigure 
+                  workoutName={workoutName} 
+                  category={category} 
+                  className="w-48 h-44" 
+                />
               </div>
             </div>
 
-            <div className="w-full h-[1px] bg-white/10 mb-5" />
+            <div className="w-full h-[1px] bg-white/10 mb-4" />
 
-            {/* TRÊS MÉTRICAS ALINHADAS HORIZONTALMENTE (EXATAMENTE COMO NO PRINT) */}
+            {/* TRÊS MÉTRICAS ESSENCIAIS: EXERCÍCIOS, TEMPO, CALORIAS (LIMPO, SEM POLUIÇÃO) */}
             <div className="grid grid-cols-3 gap-2 text-left">
               {/* Métrica 1: Exercícios Feitos */}
               <div className="border-r border-white/5 pr-2">
@@ -186,7 +184,7 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
                   EXERCÍCIOS
                 </span>
                 <div className="flex items-baseline gap-0.5">
-                  <span className="text-2xl font-bold text-white font-sans">
+                  <span className="text-2xl font-black text-white font-sans">
                     {exercisesCount}
                   </span>
                   <span className="text-[11px] text-zinc-400 font-sans">feitos</span>
@@ -198,25 +196,25 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
                 <span className="text-[9px] text-zinc-400 uppercase font-bold tracking-wider block font-sans mb-1">
                   TEMPO
                 </span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold text-white font-sans">
+                <div className="flex items-baseline gap-0.5">
+                  <span className="text-2xl font-black text-white font-sans">
                     {durationMinutes}
                   </span>
                   <span className="text-[11px] text-zinc-400 font-sans">min</span>
                 </div>
               </div>
 
-              {/* Métrica 3: Calorias / Batimentos / Foco */}
+              {/* Métrica 3: Calorias */}
               <div>
                 <span className="text-[9px] text-zinc-400 uppercase font-bold tracking-wider block font-sans mb-1">
-                  {caloriesBurned ? 'CALORIAS' : avgHeartRate ? 'BATIMENTOS' : 'FOCO'}
+                  CALORIAS
                 </span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-2xl font-bold text-white font-sans">
-                    {caloriesBurned ? caloriesBurned : avgHeartRate ? avgHeartRate : '100%'}
+                <div className="flex items-baseline gap-0.5">
+                  <span className="text-2xl font-black text-white font-sans">
+                    {caloriesBurned ? caloriesBurned : Math.round(durationMinutes * 7.5)}
                   </span>
                   <span className="text-[11px] text-zinc-400 font-sans">
-                    {caloriesBurned ? 'kcal' : avgHeartRate ? 'bpm' : 'total'}
+                    kcal
                   </span>
                 </div>
               </div>
