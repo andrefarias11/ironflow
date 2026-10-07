@@ -195,3 +195,4 @@ export const StreakModal: React.FC<StreakModalProps> = ({
     </div>
   );
 };
+

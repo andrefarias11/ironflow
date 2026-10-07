@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
-import { Trophy, CheckCircle, Clock, Weight, Flame, X, Heart, Watch } from 'lucide-react';
+import { Trophy, CheckCircle, Clock, Weight, Flame, X, Heart, Watch, Share2 } from 'lucide-react';
 import { soundManager } from '../utils/sound';
 
 interface FinishWorkoutModalProps {
@@ -10,6 +10,11 @@ interface FinishWorkoutModalProps {
     durationMinutes: number,
     stats?: { caloriesBurned?: number; avgHeartRate?: number; maxHeartRate?: number }
   ) => void;
+  onOpenShareStory?: (stats: {
+    durationMinutes: number;
+    caloriesBurned?: number;
+    avgHeartRate?: number;
+  }) => void;
   completedSets: number;
   totalSets: number;
   totalVolumeKg: number;
@@ -20,6 +25,7 @@ export const FinishWorkoutModal: React.FC<FinishWorkoutModalProps> = ({
   isOpen,
   onClose,
   onConfirmFinish,
+  onOpenShareStory,
   completedSets,
   totalSets,
   totalVolumeKg,
@@ -174,6 +180,26 @@ export const FinishWorkoutModal: React.FC<FinishWorkoutModalProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Botão de Ação: Compartilhar no Story */}
+        {onOpenShareStory && (
+          <button
+            type="button"
+            onClick={() => {
+              const calories = caloriesBurned ? parseInt(caloriesBurned, 10) : undefined;
+              const bpm = avgHeartRate ? parseInt(avgHeartRate, 10) : undefined;
+              onOpenShareStory({
+                durationMinutes,
+                caloriesBurned: isNaN(calories as number) ? undefined : calories,
+                avgHeartRate: isNaN(bpm as number) ? undefined : bpm
+              });
+            }}
+            className="w-full mb-2.5 py-3.5 rounded-2xl bg-gradient-to-r from-orange-500/20 to-amber-500/20 border border-orange-500/40 text-orange-400 font-bold text-xs uppercase tracking-wider hover:brightness-125 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-sm"
+          >
+            <Share2 className="w-4 h-4 stroke-[2.5]" />
+            <span>Gerar Card para Story (Instagram) 📸</span>
+          </button>
+        )}
 
         <button
           onClick={handleSave}

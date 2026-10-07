@@ -14,7 +14,8 @@ import { SettingsModal } from './components/SettingsModal';
 import { ExerciseGuideModal } from './components/ExerciseGuideModal';
 import { MonthCalendarModal } from './components/MonthCalendarModal';
 import { StreakModal } from './components/StreakModal';
-import { Exercise } from './types/workout';
+import { ShareStoryModal } from './components/ShareStoryModal';
+import { Exercise, WorkoutHistoryEntry } from './types/workout';
 import { Plus, Dumbbell } from 'lucide-react';
 
 export function App() {
@@ -54,6 +55,16 @@ export function App() {
   const [isNewExerciseOpen, setIsNewExerciseOpen] = useState(false);
   const [isNewWorkoutOpen, setIsNewWorkoutOpen] = useState(false);
   const [selectedGuideExercise, setSelectedGuideExercise] = useState<Exercise | null>(null);
+  const [storyData, setStoryData] = useState<{
+    workoutName: string;
+    category?: string;
+    completedSets: number;
+    totalSets: number;
+    totalVolumeKg: number;
+    durationMinutes: number;
+    caloriesBurned?: number;
+    avgHeartRate?: number;
+  } | null>(null);
 
   // Estados do Cronômetro de Descanso
   const [timerActive, setTimerActive] = useState(false);
@@ -209,6 +220,18 @@ export function App() {
         isOpen={isFinishWorkoutOpen}
         onClose={() => setIsFinishWorkoutOpen(false)}
         onConfirmFinish={handleConfirmFinish}
+        onOpenShareStory={(stats) => {
+          setStoryData({
+            workoutName: activeWorkout?.name || 'Treino Concluído',
+            category: activeWorkout?.category,
+            completedSets: progress.completedSets,
+            totalSets: progress.totalSets,
+            totalVolumeKg: progress.totalVolumeKg,
+            durationMinutes: stats.durationMinutes,
+            caloriesBurned: stats.caloriesBurned,
+            avgHeartRate: stats.avgHeartRate
+          });
+        }}
         completedSets={progress.completedSets}
         totalSets={progress.totalSets}
         totalVolumeKg={progress.totalVolumeKg}
@@ -222,6 +245,18 @@ export function App() {
         onClearHistory={() => {
           localStorage.removeItem('treino_app_history_v1');
           window.location.reload();
+        }}
+        onShareEntry={(entry: WorkoutHistoryEntry) => {
+          setStoryData({
+            workoutName: entry.workoutName,
+            category: 'Treino Finalizado',
+            completedSets: entry.completedSets,
+            totalSets: entry.totalSets,
+            totalVolumeKg: entry.totalVolumeKg,
+            durationMinutes: entry.durationMinutes,
+            caloriesBurned: entry.caloriesBurned,
+            avgHeartRate: entry.avgHeartRate
+          });
         }}
       />
 
@@ -273,6 +308,22 @@ export function App() {
         isTodayRestDay={isTodayRestDay}
         streakHistory={streakHistory}
       />
+
+      {storyData && (
+        <ShareStoryModal
+          isOpen={!!storyData}
+          onClose={() => setStoryData(null)}
+          workoutName={storyData.workoutName}
+          category={storyData.category}
+          completedSets={storyData.completedSets}
+          totalSets={storyData.totalSets}
+          totalVolumeKg={storyData.totalVolumeKg}
+          durationMinutes={storyData.durationMinutes}
+          caloriesBurned={storyData.caloriesBurned}
+          avgHeartRate={storyData.avgHeartRate}
+          currentStreak={currentStreak}
+        />
+      )}
     </div>
   );
 }

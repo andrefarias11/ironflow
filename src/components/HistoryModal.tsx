@@ -1,19 +1,21 @@
 import React from 'react';
 import { WorkoutHistoryEntry } from '../types/workout';
-import { X, Calendar, Dumbbell, Clock, Weight, Trash2 } from 'lucide-react';
+import { X, Calendar, Dumbbell, Clock, Weight, Trash2, Share2 } from 'lucide-react';
 
 interface HistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
   history: WorkoutHistoryEntry[];
   onClearHistory: () => void;
+  onShareEntry?: (entry: WorkoutHistoryEntry) => void;
 }
 
 export const HistoryModal: React.FC<HistoryModalProps> = ({
   isOpen,
   onClose,
   history,
-  onClearHistory
+  onClearHistory,
+  onShareEntry
 }) => {
   if (!isOpen) return null;
 
@@ -67,9 +69,20 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-bold text-white">{entry.workoutName}</span>
-                  <span className="text-[11px] font-medium text-zinc-500 font-mono">
-                    {formatDate(entry.completedAt)}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-medium text-zinc-500 font-mono">
+                      {formatDate(entry.completedAt)}
+                    </span>
+                    {onShareEntry && (
+                      <button
+                        onClick={() => onShareEntry(entry)}
+                        className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 active:scale-95 transition-all"
+                        title="Compartilhar no Story"
+                      >
+                        <Share2 className="w-3.5 h-3.5 text-orange-400" />
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-400 font-mono">
