@@ -172,6 +172,87 @@ export function useWorkouts() {
     }
   }, [progress.percentage, progress.completedSets, progress.totalSets]);
 
+  // Sincroniza e consolida dias passados do streakHistory no histórico oficial
+  useEffect(() => {
+    const todayKey = formatDateToKey(new Date());
+
+    setHistory(prevHistory => {
+      let changed = false;
+      const updatedHistory = [...prevHistory];
+      const existingDateKeys = new Set(
+        prevHistory.map(h => {
+          try {
+            return formatDateToKey(new Date(h.completedAt));
+          } catch {
+            return '';
+          }
+        })
+      );
+
+      Object.entries(streakHistory).forEach(([dateKey, activity]) => {
+        if (activity && activity.completedSets > 0 && !existingDateKeys.has(dateKey) && dateKey !== todayKey) {
+          const parts = dateKey.split('-').map(Number);
+          const dateObj = new Date(parts[0], parts[1] - 1, parts[2], 18, 0, 0);
+
+          const matchedWorkout = workouts.find(w => {
+            const total = w.exercises.reduce((acc, ex) => acc + ex.sets.length, 0);
+            return total === activity.totalSets;
+          }) || workouts[0];
+
+          const synthesizedEntry: WorkoutHistoryEntry = {
+            id: `hist-streak-${dateKey}`,
+            workoutId: matchedWorkout?.id || 'workout-1',
+            workoutName: matchedWorkout?.name || 'Treino do Dia',
+            completedAt: dateObj.toISOString(),
+            totalSets: activity.totalSets || 12,
+            completedSets: activity.completedSets,
+            exercisesCount: matchedWorkout?.exercises?.length || 6,
+            durationMinutes: Math.max(15, Math.round((activity.completedSets / (activity.totalSets || 12)) * 45)),
+            caloriesBurned: Math.round((activity.completedSets / (activity.totalSets || 12)) * 320)
+          };
+
+          updatedHistory.push(synthesizedEntry);
+          existingDateKeys.add(dateKey);
+          changed = true;
+        }
+      });
+
+      if (!changed) return prevHistory;
+
+      return updatedHistory.sort(
+        (a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
+      );
+    });
+  }, [streakHistory, workouts]);
+
+  // Garante que todo item do histórico esteja refletido no streakHistory para marcar o calendário
+  useEffect(() => {
+    if (history.length === 0) return;
+
+    setStreakHistory(prev => {
+      let changed = false;
+      const updated = { ...prev };
+
+      history.forEach(item => {
+        try {
+          const dayKey = formatDateToKey(new Date(item.completedAt));
+          if (!updated[dayKey]) {
+            const pct = item.totalSets > 0 ? Math.round((item.completedSets / item.totalSets) * 100) : 100;
+            updated[dayKey] = {
+              date: dayKey,
+              percentage: pct,
+              completedSets: item.completedSets || 12,
+              totalSets: item.totalSets || 12
+            };
+            changed = true;
+          }
+        } catch {}
+      });
+
+      return changed ? updated : prev;
+    });
+  }, [history]);
+
   // Análise Inteligente do Ciclo Semanal e Rotação Contínua
   const cycleInfo = useMemo(() => {
     const { start: weekStart, end: weekEnd } = getWeekRange(new Date());

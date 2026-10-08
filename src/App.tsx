@@ -198,6 +198,23 @@ export function App() {
             return updated;
           });
         }
+
+        // Se houver treinos locais não salvos na nuvem, faz o upload para sincronizar tudo
+        if (user && history.length > 0 && isMounted) {
+          const cloudDates = new Set((cloudHistory || []).map(c => {
+            try { return formatDateToKey(new Date(c.completedAt)); } catch { return ''; }
+          }));
+          const pendingUpload = history.filter(h => {
+            try {
+              return !cloudDates.has(formatDateToKey(new Date(h.completedAt)));
+            } catch {
+              return false;
+            }
+          });
+          for (const item of pendingUpload) {
+            await workoutSyncService.saveHistoryEntryToCloud(user.id, item);
+          }
+        }
       } catch (err) {
         console.error('Erro na sincronização com Supabase:', err);
       }

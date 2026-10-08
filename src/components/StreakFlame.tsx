@@ -24,7 +24,7 @@ export const StreakFlame: React.FC<StreakFlameProps> = ({
     <button
       type="button"
       onClick={onOpenModal}
-      className="group relative flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-zinc-900/90 border border-white/10 active:scale-95 transition-all shadow-sm"
+      className="group relative flex items-center gap-1 px-2 sm:px-2.5 py-1 rounded-full bg-zinc-900/90 border border-white/10 active:scale-95 transition-all shadow-sm shrink-0 h-8"
       title="Ver seu Streak de Treinos"
     >
       {/* Glow dinâmico atrás da chama */}
