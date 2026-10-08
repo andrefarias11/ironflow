@@ -99,6 +99,46 @@ export const workoutSyncService = {
       console.error('Erro ao buscar histórico da nuvem', err);
       return null;
     }
+  },
+
+  /**
+   * Remove registros de treino de um dia específico ou por IDs no Supabase
+   */
+  async deleteHistoryEntryFromCloud(
+    userId: string,
+    options: { entryIds?: string[]; dateKey?: string; deleteAllDay?: boolean }
+  ) {
+    if (!isSupabaseConfigured || !userId) return;
+
+    try {
+      const { entryIds = [], dateKey, deleteAllDay = false } = options;
+
+      // 1. Deletar por IDs válidos do banco (UUID)
+      const validUuids = entryIds.filter(id => id && !id.startsWith('hist-'));
+      if (validUuids.length > 0) {
+        await supabase
+          .from('workout_history')
+          .delete()
+          .in('id', validUuids)
+          .eq('user_id', userId);
+      }
+
+      // 2. Deletar por data no Supabase se for para apagar o dia todo ou se eram IDs locais
+      if (dateKey && (deleteAllDay || validUuids.length === 0)) {
+        const parts = dateKey.split('-').map(Number);
+        const startOfDay = new Date(parts[0], parts[1] - 1, parts[2], 0, 0, 0, 0).toISOString();
+        const endOfDay = new Date(parts[0], parts[1] - 1, parts[2], 23, 59, 59, 999).toISOString();
+
+        await supabase
+          .from('workout_history')
+          .delete()
+          .eq('user_id', userId)
+          .gte('completed_at', startOfDay)
+          .lte('completed_at', endOfDay);
+      }
+    } catch (err) {
+      console.error('Erro ao deletar histórico da nuvem', err);
+    }
   }
 };
 

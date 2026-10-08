@@ -23,6 +23,7 @@ import { AuthModal } from './components/AuthModal';
 import { WorkoutRoomModal } from './components/WorkoutRoomModal';
 import { RoomLiveBar } from './components/RoomLiveBar';
 import { workoutSyncService } from './services/workoutSync';
+import { formatDateToKey } from './utils/streak';
 
 export function App() {
   const {
@@ -46,10 +47,12 @@ export function App() {
     resetWorkout,
     finishWorkout,
     addPastWorkoutEntry,
+    deleteDayWorkout,
     setPreferences,
     resetToDefault,
     currentStreak,
     streakHistory,
+    setStreakHistory,
     isTodayRestDay,
     cycleInfo
   } = useWorkouts();
@@ -175,6 +178,25 @@ export function App() {
               (a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
             );
           });
+
+          // Sincroniza streakHistory com as datas do histórico da nuvem
+          setStreakHistory(prev => {
+            const updated = { ...prev };
+            cloudHistory.forEach(item => {
+              try {
+                const dayKey = formatDateToKey(new Date(item.completedAt));
+                if (!updated[dayKey]) {
+                  updated[dayKey] = {
+                    date: dayKey,
+                    percentage: 100,
+                    completedSets: item.completedSets || 12,
+                    totalSets: item.totalSets || 12
+                  };
+                }
+              } catch {}
+            });
+            return updated;
+          });
         }
       } catch (err) {
         console.error('Erro na sincronização com Supabase:', err);
@@ -247,6 +269,41 @@ export function App() {
     const entry = addPastWorkoutEntry(params);
     if (user && entry) {
       await workoutSyncService.saveHistoryEntryToCloud(user.id, entry);
+    }
+  };
+
+  const handleDeleteDayWorkout = async (dateKey: string, entryId?: string) => {
+    // 1. Apaga do estado local e localStorage
+    const removed = deleteDayWorkout(dateKey, entryId);
+    const removedIds = removed.map(r => r.id);
+    if (entryId && !removedIds.includes(entryId)) {
+      removedIds.push(entryId);
+    }
+
+    // 2. Apaga da nuvem no Supabase
+    if (user) {
+      await workoutSyncService.deleteHistoryEntryFromCloud(user.id, {
+        entryIds: removedIds,
+        dateKey,
+        deleteAllDay: !entryId,
+      });
+    }
+  };
+
+  const handleDeleteHistoryEntry = async (entry: WorkoutHistoryEntry) => {
+    let dateKey = '';
+    try {
+      dateKey = formatDateToKey(new Date(entry.completedAt));
+    } catch {}
+
+    deleteDayWorkout(dateKey, entry.id);
+
+    if (user) {
+      await workoutSyncService.deleteHistoryEntryFromCloud(user.id, {
+        entryIds: [entry.id],
+        dateKey,
+        deleteAllDay: false,
+      });
     }
   };
 
@@ -411,6 +468,7 @@ export function App() {
             avgHeartRate: entry.avgHeartRate
           });
         }}
+        onDeleteEntry={handleDeleteHistoryEntry}
       />
 
       <InstallGuideModal
@@ -453,6 +511,7 @@ export function App() {
         workoutHistory={history}
         workouts={workouts}
         onAddPastWorkout={handleAddPastWorkout}
+        onDeleteDayWorkout={handleDeleteDayWorkout}
       />
 
       <StreakModal

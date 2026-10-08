@@ -8,6 +8,7 @@ interface HistoryModalProps {
   history: WorkoutHistoryEntry[];
   onClearHistory: () => void;
   onShareEntry?: (entry: WorkoutHistoryEntry) => void;
+  onDeleteEntry?: (entry: WorkoutHistoryEntry) => void;
 }
 
 export const HistoryModal: React.FC<HistoryModalProps> = ({
@@ -15,7 +16,8 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
   onClose,
   history,
   onClearHistory,
-  onShareEntry
+  onShareEntry,
+  onDeleteEntry
 }) => {
   if (!isOpen) return null;
 
@@ -80,6 +82,19 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                         title="Compartilhar no Story"
                       >
                         <Share2 className="w-3.5 h-3.5 text-orange-400" />
+                      </button>
+                    )}
+                    {onDeleteEntry && (
+                      <button
+                        onClick={() => {
+                          if (confirm(`Tem certeza que deseja apagar o registro deste treino (${entry.workoutName})?`)) {
+                            onDeleteEntry(entry);
+                          }
+                        }}
+                        className="p-1 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 active:scale-95 transition-all"
+                        title="Apagar este treino"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>

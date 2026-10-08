@@ -480,6 +480,56 @@ export function useWorkouts() {
     return entry;
   };
 
+  const deleteDayWorkout = (dateKey: string, entryId?: string): WorkoutHistoryEntry[] => {
+    let removedEntries: WorkoutHistoryEntry[] = [];
+
+    setHistory(prev => {
+      const remaining: WorkoutHistoryEntry[] = [];
+      prev.forEach(entry => {
+        let entryDateKey = '';
+        try {
+          entryDateKey = formatDateToKey(new Date(entry.completedAt));
+        } catch {}
+
+        const isTarget = entryId ? entry.id === entryId : (entryDateKey === dateKey);
+
+        if (isTarget) {
+          removedEntries.push(entry);
+        } else {
+          remaining.push(entry);
+        }
+      });
+
+      // Verifica se ainda sobraram outros treinos concluídos no mesmo dia
+      const stillHasWorkoutOnDay = remaining.some(e => {
+        try {
+          return formatDateToKey(new Date(e.completedAt)) === dateKey;
+        } catch {
+          return false;
+        }
+      });
+
+      // Se não sobrou nenhum treino para esse dia, remove do streakHistory
+      if (!stillHasWorkoutOnDay) {
+        setStreakHistory(prevStreak => {
+          const nextStreak = { ...prevStreak };
+          delete nextStreak[dateKey];
+          return nextStreak;
+        });
+      }
+
+      return remaining;
+    });
+
+    // Se o dia apagado for hoje, reseta os checkboxes de séries ativas
+    const todayKey = formatDateToKey(new Date());
+    if (dateKey === todayKey) {
+      resetWorkout();
+    }
+
+    return removedEntries;
+  };
+
   const resetToDefault = () => {
     setWorkouts(DEFAULT_WORKOUTS);
     setActiveWorkoutId(DEFAULT_WORKOUTS[0].id);
@@ -507,9 +557,11 @@ export function useWorkouts() {
     resetWorkout,
     finishWorkout,
     addPastWorkoutEntry,
+    deleteDayWorkout,
     resetToDefault,
     currentStreak,
     streakHistory,
+    setStreakHistory,
     isTodayRestDay,
     cycleInfo
   };

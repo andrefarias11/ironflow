@@ -9,7 +9,8 @@ import {
   Dumbbell, 
   Calendar as CalendarIcon, 
   Sparkles,
-  Plus
+  Plus,
+  Trash2
 } from 'lucide-react';
 import { DayActivity, isScheduledRestDay, formatDateToKey } from '../utils/streak';
 import { WorkoutHistoryEntry, Workout } from '../types/workout';
@@ -28,6 +29,7 @@ interface MonthCalendarModalProps {
     exercisesCount?: number;
     caloriesBurned?: number;
   }) => void;
+  onDeleteDayWorkout?: (dateKey: string, entryId?: string) => void;
 }
 
 export const MonthCalendarModal: React.FC<MonthCalendarModalProps> = ({
@@ -36,7 +38,8 @@ export const MonthCalendarModal: React.FC<MonthCalendarModalProps> = ({
   streakHistory,
   workoutHistory,
   workouts = [],
-  onAddPastWorkout
+  onAddPastWorkout,
+  onDeleteDayWorkout
 }) => {
   const [currentDate, setCurrentDate] = useState(() => new Date());
   const [selectedDayKey, setSelectedDayKey] = useState<string>(() => formatDateToKey(new Date()));
@@ -321,25 +324,49 @@ export const MonthCalendarModal: React.FC<MonthCalendarModalProps> = ({
 
             {/* Treino Existente neste dia */}
             {selectedDayActivity && selectedDayActivity.percentage > 0 ? (
-              <div className="grid grid-cols-2 gap-2 pt-1 text-xs font-mono">
-                <div className="p-2.5 rounded-xl bg-white/5 flex items-center gap-2">
-                  <Check className="w-4 h-4 text-ios-accentGreen" />
-                  <span>
-                    <strong>{selectedDayActivity.completedSets}</strong> de {selectedDayActivity.totalSets} séries
-                  </span>
-                </div>
-                {selectedWorkoutLog ? (
+              <>
+                <div className="grid grid-cols-2 gap-2 pt-1 text-xs font-mono">
                   <div className="p-2.5 rounded-xl bg-white/5 flex items-center gap-2">
-                    <Dumbbell className="w-4 h-4 text-ios-accent" />
-                    <span className="truncate">{selectedWorkoutLog.workoutName}</span>
+                    <Check className="w-4 h-4 text-ios-accentGreen" />
+                    <span>
+                      <strong>{selectedDayActivity.completedSets}</strong> de {selectedDayActivity.totalSets} séries
+                    </span>
                   </div>
-                ) : (
-                  <div className="p-2.5 rounded-xl bg-white/5 flex items-center gap-2 text-zinc-400">
-                    <Sparkles className="w-4 h-4 text-yellow-400" />
-                    <span>Treino Ativo</span>
+                  {selectedWorkoutLog ? (
+                    <div className="p-2.5 rounded-xl bg-white/5 flex items-center gap-2">
+                      <Dumbbell className="w-4 h-4 text-ios-accent" />
+                      <span className="truncate">{selectedWorkoutLog.workoutName}</span>
+                    </div>
+                  ) : (
+                    <div className="p-2.5 rounded-xl bg-white/5 flex items-center gap-2 text-zinc-400">
+                      <Sparkles className="w-4 h-4 text-yellow-400" />
+                      <span>Treino Ativo</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Botão de Excluir Registro Deste Dia */}
+                {onDeleteDayWorkout && (
+                  <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                    <span className="text-[10px] text-zinc-500">
+                      Deseja desmarcar este dia?
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const dateFormatted = selectedDateObj.toLocaleDateString('pt-BR');
+                        if (confirm(`Tem certeza que deseja apagar o registro de treino do dia ${dateFormatted}?`)) {
+                          onDeleteDayWorkout(selectedDayKey, selectedWorkoutLog?.id);
+                        }
+                      }}
+                      className="px-2.5 py-1.5 rounded-xl text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 text-[11px] font-bold flex items-center gap-1.5 active:scale-95 transition-all"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Apagar Registro Deste Dia</span>
+                    </button>
                   </div>
                 )}
-              </div>
+              </>
             ) : isSelectedRest ? (
               <p className="text-xs text-zinc-400 pt-1 leading-relaxed">
                 Dia dedicado para regeneração das fibras e crescimento muscular. Sua sequência permanece protegida!
