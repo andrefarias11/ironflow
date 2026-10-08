@@ -27,11 +27,13 @@ import { workoutSyncService } from './services/workoutSync';
 export function App() {
   const {
     workouts,
+    setWorkouts,
     activeWorkoutId,
     setActiveWorkoutId,
     activeWorkout,
     progress,
     history,
+    setHistory,
     preferences,
     toggleSetComplete,
     updateSet,
@@ -43,6 +45,7 @@ export function App() {
     createWorkout,
     resetWorkout,
     finishWorkout,
+    addPastWorkoutEntry,
     setPreferences,
     resetToDefault,
     currentStreak,
@@ -140,7 +143,52 @@ export function App() {
     }
   }, [activeRoom, workouts, activeWorkoutId, setActiveWorkoutId]);
 
-  // Sincronização em nuvem quando o usuário está autenticado
+  // Carrega e sincroniza dados do Supabase quando o usuário logar
+  useEffect(() => {
+    if (!user) return;
+
+    let isMounted = true;
+
+    async function syncCloudData() {
+      if (!user) return;
+
+      try {
+        // 1. Carrega rotinas do usuário salvas na nuvem
+        const cloudWorkouts = await workoutSyncService.loadWorkoutsFromCloud(user.id);
+        if (cloudWorkouts.workouts && cloudWorkouts.workouts.length > 0 && isMounted) {
+          setWorkouts(cloudWorkouts.workouts);
+          if (cloudWorkouts.activeWorkoutId) {
+            setActiveWorkoutId(cloudWorkouts.activeWorkoutId);
+          }
+        } else {
+          // Se for a primeira vez, salva os treinos atuais na nuvem
+          await workoutSyncService.saveWorkoutsToCloud(user.id, workouts, activeWorkoutId);
+        }
+
+        // 2. Carrega histórico de treinos da nuvem
+        const cloudHistory = await workoutSyncService.loadHistoryFromCloud(user.id);
+        if (cloudHistory && cloudHistory.length > 0 && isMounted) {
+          setHistory(prev => {
+            const existingIds = new Set(prev.map(p => p.id));
+            const newEntries = cloudHistory.filter(c => !existingIds.has(c.id));
+            return [...newEntries, ...prev].sort(
+              (a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
+            );
+          });
+        }
+      } catch (err) {
+        console.error('Erro na sincronização com Supabase:', err);
+      }
+    }
+
+    syncCloudData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [user]);
+
+  // Salva alterações nas rotinas na nuvem
   useEffect(() => {
     if (user && workouts.length > 0) {
       workoutSyncService.saveWorkoutsToCloud(user.id, workouts, activeWorkoutId);
@@ -175,16 +223,31 @@ export function App() {
     }
   };
 
-  const handleConfirmFinish = (
+  const handleConfirmFinish = async (
     durationMinutes: number,
     stats?: { caloriesBurned?: number; avgHeartRate?: number; maxHeartRate?: number }
   ) => {
-    finishWorkout(durationMinutes, stats);
-    if (user) {
-      workoutSyncService.saveWorkoutsToCloud(user.id, workouts, activeWorkoutId);
+    const entry = finishWorkout(durationMinutes, stats);
+    if (user && entry) {
+      await workoutSyncService.saveHistoryEntryToCloud(user.id, entry);
+      await workoutSyncService.saveWorkoutsToCloud(user.id, workouts, activeWorkoutId);
     }
     setIsFinishWorkoutOpen(false);
     setTimerActive(false);
+  };
+
+  const handleAddPastWorkout = async (params: {
+    workoutId: string;
+    workoutName: string;
+    completedAt: string;
+    durationMinutes: number;
+    exercisesCount?: number;
+    caloriesBurned?: number;
+  }) => {
+    const entry = addPastWorkoutEntry(params);
+    if (user && entry) {
+      await workoutSyncService.saveHistoryEntryToCloud(user.id, entry);
+    }
   };
 
   return (
@@ -388,6 +451,8 @@ export function App() {
         onClose={() => setIsCalendarOpen(false)}
         streakHistory={streakHistory}
         workoutHistory={history}
+        workouts={workouts}
+        onAddPastWorkout={handleAddPastWorkout}
       />
 
       <StreakModal

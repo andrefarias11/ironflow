@@ -436,6 +436,48 @@ export function useWorkouts() {
 
     setHistory(prev => [entry, ...prev].slice(0, 50));
     resetWorkout();
+    return entry;
+  };
+
+  const addPastWorkoutEntry = (params: {
+    workoutId: string;
+    workoutName: string;
+    completedAt: string;
+    durationMinutes: number;
+    exercisesCount?: number;
+    caloriesBurned?: number;
+  }): WorkoutHistoryEntry => {
+    const dateObj = new Date(params.completedAt);
+    const dayKey = formatDateToKey(dateObj);
+
+    const entry: WorkoutHistoryEntry = {
+      id: `hist-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+      workoutId: params.workoutId,
+      workoutName: params.workoutName,
+      completedAt: dateObj.toISOString(),
+      totalSets: 12,
+      completedSets: 12,
+      exercisesCount: params.exercisesCount || 6,
+      durationMinutes: Math.max(1, params.durationMinutes),
+      caloriesBurned: params.caloriesBurned,
+    };
+
+    setHistory(prev => [entry, ...prev].sort(
+      (a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime()
+    ));
+
+    // Marca o dia retroativo como concluído no streakHistory
+    setStreakHistory(prev => ({
+      ...prev,
+      [dayKey]: {
+        date: dayKey,
+        percentage: 100,
+        completedSets: 12,
+        totalSets: 12
+      }
+    }));
+
+    return entry;
   };
 
   const resetToDefault = () => {
@@ -445,11 +487,13 @@ export function useWorkouts() {
 
   return {
     workouts,
+    setWorkouts,
     activeWorkoutId,
     setActiveWorkoutId,
     activeWorkout,
     progress,
     history,
+    setHistory,
     preferences,
     setPreferences,
     toggleSetComplete,
@@ -462,6 +506,7 @@ export function useWorkouts() {
     createWorkout,
     resetWorkout,
     finishWorkout,
+    addPastWorkoutEntry,
     resetToDefault,
     currentStreak,
     streakHistory,
