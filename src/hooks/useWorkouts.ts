@@ -15,7 +15,10 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   soundEnabled: true,
   vibrateEnabled: true,
   autoStartTimer: true,
-  defaultRestTime: 60
+  defaultRestTime: 60,
+  notificationsEnabled: true,
+  dailyReminderHour: 18,
+  motivationalQuotesEnabled: true
 };
 
 export function useWorkouts() {

@@ -10,6 +10,7 @@ export function useWorkoutRoom() {
   const [members, setMembers] = useState<RoomMember[]>([]);
   // Mapeamento: `${exerciseId}_${setNumber}` -> dados da série concluída pelo parceiro
   const [partnerSets, setPartnerSets] = useState<Record<string, RoomSetEvent>>({});
+  const [latestPartnerSet, setLatestPartnerSet] = useState<RoomSetEvent | null>(null);
   const [latestReaction, setLatestReaction] = useState<{ emoji: string; senderName: string } | null>(null);
   const [syncedRestTimer, setSyncedRestTimer] = useState<{ seconds: number; startedBy: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +31,7 @@ export function useWorkoutRoom() {
     }
     setMembers([]);
     setPartnerSets({});
+    setLatestPartnerSet(null);
     setLatestReaction(null);
   }, []);
 
@@ -179,6 +181,9 @@ export function useWorkoutRoom() {
           ...prev,
           [key]: payload,
         }));
+        if (payload.completed) {
+          setLatestPartnerSet(payload);
+        }
       }
     });
 
@@ -293,6 +298,7 @@ export function useWorkoutRoom() {
     activeRoom,
     members,
     partnerSets,
+    latestPartnerSet,
     latestReaction,
     syncedRestTimer,
     isLoading,

@@ -24,6 +24,7 @@ import { WorkoutRoomModal } from './components/WorkoutRoomModal';
 import { RoomLiveBar } from './components/RoomLiveBar';
 import { workoutSyncService } from './services/workoutSync';
 import { formatDateToKey } from './utils/streak';
+import { notificationService } from './services/notificationService';
 
 export function App() {
   const {
@@ -67,6 +68,7 @@ export function App() {
     activeRoom,
     members,
     partnerSets,
+    latestPartnerSet,
     latestReaction,
     syncedRestTimer,
     createRoom,
@@ -113,6 +115,13 @@ export function App() {
       interval = setInterval(() => {
         setTimeLeft(prev => {
           if (prev <= 1) {
+            if (preferences.notificationsEnabled !== false) {
+              notificationService.notifyRestTimerFinished(
+                timerExerciseName,
+                preferences.soundEnabled,
+                preferences.vibrateEnabled
+              );
+            }
             return 0;
           }
           return prev - 1;
@@ -123,7 +132,7 @@ export function App() {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [timerActive, isTimerPaused, timeLeft]);
+  }, [timerActive, isTimerPaused, timeLeft, timerExerciseName, preferences]);
 
   // Sincroniza cronômetro acionado pelo parceiro de treino
   useEffect(() => {
@@ -131,6 +140,57 @@ export function App() {
       startRestTimer(syncedRestTimer.seconds, `Iniciado por ${syncedRestTimer.startedBy}`);
     }
   }, [syncedRestTimer]);
+
+  // Notificação: Quando o parceiro conclui uma série na sala de treino em dupla
+  useEffect(() => {
+    if (latestPartnerSet && user && latestPartnerSet.userId !== user.id) {
+      const exName = activeWorkout?.exercises.find(e => e.id === latestPartnerSet.exerciseId)?.name || 'Exercício';
+      notificationService.notifyPartnerSet(
+        latestPartnerSet.userName,
+        exName,
+        latestPartnerSet.setNumber,
+        preferences.soundEnabled,
+        preferences.vibrateEnabled
+      );
+    }
+  }, [latestPartnerSet, user, activeWorkout, preferences]);
+
+  // Notificação: Quando o parceiro manda uma reação ou incentivo
+  useEffect(() => {
+    if (latestReaction && user) {
+      notificationService.notifyPartnerReaction(
+        latestReaction.senderName,
+        latestReaction.emoji,
+        preferences.soundEnabled,
+        preferences.vibrateEnabled
+      );
+    }
+  }, [latestReaction, user, preferences]);
+
+  // Agendador de Lembretes Diários (18h) e Frases de Foco (3 a 4x ao dia com moderação)
+  useEffect(() => {
+    if (preferences.notificationsEnabled === false) return;
+
+    const checkSchedules = () => {
+      const todayKey = formatDateToKey(new Date());
+      const hasTrainedToday = Boolean(streakHistory[todayKey] && streakHistory[todayKey].percentage >= 100);
+
+      notificationService.checkDailySchedules({
+        todayKey,
+        currentStreak,
+        hasTrainedToday,
+        reminderHour: preferences.dailyReminderHour ?? 18,
+        motivationalQuotesEnabled: preferences.motivationalQuotesEnabled ?? true,
+        soundEnabled: preferences.soundEnabled,
+        vibrateEnabled: preferences.vibrateEnabled,
+      });
+    };
+
+    checkSchedules();
+    const interval = setInterval(checkSchedules, 60000);
+
+    return () => clearInterval(interval);
+  }, [currentStreak, streakHistory, preferences]);
 
   // Quando uma sala estiver ativa, garante que ambos os atletas estão focados no treino da sala
   useEffect(() => {
