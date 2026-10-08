@@ -101,11 +101,14 @@ create table if not exists public.workout_rooms (
   room_code text unique not null,
   host_user_id uuid references auth.users on delete cascade not null,
   host_name text not null,
+  workout_id text,
   workout_name text not null,
   category text,
   status text not null default 'active', -- 'active' ou 'finished'
   created_at timestamptz default now()
 );
+
+alter table public.workout_rooms add column if not exists workout_id text;
 
 alter table public.workout_rooms enable row level security;
 

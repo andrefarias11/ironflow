@@ -28,6 +28,7 @@ export interface WorkoutRoom {
   room_code: string;
   host_user_id: string;
   host_name: string;
+  workout_id?: string;
   workout_name: string;
   category?: string;
   status: 'active' | 'finished';

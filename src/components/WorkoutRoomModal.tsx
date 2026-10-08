@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Users, 
@@ -8,19 +8,21 @@ import {
   Sparkles, 
   DoorOpen, 
   Flame, 
-  LogIn
+  LogIn,
+  Lock
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { WorkoutRoom, RoomMember } from '../types/auth';
+import { Workout } from '../types/workout';
 
 interface WorkoutRoomModalProps {
   isOpen: boolean;
   onClose: () => void;
   activeRoom: WorkoutRoom | null;
   members: RoomMember[];
-  currentWorkoutName: string;
-  category?: string;
-  onCreateRoom: (workoutName: string, category?: string) => Promise<string | null>;
+  workouts: Workout[];
+  currentWorkoutId: string;
+  onCreateRoom: (workoutId: string, workoutName: string, category?: string) => Promise<string | null>;
   onJoinRoom: (roomCode: string) => Promise<boolean>;
   onLeaveRoom: () => void;
   onOpenAuth: () => void;
@@ -31,8 +33,8 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
   onClose,
   activeRoom,
   members,
-  currentWorkoutName,
-  category,
+  workouts,
+  currentWorkoutId,
   onCreateRoom,
   onJoinRoom,
   onLeaveRoom,
@@ -40,10 +42,17 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
 }) => {
   const { user } = useAuth();
   const [mode, setMode] = useState<'create' | 'join'>('create');
+  const [selectedWorkoutId, setSelectedWorkoutId] = useState<string>(currentWorkoutId);
   const [joinCode, setJoinCode] = useState('');
   const [isCopied, setIsCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (currentWorkoutId) {
+      setSelectedWorkoutId(currentWorkoutId);
+    }
+  }, [currentWorkoutId, isOpen]);
 
   if (!isOpen) return null;
 
@@ -52,9 +61,12 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
       onOpenAuth();
       return;
     }
+    const chosen = workouts.find(w => w.id === selectedWorkoutId) || workouts[0];
+    if (!chosen) return;
+
     setLoading(true);
     setErrorMsg(null);
-    const code = await onCreateRoom(currentWorkoutName, category);
+    const code = await onCreateRoom(chosen.id, chosen.name, chosen.category);
     setLoading(false);
     if (!code) {
       setErrorMsg('Não foi possível criar a sala. Verifique sua conexão.');
@@ -95,6 +107,8 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
     );
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
+
+  const chosenWorkout = workouts.find(w => w.id === selectedWorkoutId) || workouts[0];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
@@ -146,7 +160,7 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
           </div>
         ) : activeRoom ? (
           /* JÁ ESTÁ EM UMA SALA ATIVA */
-          <div className="p-6 space-y-5">
+          <div className="p-6 space-y-4">
             <div className="p-4 rounded-2xl bg-orange-500/10 border border-orange-500/20 text-center space-y-2">
               <span className="text-[10px] font-mono font-bold tracking-widest text-orange-400 uppercase block">
                 CÓDIGO DA SALA ATIVA
@@ -168,12 +182,34 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
               </p>
             </div>
 
+            {/* Treino Bloqueado da Sala */}
+            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-between">
+              <div className="min-w-0 pr-2">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
+                  Treino Selecionado
+                </span>
+                <div className="text-sm font-extrabold text-white flex items-center gap-1.5 truncate">
+                  <Flame className="w-4 h-4 text-orange-400 shrink-0" />
+                  <span className="truncate">{activeRoom.workout_name}</span>
+                </div>
+                {activeRoom.category && (
+                  <p className="text-[11px] text-zinc-400 truncate mt-0.5">
+                    {activeRoom.category}
+                  </p>
+                )}
+              </div>
+              <span className="shrink-0 px-2 py-1 rounded-lg bg-orange-500/20 text-orange-400 text-[10px] font-mono font-bold uppercase border border-orange-500/30 flex items-center gap-1">
+                <Lock className="w-3 h-3" />
+                <span>Bloqueado</span>
+              </span>
+            </div>
+
             {/* Lista de Atletas Conectados */}
             <div className="space-y-2">
               <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
                 Atletas Conectados ({members.length})
               </span>
-              <div className="space-y-1.5 max-h-36 overflow-y-auto">
+              <div className="space-y-1.5 max-h-32 overflow-y-auto">
                 {members.map((m) => (
                   <div
                     key={m.userId}
@@ -198,7 +234,7 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
             </div>
 
             {/* Ações */}
-            <div className="space-y-2 pt-2">
+            <div className="space-y-2 pt-1">
               <button
                 onClick={shareViaWhatsApp}
                 className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs tracking-wide transition-all flex items-center justify-center gap-2"
@@ -215,7 +251,7 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
                 className="w-full py-2.5 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 font-bold text-xs transition-all flex items-center justify-center gap-2"
               >
                 <DoorOpen className="w-4 h-4" />
-                <span>Encerrar / Sair da Sala</span>
+                <span>Sair da Sala (Liberar Outros Treinos)</span>
               </button>
             </div>
           </div>
@@ -252,15 +288,48 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
             </div>
 
             {mode === 'create' ? (
-              <div className="space-y-4 pt-2">
-                <div className="p-3.5 rounded-2xl bg-white/5 border border-white/5 space-y-1">
-                  <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">
-                    Treino da Sala
-                  </span>
-                  <div className="text-sm font-extrabold text-white flex items-center gap-2">
-                    <Flame className="w-4 h-4 text-orange-400" />
-                    <span>{currentWorkoutName}</span>
+              <div className="space-y-4 pt-1">
+                {/* Escolha do Treino da Sala (A, B, C, D...) */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                      Qual treino vocês vão fazer?
+                    </span>
+                    <span className="text-[10px] text-orange-400 font-mono font-bold">
+                      {chosenWorkout?.name}
+                    </span>
                   </div>
+
+                  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto no-scrollbar py-0.5">
+                    {workouts.map((w) => {
+                      const isSelected = w.id === selectedWorkoutId;
+                      return (
+                        <button
+                          key={w.id}
+                          type="button"
+                          onClick={() => setSelectedWorkoutId(w.id)}
+                          className={`p-2.5 rounded-2xl text-left border transition-all active:scale-95 ${
+                            isSelected
+                              ? 'bg-orange-500/20 border-orange-500 text-white shadow-lg shadow-orange-500/20'
+                              : 'bg-zinc-900 border-white/5 text-zinc-400 hover:text-white hover:bg-zinc-850'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className={`text-xs font-black tracking-wide ${isSelected ? 'text-orange-400' : 'text-white'}`}>
+                              {w.name}
+                            </span>
+                            {isSelected && <Check className="w-3.5 h-3.5 text-orange-400 stroke-[3]" />}
+                          </div>
+                          <p className="text-[10px] text-zinc-400 line-clamp-1">
+                            {w.category || `${w.exercises.length} exercícios`}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <p className="text-[10px] text-zinc-500 leading-snug">
+                    🔒 Quem entrar na sala treinará exatamente este treino. Os outros treinos ficarão bloqueados durante a sessão.
+                  </p>
                 </div>
 
                 <button
@@ -273,7 +342,7 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4" />
-                      <span>Gerar Código da Sala</span>
+                      <span>Gerar Sala para {chosenWorkout?.name}</span>
                     </>
                   )}
                 </button>
@@ -293,6 +362,9 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
                     onChange={(e) => setJoinCode(e.target.value.replace(/\D/g, ''))}
                     className="w-full text-center tracking-widest text-xl font-mono py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-white focus:outline-none focus:border-orange-500 transition-colors uppercase"
                   />
+                  <p className="text-[10px] text-zinc-500 text-center">
+                    Ao entrar, seu app abrirá automaticamente o treino escolhido pelo seu parceiro.
+                  </p>
                 </div>
 
                 <button
@@ -305,7 +377,7 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
                   ) : (
                     <>
                       <DoorOpen className="w-4 h-4" />
-                      <span>Entrar na Sala</span>
+                      <span>Entrar e Sincronizar Treino</span>
                     </>
                   )}
                 </button>
@@ -317,4 +389,3 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
     </div>
   );
 };
-

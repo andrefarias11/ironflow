@@ -126,6 +126,20 @@ export function App() {
     }
   }, [syncedRestTimer]);
 
+  // Quando uma sala estiver ativa, garante que ambos os atletas estão focados no treino da sala
+  useEffect(() => {
+    if (activeRoom) {
+      const match = workouts.find(
+        (w) =>
+          (activeRoom.workout_id && w.id === activeRoom.workout_id) ||
+          w.name.toLowerCase().trim() === activeRoom.workout_name.toLowerCase().trim()
+      );
+      if (match && match.id !== activeWorkoutId) {
+        setActiveWorkoutId(match.id);
+      }
+    }
+  }, [activeRoom, workouts, activeWorkoutId, setActiveWorkoutId]);
+
   // Sincronização em nuvem quando o usuário está autenticado
   useEffect(() => {
     if (user && workouts.length > 0) {
@@ -214,6 +228,8 @@ export function App() {
           completedWorkoutIdsThisWeek={cycleInfo.completedWorkoutIdsThisWeek}
           nextSuggestedWorkoutId={cycleInfo.nextSuggestedWorkoutId}
           missedWorkoutPrevWeek={cycleInfo.missedWorkoutPrevWeek}
+          isInRoom={!!activeRoom}
+          roomWorkoutName={activeRoom?.workout_name}
         />
       </div>
 
@@ -411,8 +427,8 @@ export function App() {
         onClose={() => setIsRoomOpen(false)}
         activeRoom={activeRoom}
         members={members}
-        currentWorkoutName={activeWorkout?.name || 'Treino do Dia'}
-        category={activeWorkout?.category}
+        workouts={workouts}
+        currentWorkoutId={activeWorkoutId}
         onCreateRoom={createRoom}
         onJoinRoom={joinRoom}
         onLeaveRoom={leaveRoom}

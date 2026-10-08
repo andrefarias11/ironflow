@@ -34,7 +34,7 @@ export function useWorkoutRoom() {
   }, []);
 
   // Cria uma nova sala
-  const createRoom = async (workoutName: string, category?: string): Promise<string | null> => {
+  const createRoom = async (workoutId: string, workoutName: string, category?: string): Promise<string | null> => {
     if (!isSupabaseConfigured || !user || !profile) {
       setError('Faça login para criar uma sala de treino em dupla.');
       return null;
@@ -46,24 +46,46 @@ export function useWorkoutRoom() {
     try {
       const roomCode = generateRoomCode();
 
-      const { data, error: insertError } = await supabase
+      const basePayload = {
+        room_code: roomCode,
+        host_user_id: user.id,
+        host_name: profile.name,
+        workout_name: workoutName,
+        category: category || '',
+        status: 'active'
+      };
+
+      // Tenta inserir com workout_id
+      let { data, error: insertError } = await supabase
         .from('workout_rooms')
         .insert({
-          room_code: roomCode,
-          host_user_id: user.id,
-          host_name: profile.name,
-          workout_name: workoutName,
-          category: category || '',
-          status: 'active'
+          ...basePayload,
+          workout_id: workoutId
         })
         .select()
         .single();
+
+      // Fallback gracioso se a coluna workout_id ainda não existir no Supabase do usuário
+      if (insertError && insertError.message.includes('workout_id')) {
+        const fallbackRes = await supabase
+          .from('workout_rooms')
+          .insert(basePayload)
+          .select()
+          .single();
+        data = fallbackRes.data;
+        insertError = fallbackRes.error;
+      }
 
       if (insertError || !data) {
         throw new Error(insertError?.message || 'Falha ao criar sala');
       }
 
-      setActiveRoom(data as WorkoutRoom);
+      const roomData = data as WorkoutRoom;
+      if (!roomData.workout_id && workoutId) {
+        roomData.workout_id = workoutId;
+      }
+
+      setActiveRoom(roomData);
       joinRealtimeChannel(roomCode);
       setIsLoading(false);
       return roomCode;
