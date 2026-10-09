@@ -56,7 +56,4 @@ export interface UserPreferences {
   vibrateEnabled: boolean;
   autoStartTimer: boolean;
   defaultRestTime: number;
-  notificationsEnabled?: boolean;
-  dailyReminderHour?: number;
-  motivationalQuotesEnabled?: boolean;
 }
