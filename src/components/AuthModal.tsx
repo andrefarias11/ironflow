@@ -71,11 +71,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       console.error(err);
       const msg = err.message || '';
       if (msg.includes('rate limit')) {
-        setErrorMsg('Muitas tentativas de envio. Desative "Confirm email" no painel do Supabase para entrar direto sem precisar de e-mail.');
+        setErrorMsg('Muitas tentativas de envio. Aguarde um pouco antes de tentar novamente.');
       } else if (msg.includes('Invalid login credentials')) {
         setErrorMsg('E-mail ou senha incorretos.');
       } else if (msg.includes('Email not confirmed')) {
-        setErrorMsg('E-mail ainda não confirmado. Desative "Confirm email" no painel do Supabase para entrar direto.');
+        setErrorMsg('Confirme seu e-mail pelo link enviado à sua caixa de entrada antes de entrar.');
       } else if (msg.includes('User already registered') || msg.includes('already registered')) {
         setErrorMsg('Este e-mail já possui conta cadastrada. Alterne para a aba "Entrar".');
       } else {
@@ -94,7 +94,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-sm rounded-3xl bg-[#121316] border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
+      <div role="dialog" aria-modal="true" aria-label="Conta Ironflow" className="ironflow-dialog w-full max-w-sm rounded-3xl bg-[#121316] border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
         {/* Header Modal */}
         <div className="px-6 pt-6 pb-4 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -103,7 +103,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </div>
             <div>
               <h2 className="text-base font-black text-white tracking-wide">
-                {user ? 'SEU PERFIL' : 'CONTA IRONFLOW'}
+                {user ? 'Seu perfil' : 'Conta Ironflow'}
               </h2>
               <p className="text-[11px] text-zinc-400 font-medium">
                 {user ? 'Dados e sincronização em nuvem' : 'Acesse seu progresso em qualquer celular'}
@@ -111,6 +111,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
             </div>
           </div>
           <button
+            aria-label="Fechar conta ironflow"
             onClick={onClose}
             className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
           >
@@ -123,9 +124,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <div className="mx-6 mt-4 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs flex items-start gap-2.5">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <span className="font-bold block">Configuração de Banco de Dados</span>
+              <span className="font-bold block">Conta online indisponível</span>
               <span className="text-[11px] text-amber-200/80 leading-relaxed block">
-                Para ativar o login e o treino em dupla online, configure suas chaves do Supabase no arquivo <code className="bg-black/40 px-1 py-0.5 rounded">.env</code>.
+                Você pode continuar registrando seus treinos neste dispositivo. Login e treino em dupla estão indisponíveis no momento.
               </span>
             </div>
           </div>
@@ -138,7 +139,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               onClick={() => { setTab('login'); setErrorMsg(null); }}
               className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
                 tab === 'login'
-                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
+                  ? 'bg-ios-accent text-black'
                   : 'bg-white/5 text-zinc-400 hover:text-white'
               }`}
             >
@@ -148,7 +149,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               onClick={() => { setTab('signup'); setErrorMsg(null); }}
               className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all ${
                 tab === 'signup'
-                  ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20'
+                  ? 'bg-ios-accent text-black'
                   : 'bg-white/5 text-zinc-400 hover:text-white'
               }`}
             >
@@ -261,7 +262,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-black font-extrabold text-sm tracking-wide shadow-lg shadow-orange-500/25 hover:opacity-95 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full py-3 rounded-xl bg-ios-accent text-black font-extrabold text-sm tracking-wide  hover:opacity-95 active:scale-[0.98] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {loading ? (
               <span className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />

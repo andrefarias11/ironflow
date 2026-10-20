@@ -27,9 +27,10 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-      <div className="w-full sm:max-w-md max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 p-6 shadow-2xl relative">
+      <div role="dialog" aria-modal="true" aria-label="Ajustes" className="ironflow-dialog w-full sm:max-w-md max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 p-6 shadow-2xl relative">
         <button
-          onClick={onClose}
+          aria-label="Fechar ajustes"
+            onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5"
         >
           <X className="w-5 h-5" />
@@ -117,6 +118,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             </div>
             <button
+              role="switch"
+              aria-label="Sons e alertas"
+              aria-checked={preferences.soundEnabled}
               onClick={() => onUpdatePreferences(prev => ({ ...prev, soundEnabled: !prev.soundEnabled }))}
               className={`w-12 h-6 rounded-full transition-colors relative ${
                 preferences.soundEnabled ? 'bg-ios-accentGreen' : 'bg-zinc-700'
@@ -137,6 +141,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             </div>
             <button
+              role="switch"
+              aria-label="Vibração háptica"
+              aria-checked={preferences.vibrateEnabled}
               onClick={() => onUpdatePreferences(prev => ({ ...prev, vibrateEnabled: !prev.vibrateEnabled }))}
               className={`w-12 h-6 rounded-full transition-colors relative ${
                 preferences.vibrateEnabled ? 'bg-ios-accentGreen' : 'bg-zinc-700'
@@ -157,6 +164,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </div>
             </div>
             <button
+              role="switch"
+              aria-label="Iniciar descanso automaticamente"
+              aria-checked={preferences.autoStartTimer}
               onClick={() => onUpdatePreferences(prev => ({ ...prev, autoStartTimer: !prev.autoStartTimer }))}
               className={`w-12 h-6 rounded-full transition-colors relative ${
                 preferences.autoStartTimer ? 'bg-ios-accentGreen' : 'bg-zinc-700'

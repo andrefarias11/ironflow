@@ -57,83 +57,24 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   const restTimeOptions = [45, 60, 75, 90, 120];
 
   return (
-    <article className="exercise-card mx-4 my-3 rounded-3xl bg-zinc-950/80 border border-white/10 overflow-hidden shadow-lg transition-all duration-300">
-      <div 
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="p-4 flex items-center justify-between cursor-pointer select-none active:bg-white/5 transition-colors"
-      >
-        <div className="flex-1 pr-3">
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/5 text-zinc-400 border border-white/5 shrink-0">
-              {exercise.muscleGroup || 'Geral'}
-            </span>
-
-            {/* Botão Ver Movimento */}
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onOpenGuide(exercise);
-              }}
-              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-ios-accent/15 text-ios-accent hover:bg-ios-accent/25 active:scale-95 transition-all text-[10px] font-bold whitespace-nowrap shrink-0"
-              title="Ver movimento, postura e vídeo demonstrativo"
-            >
-              <PlayCircle className="w-3 h-3 shrink-0" />
-              <span>Técnica</span>
-            </button>
-
-            {isAllComplete && (
-              <span className="text-[10px] font-bold text-ios-accentGreen flex items-center gap-1 shrink-0">
-                <Check className="w-3 h-3 stroke-[3]" /> Concluído
-              </span>
-            )}
-          </div>
-          <h3 className="text-base font-bold text-white tracking-tight mt-1">
-            <span className="exercise-number">{String(position).padStart(2, '0')}</span>{exercise.name}
-          </h3>
-          {exercise.notes && (
-            <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1 italic">
-              {exercise.notes}
-            </p>
-          )}
-
-          <div className="flex items-center gap-2 mt-2.5">
-            <div className="flex-1 h-1.5 rounded-full bg-zinc-800/80 overflow-hidden">
-              <div 
-                className={`h-full rounded-full transition-all duration-300 ${
-                  isAllComplete ? 'bg-ios-accentGreen' : 'bg-ios-accent'
-                }`}
-                style={{ width: `${exerciseProgressPct}%` }}
-              />
-            </div>
-            <span className="text-[11px] font-mono text-zinc-400 font-medium">
-              {completedSetsCount}/{totalSetsCount}
-            </span>
-          </div>
+    <article className={`exercise-card ${isAllComplete ? 'exercise-card-complete' : ''}`}>
+      <div className="exercise-card-header">
+        <div className="exercise-title-row">
+          <span className="exercise-number">{String(position).padStart(2, '0')}</span>
+          <div className="exercise-title-content"><h3>{exercise.name}</h3><span className="exercise-muscle">{exercise.muscleGroup || 'Geral'}</span></div>
+          <button type="button" className="exercise-collapse" aria-label={isExpanded ? "Recolher exercício" : "Expandir exercício"} aria-expanded={isExpanded} aria-controls={`exercise-${exercise.id}`} onClick={() => setIsExpanded(!isExpanded)}>{isExpanded ? <ChevronUp size={17} /> : <ChevronDown size={17} />}</button>
         </div>
-
-        <div className="flex items-center gap-2 text-zinc-400">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowRestPicker(!showRestPicker);
-            }}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/5 text-[11px] font-medium text-zinc-300 hover:text-white border border-white/5 active:scale-95 transition-all"
-            title="Ajustar tempo de descanso"
-          >
-            <Clock className="w-3 h-3 text-ios-accent" />
-            <span>{exercise.restSeconds || 60}s</span>
-          </button>
-
-          <button type="button" aria-label={isExpanded ? "Recolher exercício" : "Expandir exercício"} aria-expanded={isExpanded} onClick={(event) => { event.stopPropagation(); setIsExpanded(!isExpanded); }} className="p-1">
-            {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </button>
+        {exercise.notes && <p className="exercise-notes">{exercise.notes}</p>}
+        <div className="exercise-metadata">
+          <button type="button" onClick={() => onOpenGuide(exercise)}><PlayCircle size={14} /> Técnica</button>
+          <button type="button" aria-expanded={showRestPicker} onClick={() => setShowRestPicker(!showRestPicker)}><Clock size={14} /> {exercise.restSeconds || 60}s de descanso</button>
+          <span className={`exercise-set-count ${isAllComplete ? 'is-complete' : ''}`}>{isAllComplete && <Check size={13} />}{isAllComplete ? 'Concluído' : `${completedSetsCount}/${totalSetsCount} séries`}</span>
         </div>
+        <div className="exercise-mini-track" aria-hidden="true"><div style={{ width: `${exerciseProgressPct}%` }} /></div>
       </div>
 
       {showRestPicker && (
-        <div className="px-4 py-2 bg-zinc-900/90 border-t border-b border-white/5 flex items-center justify-between animate-fadeIn">
+        <div className="rest-time-picker">
           <span className="text-xs text-zinc-400 font-medium">Tempo de descanso:</span>
           <div className="flex items-center gap-1.5">
             {restTimeOptions.map(sec => (
@@ -157,13 +98,13 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
       )}
 
       {isExpanded && (
-        <div className="px-3 pb-3 pt-1 border-t border-white/5">
-          <div className="grid grid-cols-12 gap-1 px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-500 text-center">
-            <span className="col-span-1 text-left">Série</span>
-            <span className="col-span-3 text-center">Anterior</span>
-            <span className="col-span-3 text-center">Carga (kg)</span>
-            <span className="col-span-3 text-center">Reps</span>
-            <span className="col-span-2 text-right">Feito</span>
+        <div id={`exercise-${exercise.id}`} className="exercise-table">
+          <div className="set-grid set-grid-heading">
+            <span className="set-cell">Série</span>
+            <span className="set-cell">Anterior</span>
+            <span className="set-cell">Carga (kg)</span>
+            <span className="set-cell">Reps</span>
+            <span className="set-cell">Feito</span>
           </div>
 
           <div className="space-y-1.5 mt-0.5">
@@ -173,13 +114,13 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
               return (
                 <div
                   key={set.id}
-                  className={`grid grid-cols-12 gap-1 items-center px-2 py-2 rounded-2xl transition-all duration-200 ${
+                  className={`set-grid set-row ${
                     set.completed
-                      ? 'bg-ios-accentGreen/10 border border-ios-accentGreen/20'
-                      : 'bg-zinc-900/50 border border-white/5'
+                      ? 'set-row-complete'
+                      : ''
                   }`}
                 >
-                  <div className="col-span-1 flex items-center">
+                  <div className="set-cell">
                     <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-mono font-bold ${
                       set.completed ? 'bg-ios-accentGreen text-black' : 'bg-zinc-800 text-zinc-300'
                     }`}>
@@ -187,14 +128,14 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                     </span>
                   </div>
 
-                  <div className="col-span-3 text-center">
-                    <span className="text-[11px] font-mono text-zinc-500">
-                      {set.previousWeight !== undefined ? `${set.previousWeight}kg × ${set.previousReps || 10}` : '—'}
+                  <div className="set-cell">
+                    <span className="set-previous">
+                      {set.previousWeight !== undefined ? `${set.previousWeight} × ${set.previousReps ?? 10}` : '—'}
                     </span>
                   </div>
 
-                  <div className="col-span-3 flex items-center justify-center">
-                    <div className="relative flex items-center bg-black/60 rounded-xl border border-white/10 px-1 py-1 w-full max-w-[76px] justify-between">
+                  <div className="set-cell">
+                    <div className="set-input-wrap">
                       <input
                         aria-label={`Carga da série ${set.setNumber} de ${exercise.name}`}
                         inputMode="decimal"
@@ -205,12 +146,11 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                         onChange={(e) => onUpdateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)}
                         className="w-full text-center bg-transparent text-white font-mono font-bold text-xs focus:outline-none"
                       />
-                      <span className="text-[9px] text-zinc-500 pr-0.5 select-none font-medium">k</span>
                     </div>
                   </div>
 
-                  <div className="col-span-3 flex items-center justify-center">
-                    <div className="relative flex items-center bg-black/60 rounded-xl border border-white/10 px-1 py-1 w-full max-w-[64px] justify-between">
+                  <div className="set-cell">
+                    <div className="set-input-wrap">
                       <input
                         aria-label={`Repetições da série ${set.setNumber} de ${exercise.name}`}
                         inputMode="numeric"
@@ -224,7 +164,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                     </div>
                   </div>
 
-                  <div className="col-span-2 flex items-center justify-end gap-1.5">
+                  <div className="set-cell set-completion-cell">
                     {partnerSet && partnerSet.completed && (
                       <div 
                         className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-black shadow-md ring-1 ring-white/20 animate-scaleIn shrink-0"
@@ -238,10 +178,10 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                     <button
                       type="button"
                       onClick={() => handleToggle(set.id, set.completed)}
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 ${
+                      className={`set-check ${
                         set.completed
-                          ? 'text-black shadow-glow-green scale-100'
-                          : 'bg-zinc-800/90 text-zinc-600 hover:text-zinc-400 hover:bg-zinc-700/80 border border-white/10'
+                          ? 'set-check-complete'
+                          : ''
                       }`}
                       style={set.completed ? { backgroundColor: userColor || '#8da694' } : undefined}
                       aria-pressed={set.completed}
@@ -257,7 +197,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
             })}
           </div>
 
-          <div className="mt-3 pt-2.5 border-t border-white/5 flex items-center justify-between text-xs">
+          <div className="exercise-footer">
             <button
               type="button"
               onClick={() => onAddSet(exercise.id)}

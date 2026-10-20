@@ -1,6 +1,6 @@
 import React from 'react';
 import { Workout } from '../types/workout';
-import { Check, Sparkles, ArrowRight, Lock } from 'lucide-react';
+import { Check, Sparkles, ArrowRight, Lock, Plus } from 'lucide-react';
 
 interface WorkoutTabsProps {
   workouts: Workout[];
@@ -28,7 +28,7 @@ export const WorkoutTabs: React.FC<WorkoutTabsProps> = ({
   const currentWorkout = workouts.find((w) => w.id === activeWorkoutId);
 
   return (
-    <div className="px-4 py-1 space-y-2">
+    <div className="workout-selector">
       {/* Se estiver em sala em dupla: exibe apenas o treino da sala e bloqueia a troca */}
       {isInRoom ? (
         <div className="p-3 rounded-2xl bg-gradient-to-r from-orange-950/40 via-zinc-900 to-zinc-950 border border-orange-500/40 flex items-center justify-between shadow-lg animate-fadeIn">
@@ -75,59 +75,21 @@ export const WorkoutTabs: React.FC<WorkoutTabsProps> = ({
             </div>
           )}
 
-          {/* Rotação Contínua de Treinos Base */}
-          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
-            {workouts.map((w) => {
-              const isActive = w.id === activeWorkoutId;
-              const isDoneThisWeek = completedWorkoutIdsThisWeek.has(w.id);
-              const isSuggested = w.id === nextSuggestedWorkoutId && !isDoneThisWeek;
-
+          <div className="workout-options" role="group" aria-label="Fichas de treino">
+            {workouts.map((workout) => {
+              const isActive = workout.id === activeWorkoutId;
+              const isDone = completedWorkoutIdsThisWeek.has(workout.id);
+              const isSuggested = workout.id === nextSuggestedWorkoutId && !isDone;
               return (
-                <button
-                  key={w.id}
-                  aria-pressed={isActive}
-                  onClick={() => onSelectWorkout(w.id)}
-                  className={`flex-shrink-0 px-3.5 py-2 rounded-2xl text-xs font-semibold transition-all duration-200 active:scale-95 relative border ${
-                    isActive
-                      ? 'bg-white text-black shadow-md shadow-white/10 border-white'
-                      : isSuggested
-                      ? 'bg-zinc-900/90 text-zinc-100 border-ios-accent/50 hover:bg-zinc-850'
-                      : 'bg-zinc-900/80 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-850 border-white/5'
-                  }`}
-                >
-                  <div className="flex items-center gap-1.5">
-                    {/* Indicador de Feito na Semana */}
-                    {isDoneThisWeek ? (
-                      <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
-                        isActive ? 'bg-black text-white' : 'bg-ios-accentGreen text-black'
-                      }`}>
-                        <Check className="w-2.5 h-2.5 stroke-[3]" />
-                      </span>
-                    ) : isSuggested ? (
-                      <span className="w-2 h-2 rounded-full bg-ios-accent animate-pulse" />
-                    ) : null}
-
-                    <span className="font-bold">{w.name}</span>
-
-                    {w.category && (
-                      <span className={`text-[10px] font-normal truncate max-w-[130px] ${
-                        isActive ? 'text-zinc-600' : isSuggested ? 'text-zinc-300' : 'text-zinc-500'
-                      }`}>
-                        • {w.category}
-                      </span>
-                    )}
-                  </div>
+                <button key={workout.id} aria-pressed={isActive} onClick={() => onSelectWorkout(workout.id)} className="workout-option">
+                  <span className="workout-option-title">{workout.name}{isActive ? <span className="workout-selected-dot" aria-hidden="true" /> : isDone ? <Check size={14} aria-label="Feito nesta semana" /> : null}</span>
+                  <span className="workout-option-category">{workout.category || 'Personalizado'}</span>
+                  <span className="workout-option-status">{isDone ? 'Feito na semana' : isActive ? 'Ficha selecionada' : isSuggested ? 'Próximo na sequência' : `${workout.exercises.length} exercícios`}</span>
                 </button>
               );
             })}
-
-            <button
-              onClick={onNewWorkout}
-              className="flex-shrink-0 px-3 py-2 rounded-2xl text-xs font-medium text-zinc-500 hover:text-zinc-300 bg-zinc-900/40 border border-dashed border-zinc-700/60 transition-colors"
-            >
-              + Novo
-            </button>
           </div>
+          <button className="new-workout-button" onClick={onNewWorkout}><Plus size={14} /> Nova ficha</button>
         </>
       )}
     </div>

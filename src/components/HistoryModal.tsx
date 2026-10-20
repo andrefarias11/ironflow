@@ -37,7 +37,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full sm:max-w-md max-h-[85vh] rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 flex flex-col shadow-2xl overflow-hidden">
+      <div role="dialog" aria-modal="true" aria-label="Histórico de treinos" className="ironflow-dialog w-full sm:max-w-md max-h-[85vh] rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 flex flex-col shadow-2xl overflow-hidden">
         <div className="p-5 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-white/10 flex items-center justify-center text-ios-accent">
@@ -49,6 +49,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
             </div>
           </div>
           <button
+            aria-label="Fechar histórico de treinos"
             onClick={onClose}
             className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5"
           >
@@ -61,7 +62,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
             <div className="text-center py-12">
               <Dumbbell className="w-10 h-10 mx-auto text-zinc-700 stroke-1 mb-2" />
               <p className="text-sm font-medium text-zinc-400">Nenhum treino concluído ainda</p>
-              <p className="text-xs text-zinc-600 mt-1">Marque suas séries e clique em "Concluir Treino"</p>
+              <p className="text-xs text-zinc-400 mt-2">Ao terminar suas séries, toque em “Salvar treino”.</p>
             </div>
           ) : (
             history.map((entry) => (

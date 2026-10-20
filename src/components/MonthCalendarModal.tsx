@@ -161,7 +161,7 @@ export const MonthCalendarModal: React.FC<MonthCalendarModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-sm rounded-3xl bg-[#121316] border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col max-h-[92vh]">
+      <div role="dialog" aria-modal="true" aria-label="Calendário de treinos" className="ironflow-dialog w-full max-w-sm rounded-3xl bg-[#121316] border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Cabeçalho do Modal */}
         <div className="p-4 px-5 border-b border-white/5 flex items-center justify-between">
@@ -180,6 +180,7 @@ export const MonthCalendarModal: React.FC<MonthCalendarModalProps> = ({
           </div>
 
           <button
+            aria-label="Fechar calendário de treinos"
             onClick={onClose}
             className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
           >

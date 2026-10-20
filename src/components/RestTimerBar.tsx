@@ -46,7 +46,7 @@ export const RestTimerBar: React.FC<RestTimerBarProps> = ({
   return (
     <aside 
       aria-label="Cronômetro de descanso"
-      className="fixed bottom-6 left-4 right-4 z-50 max-w-md mx-auto animate-bounce-subtle"
+      className="rest-timer fixed bottom-6 left-4 right-4 z-50 max-w-md mx-auto animate-bounce-subtle"
     >
       <div className={`relative overflow-hidden rounded-3xl bg-zinc-900/95 border shadow-2xl backdrop-blur-xl p-3.5 transition-all duration-300 ${
         isUrgent 
