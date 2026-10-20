@@ -377,7 +377,7 @@ export function App() {
         </aside>
         <div className="dashboard-content">
           <section className="dashboard-heading">
-            <div><span className="eyebrow">IRONFLOW / TRAINING LOG</span><h2>FERRO.<br /><span>RITMO. REPETIÇÃO.</span></h2><p>{profile?.name ? `${profile.name}, sua ficha está pronta.` : 'Sua ficha. Cada carga, cada repetição.'}</p></div>
+            <div><span className="eyebrow">IRONFLOW / DIÁRIO DE TREINO</span><h2>Meu treino</h2><p>{profile?.name ? `${profile.name}, sua ficha está pronta.` : 'Selecione sua ficha e registre as séries.'}</p></div>
             <button className="history-shortcut" onClick={() => setIsHistoryOpen(true)}><History size={16} /> Histórico <ArrowUpRight size={16} /></button>
           </section>
           <div className="overview-stats">
