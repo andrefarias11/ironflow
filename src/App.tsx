@@ -16,7 +16,7 @@ import { MonthCalendarModal } from './components/MonthCalendarModal';
 import { StreakModal } from './components/StreakModal';
 import { ShareStoryModal } from './components/ShareStoryModal';
 import { Exercise, WorkoutHistoryEntry } from './types/workout';
-import { Plus, Dumbbell, History, CalendarDays, ArrowUpRight, Activity, Layers, Users } from 'lucide-react';
+import { Plus, Dumbbell, History, CalendarDays, ArrowUpRight, Layers, Users } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 import { useWorkoutRoom } from './hooks/useWorkoutRoom';
 import { AuthModal } from './components/AuthModal';
@@ -382,7 +382,6 @@ export function App() {
           </section>
           <div className="overview-stats">
             <div><span><CalendarDays size={16} /> Nesta semana</span><strong>{cycleInfo.completedCountThisWeek}<small> / {cycleInfo.totalCycleWorkouts} treinos</small></strong></div>
-            <div><span><Activity size={16} /> Volume da sessão</span><strong>{progress.totalVolumeKg.toLocaleString('pt-BR')}<small> kg</small></strong></div>
             <div><span><Layers size={16} /> Sua sequência</span><strong>{currentStreak}<small> treinos</small></strong></div>
           </div>
           <div className="section-label"><span>01 / FICHAS</span><span>{workouts.length} rotinas</span></div>
