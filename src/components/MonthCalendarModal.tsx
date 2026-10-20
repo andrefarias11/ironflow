@@ -317,7 +317,7 @@ export const MonthCalendarModal: React.FC<MonthCalendarModalProps> = ({
               {selectedDayActivity && selectedDayActivity.percentage === 100 && (
                 <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30 text-[10px] font-bold">
                   <Flame className="w-3 h-3 fill-current" />
-                  <span>On Fire!</span>
+                  <span>Meta de séries concluída</span>
                 </div>
               )}
             </div>

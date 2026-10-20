@@ -367,17 +367,17 @@ export function App() {
 
       <div className="dashboard-layout">
         <aside className="dashboard-sidebar">
-          <span className="eyebrow">SEU ESPAÇO DE EVOLUÇÃO</span>
+          <span className="eyebrow">DIÁRIO DE TREINO</span>
           <button className="nav-item active" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><Dumbbell size={18} /> Meu treino <ArrowUpRight size={16} /></button>
           <button className="nav-item" onClick={() => setIsHistoryOpen(true)}><History size={18} /> Histórico</button>
           <button className="nav-item" onClick={() => setIsCalendarOpen(true)}><CalendarDays size={18} /> Calendário</button>
           <button className="nav-item" onClick={() => setIsRoomOpen(true)}><Users size={18} /> Treinar em dupla</button>
-          <div className="sidebar-note"><Activity size={22} /><h3>Consistência transforma.</h3><p>Cada série é mais um passo na sua evolução. Continue no seu ritmo.</p></div>
-          <span className="sidebar-version">IRONFLOW / SEU PRÓXIMO NÍVEL</span>
+          <div className="sidebar-note"><span className="eyebrow">NA FICHA</span><strong>{String(workouts.length).padStart(2, '0')}</strong><p>rotinas de treino</p><div className="plate-lines" aria-hidden="true"><i /><i /><i /><i /></div></div>
+          <span className="sidebar-version">IRONFLOW / REGISTRE. REPITA.</span>
         </aside>
         <div className="dashboard-content">
           <section className="dashboard-heading">
-            <div><span className="eyebrow">VAMOS FAZER ACONTECER</span><h2>Seu treino. <span>Seu ritmo.</span></h2><p>{profile?.name ? `${profile.name}, tudo` : 'Tudo'} pronto para dar o próximo passo?</p></div>
+            <div><span className="eyebrow">IRONFLOW / TRAINING LOG</span><h2>FERRO.<br /><span>RITMO. REPETIÇÃO.</span></h2><p>{profile?.name ? `${profile.name}, sua ficha está pronta.` : 'Sua ficha. Cada carga, cada repetição.'}</p></div>
             <button className="history-shortcut" onClick={() => setIsHistoryOpen(true)}><History size={16} /> Histórico <ArrowUpRight size={16} /></button>
           </section>
           <div className="overview-stats">
@@ -385,7 +385,7 @@ export function App() {
             <div><span><Activity size={16} /> Volume da sessão</span><strong>{progress.totalVolumeKg.toLocaleString('pt-BR')}<small> kg</small></strong></div>
             <div><span><Layers size={16} /> Sua sequência</span><strong>{currentStreak}<small> treinos</small></strong></div>
           </div>
-          <div className="section-label"><span>SEU PLANO DE TREINO</span><span>{workouts.length} rotinas</span></div>
+          <div className="section-label"><span>01 / FICHAS</span><span>{workouts.length} rotinas</span></div>
       {/* 2. Seletor de Divisões de Treino */}
       <div className="pt-2">
         <WorkoutTabs
@@ -412,13 +412,14 @@ export function App() {
 
       {/* 4. Lista de Exercícios */}
       <main id="workout" className="flex-1 pb-24">
-        <div className="exercise-heading"><div><span className="eyebrow">SESSÃO ATUAL</span><h2>{activeWorkout?.name} <span>{activeWorkout?.category}</span></h2></div><span>{progress.exercisesCount} exercícios</span></div>
+        <div className="exercise-heading"><div><span className="eyebrow">02 / NO TREINO</span><h2>{activeWorkout?.name} <span>{activeWorkout?.category}</span></h2></div><span>{progress.exercisesCount} exercícios</span></div>
         {activeWorkout && activeWorkout.exercises.length > 0 ? (
           <div className="exercise-list">
-            {activeWorkout.exercises.map((exercise) => (
+            {activeWorkout.exercises.map((exercise, index) => (
               <ExerciseCard
                 key={exercise.id}
                 exercise={exercise}
+                position={index + 1}
                 soundEnabled={preferences.soundEnabled}
                 vibrateEnabled={preferences.vibrateEnabled}
                 onToggleSet={handleToggleSet}
@@ -430,7 +431,7 @@ export function App() {
                 onStartCustomTimer={(sec, name) => startRestTimer(sec, name)}
                 onOpenGuide={(ex) => setSelectedGuideExercise(ex)}
                 partnerSets={partnerSets}
-                userColor={profile?.color || '#30D158'}
+                userColor={profile?.color || '#8da694'}
               />
             ))}
 
@@ -441,7 +442,7 @@ export function App() {
                 className="w-full py-3.5 rounded-3xl bg-zinc-950/70 hover:bg-zinc-900 border border-dashed border-white/15 text-zinc-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 active:scale-98 transition-all"
               >
                 <Plus className="w-4 h-4 text-ios-accent" />
-                <span>Adicionar Exercício a este treino</span>
+                <span>Adicionar exercício à ficha</span>
               </button>
             </div>
           </div>

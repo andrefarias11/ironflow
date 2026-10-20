@@ -45,7 +45,7 @@ export const FinishWorkoutModal: React.FC<FinishWorkoutModalProps> = ({
           particleCount: 100,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ['#D4FF00', '#30D158', '#0A84FF', '#FF9F0A', '#FFFFFF']
+          colors: ['#F07848', '#8DA694', '#0A84FF', '#FF9F0A', '#FFFFFF']
         });
       } catch (e) {
         console.warn('Confetti error', e);
@@ -75,14 +75,14 @@ export const FinishWorkoutModal: React.FC<FinishWorkoutModalProps> = ({
         </button>
 
         <div className="text-center mt-2">
-          <div className="w-16 h-16 mx-auto rounded-3xl bg-gradient-to-tr from-ios-accentGreen to-ios-accent flex items-center justify-center shadow-glow-green text-black mb-3">
+          <div className="w-16 h-16 mx-auto rounded-3xl bg-ios-accent flex items-center justify-center shadow-glow-green text-black mb-3">
             <Trophy className="w-8 h-8 stroke-[2.5]" />
           </div>
           <h2 className="text-2xl font-black text-white tracking-tight">
-            Treino Concluído!
+            Treino registrado
           </h2>
           <p className="text-xs text-zinc-400 mt-1">
-            Excelente trabalho em <strong className="text-zinc-200">{workoutName}</strong>
+            Sessão de <strong className="text-zinc-200">{workoutName}</strong>
           </p>
         </div>
 

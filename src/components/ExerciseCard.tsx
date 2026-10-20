@@ -5,6 +5,7 @@ import { soundManager } from '../utils/sound';
 
 interface ExerciseCardProps {
   exercise: Exercise;
+  position: number;
   soundEnabled?: boolean;
   vibrateEnabled?: boolean;
   onToggleSet: (exerciseId: string, setId: string) => void;
@@ -21,6 +22,7 @@ interface ExerciseCardProps {
 
 export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   exercise,
+  position,
   soundEnabled = true,
   vibrateEnabled = true,
   onToggleSet,
@@ -77,7 +79,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
               title="Ver movimento, postura e vídeo demonstrativo"
             >
               <PlayCircle className="w-3 h-3 shrink-0" />
-              <span>Ver Movimento</span>
+              <span>Técnica</span>
             </button>
 
             {isAllComplete && (
@@ -87,7 +89,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
             )}
           </div>
           <h3 className="text-base font-bold text-white tracking-tight mt-1">
-            {exercise.name}
+            <span className="exercise-number">{String(position).padStart(2, '0')}</span>{exercise.name}
           </h3>
           {exercise.notes && (
             <p className="text-xs text-zinc-400 mt-0.5 line-clamp-1 italic">
@@ -157,7 +159,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
       {isExpanded && (
         <div className="px-3 pb-3 pt-1 border-t border-white/5">
           <div className="grid grid-cols-12 gap-1 px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-zinc-500 text-center">
-            <span className="col-span-1 text-left">Set</span>
+            <span className="col-span-1 text-left">Série</span>
             <span className="col-span-3 text-center">Anterior</span>
             <span className="col-span-3 text-center">Carga (kg)</span>
             <span className="col-span-3 text-center">Reps</span>
@@ -241,7 +243,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                           ? 'text-black shadow-glow-green scale-100'
                           : 'bg-zinc-800/90 text-zinc-600 hover:text-zinc-400 hover:bg-zinc-700/80 border border-white/10'
                       }`}
-                      style={set.completed ? { backgroundColor: userColor || '#30D158' } : undefined}
+                      style={set.completed ? { backgroundColor: userColor || '#8da694' } : undefined}
                       aria-pressed={set.completed}
                       aria-label={`${set.completed ? "Desmarcar" : "Concluir"} série ${set.setNumber} de ${exercise.name}`}
                     >

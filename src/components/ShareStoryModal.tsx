@@ -1,3 +1,4 @@
+import { BrandMark } from './BrandMark';
 import React, { useRef, useState } from 'react';
 import { toPng } from 'html-to-image';
 import { 
@@ -5,7 +6,6 @@ import {
   Share2, 
   Flame, 
   Trophy, 
-  Dumbbell, 
   Sparkles
 } from 'lucide-react';
 import { MuscleFigure } from './MuscleFigure';
@@ -74,7 +74,7 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
           await navigator.share({
             files: [file],
             title: `Treino Concluído - ${workoutName}`,
-            text: `🔥 Treino finalizado no Ironflow! ${completedSets} séries concluídas.`
+            text: `Treino registrado no Ironflow! ${completedSets} séries concluídas.`
           });
           showToast('Compartilhado com sucesso!');
           setIsGenerating(false);
@@ -117,25 +117,21 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
         {/* ============================================================ */}
         <div
           ref={cardRef}
-          className="w-[340px] h-[604px] rounded-[38px] p-7 relative flex flex-col justify-between overflow-hidden shadow-2xl select-none"
+          className="w-[340px] h-[604px] rounded-[8px] p-7 relative flex flex-col justify-between overflow-hidden shadow-2xl select-none"
           style={{
-            background: 'radial-gradient(130% 100% at 20% 0%, #15180f 0%, #0a0a0c 45%, #050506 100%)',
+            background: '#111211',
             boxShadow: '0 25px 60px -15px rgba(0,0,0,0.9), inset 0 1px 1px rgba(255, 255, 255, 0.15)'
           }}
         >
-          {/* Atmosferas de Luz suaves (Acid Green no topo esquerdo e Warm Orange embaixo) */}
-          <div className="absolute -top-16 -left-16 w-56 h-56 rounded-full bg-[#D4FF00] opacity-[0.14] blur-[70px] pointer-events-none" />
-          <div className="absolute -bottom-16 -left-10 w-64 h-64 rounded-full bg-[#FF5500] opacity-[0.16] blur-[80px] pointer-events-none" />
-
           {/* 1. TOPO: Marca & Data (Exatamente igual ao print) */}
           <div className="relative z-10 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-2xl bg-[#D4FF00] flex items-center justify-center text-black font-black shadow-[0_0_15px_rgba(212,255,0,0.3)]">
-                <Dumbbell className="w-4 h-4 fill-current stroke-current" />
+              <div className="w-9 h-9 flex items-center justify-center text-ios-accent">
+                <BrandMark className="w-9 h-9" />
               </div>
               <div className="flex items-center gap-2">
                 <span className="font-black tracking-wider text-white text-base font-sans">IRONFLOW</span>
-                <span className="text-[9px] font-mono font-bold tracking-widest uppercase text-[#D4FF00]">PRO</span>
+                <span className="text-[9px] font-mono font-bold tracking-widest uppercase text-[#F07848]">TRAINING LOG</span>
               </div>
             </div>
 
@@ -246,7 +242,7 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
           <button
             onClick={handleShareOrDownload}
             disabled={isGenerating}
-            className="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#D4FF00] via-[#99ea00] to-[#30D158] text-black font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(212,255,0,0.35)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-60"
+            className="w-full py-3.5 px-5 rounded-2xl bg-ios-accent text-black font-black text-sm uppercase tracking-wider shadow-[0_0_25px_rgba(0,0,0,0)] hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-60"
           >
             {isGenerating ? (
               <span className="animate-spin w-4 h-4 border-2 border-black border-t-transparent rounded-full" />
