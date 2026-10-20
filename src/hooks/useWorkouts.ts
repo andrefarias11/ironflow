@@ -116,6 +116,10 @@ export function useWorkouts() {
     return workouts.find(w => w.id === activeWorkoutId) || workouts[0] || null;
   }, [workouts, activeWorkoutId]);
 
+  useEffect(() => {
+    if (activeWorkout && activeWorkout.id !== activeWorkoutId) setActiveWorkoutId(activeWorkout.id);
+  }, [activeWorkout, activeWorkoutId]);
+
   const progress = useMemo(() => {
     if (!activeWorkout) {
       return { totalSets: 0, completedSets: 0, percentage: 0, totalVolumeKg: 0, exercisesCount: 0 };
@@ -169,8 +173,15 @@ export function useWorkouts() {
           }
         };
       });
+    } else if (!workouts.some(workout => workout.exercises.some(exercise => exercise.sets.some(set => set.completed))) && !history.some(entry => formatDateToKey(new Date(entry.completedAt)) === todayKey)) {
+      setStreakHistory(prev => {
+        if (!prev[todayKey]) return prev;
+        const next = { ...prev };
+        delete next[todayKey];
+        return next;
+      });
     }
-  }, [progress.percentage, progress.completedSets, progress.totalSets]);
+  }, [progress.percentage, progress.completedSets, progress.totalSets, history, workouts]);
 
   // Sincroniza e consolida dias passados do streakHistory no histórico oficial
   useEffect(() => {
@@ -344,7 +355,7 @@ export function useWorkouts() {
     field: 'weight' | 'reps',
     val: number
   ) => {
-    const value = Math.max(0, val);
+    const value = Number.isFinite(val) ? Math.max(0, field === 'reps' ? Math.floor(val) : val) : 0;
     setWorkouts(prevWorkouts =>
       prevWorkouts.map(w => {
         if (w.id !== activeWorkoutId) return w;
@@ -499,7 +510,7 @@ export function useWorkouts() {
     durationMinutes: number,
     stats?: { caloriesBurned?: number; avgHeartRate?: number; maxHeartRate?: number }
   ) => {
-    if (!activeWorkout) return;
+    if (!activeWorkout || progress.completedSets === 0) return;
 
     const entry: WorkoutHistoryEntry = {
       id: `hist-${Date.now()}`,
@@ -515,7 +526,12 @@ export function useWorkouts() {
       maxHeartRate: stats?.maxHeartRate
     };
 
-    setHistory(prev => [entry, ...prev].slice(0, 50));
+    const dayKey = formatDateToKey(new Date());
+    setStreakHistory(prev => ({ ...prev, [dayKey]: {
+      date: dayKey, percentage: progress.percentage,
+      completedSets: progress.completedSets, totalSets: progress.totalSets
+    } }));
+    setHistory(prev => [entry, ...prev]);
     resetWorkout();
     return entry;
   };
@@ -562,45 +578,20 @@ export function useWorkouts() {
   };
 
   const deleteDayWorkout = (dateKey: string, entryId?: string): WorkoutHistoryEntry[] => {
-    let removedEntries: WorkoutHistoryEntry[] = [];
+    const removedEntries = history.filter(entry => entryId ? entry.id === entryId : formatDateToKey(new Date(entry.completedAt)) === dateKey);
 
-    setHistory(prev => {
-      const remaining: WorkoutHistoryEntry[] = [];
-      prev.forEach(entry => {
-        let entryDateKey = '';
-        try {
-          entryDateKey = formatDateToKey(new Date(entry.completedAt));
-        } catch {}
-
-        const isTarget = entryId ? entry.id === entryId : (entryDateKey === dateKey);
-
-        if (isTarget) {
-          removedEntries.push(entry);
-        } else {
-          remaining.push(entry);
-        }
+    const matches = (entry: WorkoutHistoryEntry) => entryId
+      ? entry.id === entryId
+      : formatDateToKey(new Date(entry.completedAt)) === dateKey;
+    setHistory(prev => prev.filter(entry => !matches(entry)));
+    const stillHasWorkoutOnDay = history.some(entry => !matches(entry) && formatDateToKey(new Date(entry.completedAt)) === dateKey);
+    if (!stillHasWorkoutOnDay) {
+      setStreakHistory(prev => {
+        const next = { ...prev };
+        delete next[dateKey];
+        return next;
       });
-
-      // Verifica se ainda sobraram outros treinos concluídos no mesmo dia
-      const stillHasWorkoutOnDay = remaining.some(e => {
-        try {
-          return formatDateToKey(new Date(e.completedAt)) === dateKey;
-        } catch {
-          return false;
-        }
-      });
-
-      // Se não sobrou nenhum treino para esse dia, remove do streakHistory
-      if (!stillHasWorkoutOnDay) {
-        setStreakHistory(prevStreak => {
-          const nextStreak = { ...prevStreak };
-          delete nextStreak[dateKey];
-          return nextStreak;
-        });
-      }
-
-      return remaining;
-    });
+    }
 
     // Se o dia apagado for hoje, reseta os checkboxes de séries ativas
     const todayKey = formatDateToKey(new Date());

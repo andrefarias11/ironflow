@@ -85,6 +85,7 @@ export const WorkoutTabs: React.FC<WorkoutTabsProps> = ({
               return (
                 <button
                   key={w.id}
+                  aria-pressed={isActive}
                   onClick={() => onSelectWorkout(w.id)}
                   className={`flex-shrink-0 px-3.5 py-2 rounded-2xl text-xs font-semibold transition-all duration-200 active:scale-95 relative border ${
                     isActive

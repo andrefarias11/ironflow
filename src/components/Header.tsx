@@ -39,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header 
-      className="px-3 sm:px-4 pb-2.5 flex items-center justify-between border-b border-white/10 bg-black/90 backdrop-blur-xl sticky top-0 z-30"
+      className="app-header px-3 sm:px-4 pb-2.5 flex items-center justify-between border-b border-white/10 bg-black/90 backdrop-blur-xl sticky top-0 z-30"
       style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 14px)' }}
     >
       {/* Lado Esquerdo: Logo e Título */}

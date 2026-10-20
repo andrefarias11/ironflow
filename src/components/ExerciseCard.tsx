@@ -5,6 +5,8 @@ import { soundManager } from '../utils/sound';
 
 interface ExerciseCardProps {
   exercise: Exercise;
+  soundEnabled?: boolean;
+  vibrateEnabled?: boolean;
   onToggleSet: (exerciseId: string, setId: string) => void;
   onUpdateSet: (exerciseId: string, setId: string, field: 'weight' | 'reps', value: number) => void;
   onAddSet: (exerciseId: string) => void;
@@ -19,6 +21,8 @@ interface ExerciseCardProps {
 
 export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   exercise,
+  soundEnabled = true,
+  vibrateEnabled = true,
   onToggleSet,
   onUpdateSet,
   onAddSet,
@@ -40,10 +44,10 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
 
   const handleToggle = (setId: string, currentState: boolean) => {
     if (!currentState) {
-      soundManager.playCheckSound(true);
-      soundManager.vibrate(25, true);
+      soundManager.playCheckSound(soundEnabled);
+      soundManager.vibrate(25, vibrateEnabled);
     } else {
-      soundManager.playUncheckSound(true);
+      soundManager.playUncheckSound(soundEnabled);
     }
     onToggleSet(exercise.id, setId);
   };
@@ -51,7 +55,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
   const restTimeOptions = [45, 60, 75, 90, 120];
 
   return (
-    <article className="mx-4 my-3 rounded-3xl bg-zinc-950/80 border border-white/10 overflow-hidden shadow-lg transition-all duration-300">
+    <article className="exercise-card mx-4 my-3 rounded-3xl bg-zinc-950/80 border border-white/10 overflow-hidden shadow-lg transition-all duration-300">
       <div 
         onClick={() => setIsExpanded(!isExpanded)}
         className="p-4 flex items-center justify-between cursor-pointer select-none active:bg-white/5 transition-colors"
@@ -120,9 +124,9 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
             <span>{exercise.restSeconds || 60}s</span>
           </button>
 
-          <div className="p-1">
+          <button type="button" aria-label={isExpanded ? "Recolher exercício" : "Expandir exercício"} aria-expanded={isExpanded} onClick={(event) => { event.stopPropagation(); setIsExpanded(!isExpanded); }} className="p-1">
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          </div>
+          </button>
         </div>
       </div>
 
@@ -190,6 +194,8 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                   <div className="col-span-3 flex items-center justify-center">
                     <div className="relative flex items-center bg-black/60 rounded-xl border border-white/10 px-1 py-1 w-full max-w-[76px] justify-between">
                       <input
+                        aria-label={`Carga da série ${set.setNumber} de ${exercise.name}`}
+                        inputMode="decimal"
                         type="number"
                         step="0.5"
                         min="0"
@@ -204,6 +210,8 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                   <div className="col-span-3 flex items-center justify-center">
                     <div className="relative flex items-center bg-black/60 rounded-xl border border-white/10 px-1 py-1 w-full max-w-[64px] justify-between">
                       <input
+                        aria-label={`Repetições da série ${set.setNumber} de ${exercise.name}`}
+                        inputMode="numeric"
                         type="number"
                         step="1"
                         min="0"
@@ -234,7 +242,8 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                           : 'bg-zinc-800/90 text-zinc-600 hover:text-zinc-400 hover:bg-zinc-700/80 border border-white/10'
                       }`}
                       style={set.completed ? { backgroundColor: userColor || '#30D158' } : undefined}
-                      aria-label={`Marcar série ${set.setNumber} como concluída`}
+                      aria-pressed={set.completed}
+                      aria-label={`${set.completed ? "Desmarcar" : "Concluir"} série ${set.setNumber} de ${exercise.name}`}
                     >
                       <Check className={`w-4 h-4 stroke-[3] transition-transform ${
                         set.completed ? 'scale-110' : 'scale-90 opacity-40'

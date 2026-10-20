@@ -106,12 +106,12 @@ export const workoutSyncService = {
    */
   async deleteHistoryEntryFromCloud(
     userId: string,
-    options: { entryIds?: string[]; dateKey?: string; deleteAllDay?: boolean }
+    options: { entryIds?: string[]; dateKey?: string; deleteAllDay?: boolean; completedAt?: string }
   ) {
     if (!isSupabaseConfigured || !userId) return;
 
     try {
-      const { entryIds = [], dateKey, deleteAllDay = false } = options;
+      const { entryIds = [], dateKey, deleteAllDay = false, completedAt } = options;
 
       // 1. Deletar por IDs válidos do banco (UUID)
       const validUuids = entryIds.filter(id => id && !id.startsWith('hist-'));
@@ -124,7 +124,10 @@ export const workoutSyncService = {
       }
 
       // 2. Deletar por data no Supabase se for para apagar o dia todo ou se eram IDs locais
-      if (dateKey && (deleteAllDay || validUuids.length === 0)) {
+      if (!deleteAllDay && validUuids.length === 0 && completedAt) {
+        await supabase.from('workout_history').delete().eq('user_id', userId).eq('completed_at', completedAt);
+      }
+      if (dateKey && deleteAllDay) {
         const parts = dateKey.split('-').map(Number);
         const startOfDay = new Date(parts[0], parts[1] - 1, parts[2], 0, 0, 0, 0).toISOString();
         const endOfDay = new Date(parts[0], parts[1] - 1, parts[2], 23, 59, 59, 999).toISOString();

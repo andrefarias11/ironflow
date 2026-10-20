@@ -3,6 +3,8 @@ import { Play, Pause, Plus, X, Timer } from 'lucide-react';
 import { soundManager } from '../utils/sound';
 
 interface RestTimerBarProps {
+  soundEnabled?: boolean;
+  vibrateEnabled?: boolean;
   isActive: boolean;
   timeLeft: number;
   totalTime: number;
@@ -14,6 +16,8 @@ interface RestTimerBarProps {
 }
 
 export const RestTimerBar: React.FC<RestTimerBarProps> = ({
+  soundEnabled = true,
+  vibrateEnabled = true,
   isActive,
   timeLeft,
   totalTime,
@@ -25,10 +29,10 @@ export const RestTimerBar: React.FC<RestTimerBarProps> = ({
 }) => {
   useEffect(() => {
     if (isActive && timeLeft === 0) {
-      soundManager.playTimerDoneSound(true);
-      soundManager.vibrate([100, 80, 100, 80, 200], true);
+      soundManager.playTimerDoneSound(soundEnabled);
+      soundManager.vibrate([100, 80, 100, 80, 200], vibrateEnabled);
     }
-  }, [isActive, timeLeft]);
+  }, [isActive, timeLeft, soundEnabled, vibrateEnabled]);
 
   if (!isActive) return null;
 
@@ -36,7 +40,7 @@ export const RestTimerBar: React.FC<RestTimerBarProps> = ({
   const seconds = timeLeft % 60;
   const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   
-  const progressPercent = totalTime > 0 ? ((totalTime - timeLeft) / totalTime) * 100 : 100;
+  const progressPercent = totalTime > 0 ? Math.max(0, Math.min(100, ((totalTime - timeLeft) / totalTime) * 100)) : 100;
   const isUrgent = timeLeft <= 5 && timeLeft > 0;
 
   return (
