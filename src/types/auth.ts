@@ -19,7 +19,6 @@ export interface RoomSetEvent {
   userId: string;
   userName: string;
   userColor: string;
-  weight?: number;
   reps?: number;
 }
 

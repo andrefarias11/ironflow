@@ -9,7 +9,7 @@ interface ExerciseCardProps {
   soundEnabled?: boolean;
   vibrateEnabled?: boolean;
   onToggleSet: (exerciseId: string, setId: string) => void;
-  onUpdateSet: (exerciseId: string, setId: string, field: 'weight' | 'reps', value: number) => void;
+  onUpdateSet: (exerciseId: string, setId: string, field: 'reps', value: number) => void;
   onAddSet: (exerciseId: string) => void;
   onRemoveSet: (exerciseId: string, setId: string) => void;
   onRemoveExercise: (exerciseId: string) => void;
@@ -54,7 +54,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
     onToggleSet(exercise.id, setId);
   };
 
-  const restTimeOptions = [45, 60, 75, 90, 120];
+  const restTimeOptions = [60, 90, 120, 150, 180];
 
   return (
     <article className={`exercise-card ${isAllComplete ? 'exercise-card-complete' : ''}`}>
@@ -101,8 +101,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
         <div id={`exercise-${exercise.id}`} className="exercise-table">
           <div className="set-grid set-grid-heading">
             <span className="set-cell">Série</span>
-            <span className="set-cell">Anterior</span>
-            <span className="set-cell">Carga (kg)</span>
+            <span className="set-cell">Reps anteriores</span>
             <span className="set-cell">Reps</span>
             <span className="set-cell">Feito</span>
           </div>
@@ -130,24 +129,10 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
 
                   <div className="set-cell">
                     <span className="set-previous">
-                      {set.previousWeight !== undefined ? `${set.previousWeight} × ${set.previousReps ?? 10}` : '—'}
+                      {set.previousReps !== undefined ? `${set.previousReps} reps` : '—'}
                     </span>
                   </div>
 
-                  <div className="set-cell">
-                    <div className="set-input-wrap">
-                      <input
-                        aria-label={`Carga da série ${set.setNumber} de ${exercise.name}`}
-                        inputMode="decimal"
-                        type="number"
-                        step="0.5"
-                        min="0"
-                        value={set.weight}
-                        onChange={(e) => onUpdateSet(exercise.id, set.id, 'weight', parseFloat(e.target.value) || 0)}
-                        className="w-full text-center bg-transparent text-white font-mono font-bold text-xs focus:outline-none"
-                      />
-                    </div>
-                  </div>
 
                   <div className="set-cell">
                     <div className="set-input-wrap">
@@ -169,7 +154,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                       <div 
                         className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-black shadow-md ring-1 ring-white/20 animate-scaleIn shrink-0"
                         style={{ backgroundColor: partnerSet.userColor || '#00E5FF' }}
-                        title={`${partnerSet.userName} concluiu (${partnerSet.weight || 0}kg × ${partnerSet.reps || 0})`}
+                        title={`${partnerSet.userName} concluiu (${partnerSet.reps || 0} repetições)`}
                       >
                         {partnerSet.userName.charAt(0).toUpperCase()}
                       </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Workout, Exercise, ExerciseSet, WorkoutHistoryEntry, UserPreferences } from '../types/workout';
-import { DEFAULT_WORKOUTS } from '../data/defaultWorkouts';
+import { DEFAULT_WORKOUTS, prepareWorkouts } from '../data/defaultWorkouts';
 import { DayActivity, calculateStreak, formatDateToKey, isScheduledRestDay, getWeekRange, getPreviousWeekRange } from '../utils/streak';
 
 const STORAGE_KEYS = {
@@ -24,7 +24,7 @@ export function useWorkouts() {
       const saved = localStorage.getItem(STORAGE_KEYS.WORKOUTS);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) return prepareWorkouts(parsed);
       }
     } catch (e) {
       console.error('Error loading workouts from localStorage', e);
@@ -122,19 +122,17 @@ export function useWorkouts() {
 
   const progress = useMemo(() => {
     if (!activeWorkout) {
-      return { totalSets: 0, completedSets: 0, percentage: 0, totalVolumeKg: 0, exercisesCount: 0 };
+      return { totalSets: 0, completedSets: 0, percentage: 0, exercisesCount: 0 };
     }
 
     let totalSets = 0;
     let completedSets = 0;
-    let totalVolumeKg = 0;
 
     activeWorkout.exercises.forEach(ex => {
       ex.sets.forEach(set => {
         totalSets += 1;
         if (set.completed) {
           completedSets += 1;
-          totalVolumeKg += (set.weight || 0) * (set.reps || 0);
         }
       });
     });
@@ -145,7 +143,6 @@ export function useWorkouts() {
       totalSets,
       completedSets,
       percentage,
-      totalVolumeKg,
       exercisesCount: activeWorkout.exercises.length
     };
   }, [activeWorkout]);
@@ -352,10 +349,10 @@ export function useWorkouts() {
   const updateSet = (
     exerciseId: string,
     setId: string,
-    field: 'weight' | 'reps',
+    field: 'reps',
     val: number
   ) => {
-    const value = Number.isFinite(val) ? Math.max(0, field === 'reps' ? Math.floor(val) : val) : 0;
+    const value = Number.isFinite(val) ? Math.max(0, Math.floor(val)) : 0;
     setWorkouts(prevWorkouts =>
       prevWorkouts.map(w => {
         if (w.id !== activeWorkoutId) return w;
@@ -388,10 +385,8 @@ export function useWorkouts() {
             const newSet: ExerciseSet = {
               id: `set-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
               setNumber: ex.sets.length + 1,
-              weight: lastSet ? lastSet.weight : 20,
               reps: lastSet ? lastSet.reps : 10,
               completed: false,
-              previousWeight: lastSet ? lastSet.weight : 20,
               previousReps: lastSet ? lastSet.reps : 10,
             };
             return {
@@ -445,9 +440,9 @@ export function useWorkouts() {
       notes: exerciseData.notes || '',
       restSeconds: exerciseData.restSeconds || 60,
       sets: [
-        { id: `s1-${Date.now()}`, setNumber: 1, weight: 20, reps: 10, completed: false },
-        { id: `s2-${Date.now()}`, setNumber: 2, weight: 20, reps: 10, completed: false },
-        { id: `s3-${Date.now()}`, setNumber: 3, weight: 20, reps: 10, completed: false },
+        { id: `s1-${Date.now()}`, setNumber: 1, reps: 10, completed: false },
+        { id: `s2-${Date.now()}`, setNumber: 2, reps: 10, completed: false },
+        { id: `s3-${Date.now()}`, setNumber: 3, reps: 10, completed: false },
       ]
     };
 
@@ -496,7 +491,6 @@ export function useWorkouts() {
             ...ex,
             sets: ex.sets.map(s => ({
               ...s,
-              previousWeight: s.weight,
               previousReps: s.reps,
               completed: false
             }))

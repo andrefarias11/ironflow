@@ -86,7 +86,7 @@ export const FinishWorkoutModal: React.FC<FinishWorkoutModalProps> = ({
           </p>
         </div>
 
-        {/* Resumo Séries e Volume */}
+        {/* Resumo de séries e exercícios */}
         <div className="grid grid-cols-2 gap-2.5 my-4">
           <div className="rounded-2xl bg-black/40 border border-white/5 p-3 text-center">
             <div className="flex items-center justify-center gap-1 text-[11px] text-zinc-400 uppercase font-semibold">

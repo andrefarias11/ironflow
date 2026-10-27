@@ -217,7 +217,6 @@ export function useWorkoutRoom() {
     exerciseId: string,
     setNumber: number,
     completed: boolean,
-    weight?: number,
     reps?: number
   ) => {
     if (!channelRef.current || !user || !profile) return;
@@ -229,7 +228,6 @@ export function useWorkoutRoom() {
       userId: user.id,
       userName: profile.name,
       userColor: profile.color,
-      weight,
       reps,
     };
 

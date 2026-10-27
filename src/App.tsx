@@ -267,7 +267,7 @@ export function App() {
 
     // Se estiver em sala com parceiro, envia a atualização em tempo real
     if (activeRoom && targetSet) {
-      broadcastSetProgress(exerciseId, targetSet.setNumber, justCompleted, targetSet.weight, targetSet.reps);
+      broadcastSetProgress(exerciseId, targetSet.setNumber, justCompleted, targetSet.reps);
     }
   };
 
@@ -412,6 +412,7 @@ export function App() {
       {/* 4. Lista de Exercícios */}
       <main id="workout" className="flex-1 pb-24">
         <div className="exercise-heading"><div><span className="eyebrow">02 / NO TREINO</span><h2>{activeWorkout?.name} <span>{activeWorkout?.category}</span></h2></div><span>{progress.exercisesCount} exercícios</span></div>
+        {activeWorkout?.description && <p className="mb-5 text-xs leading-relaxed text-zinc-400">{activeWorkout.description}</p>}
         {activeWorkout && activeWorkout.exercises.length > 0 ? (
           <div className="exercise-list">
             {activeWorkout.exercises.map((exercise, index) => (

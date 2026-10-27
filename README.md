@@ -11,7 +11,7 @@ Projetado especialmente para ser adicionado à **Tela de Início do iPhone**, ro
 - 📊 **Progress Bar Geral em Destaque**:
   - Exibe a porcentagem exata de conclusão do treino (`0%` a `100%`).
   - Total de séries realizadas vs. planejadas (`Ex: 12 / 18 séries`).
-  - Volume total de carga levantada acumulada no dia (`kg`).
+  - Acompanhamento de séries e repetições, sem comparar cargas entre aparelhos.
 - ⚡ **Mini Progress Bar por Exercício**:
   - Acompanhamento visual série por série em cada aparelho.
 - 📱 **Design Minimalista & iOS Aesthetic**:
@@ -22,7 +22,7 @@ Projetado especialmente para ser adicionado à **Tela de Início do iPhone**, ro
   - Visualização elegante estilo Apple Calendar do mês atual (ex: Outubro 2026).
   - Marcadores visuais em cada dia: **Chama Laranja 🔥** (treino 100%), ponto âmbar (treino parcial) e **Lua Azul 🌙** (dias de descanso programado).
   - Navegação entre meses anteriores e botão de atalho para voltar a "Hoje".
-  - Toque em qualquer dia para inspecionar os detalhes: séries realizadas, porcentagem e carga total em kg.
+  - Toque em qualquer dia para inspecionar os detalhes: séries realizadas e porcentagem de conclusão.
 - 🔥 **Sequência de Treinos Estilo Strava (Streaks Dinâmicos)**:
   - **Chama que acende de acordo com a barra**:
     - `0%`: Chama em modo brasa/fria.
@@ -42,11 +42,11 @@ Projetado especialmente para ser adicionado à **Tela de Início do iPhone**, ro
 - 🔊 **Feedback Tátil e Sonoro**:
   - Som sutil de check e vibração háptica nativa ao marcar as séries.
 - 🏆 **Celebração com Confetes**:
-  - Modal festivo ao concluir o treino com resumo da sessão (séries, volume e tempo).
+  - Modal festivo ao concluir o treino com resumo da sessão (séries, exercícios e tempo).
 - 📅 **Histórico de Treinos**:
-  - Salva automaticamente as sessões finalizadas com data, duração e carga.
+  - Salva automaticamente as sessões finalizadas com data, duração e séries.
 - 📂 **Treinos Pré-configurados & Personalização Total**:
-  - Já vem com **Treino A (Peito & Tríceps)**, **Treino B (Costas & Bíceps)** e **Treino C (Pernas & Ombros)**.
+  - Já vem com quatro treinos de superiores/inferiores: **A (Peito e Costas)**, **B (Quadríceps)**, **C (Peito, Costas e Ombros)** e **D (Posteriores e Glúteos)**, com faixas de repetições e descanso por exercício.
   - Permite criar novas divisões, adicionar/remover exercícios e séries livremente.
 
 ---

@@ -1,3 +1,4 @@
+import { prepareWorkouts } from '../data/defaultWorkouts';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { Workout, WorkoutHistoryEntry } from '../types/workout';
 
@@ -11,7 +12,7 @@ export const workoutSyncService = {
     try {
       await supabase.from('user_workouts').upsert({
         user_id: userId,
-        workouts_data: workouts,
+        workouts_data: prepareWorkouts(workouts),
         active_workout_id: activeWorkoutId,
         updated_at: new Date().toISOString(),
       }, { onConflict: 'user_id' });
@@ -36,7 +37,7 @@ export const workoutSyncService = {
       if (error || !data) return { workouts: null, activeWorkoutId: null };
 
       return {
-        workouts: data.workouts_data as Workout[],
+        workouts: Array.isArray(data.workouts_data) ? prepareWorkouts(data.workouts_data as Workout[]) : null,
         activeWorkoutId: data.active_workout_id,
       };
     } catch (err) {

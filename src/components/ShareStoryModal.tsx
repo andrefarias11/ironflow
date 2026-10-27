@@ -18,7 +18,6 @@ interface ShareStoryModalProps {
   completedSets: number;
   totalSets: number;
   exercisesCount?: number;
-  totalVolumeKg?: number;
   durationMinutes: number;
   caloriesBurned?: number;
   avgHeartRate?: number;

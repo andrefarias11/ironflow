@@ -171,7 +171,7 @@
 .exercise-mini-track > div { height: 100%; background: var(--accent); transition: width .2s; }
 .exercise-card-complete .exercise-mini-track > div { background: #8da694; }
 .exercise-table { padding: 0 12px 12px; }
-.set-grid { display: grid; grid-template-columns: 28px minmax(52px,.95fr) minmax(58px,1fr) minmax(48px,.85fr) 44px; gap: 6px; align-items: center; text-align: center; }
+.set-grid { display: grid; grid-template-columns: 28px minmax(70px,1fr) minmax(64px,1fr) 44px; gap: 6px; align-items: center; text-align: center; }
 .set-grid-heading { padding: 12px 4px 9px; font: 9px/1.4 ui-monospace, monospace; text-transform: uppercase; letter-spacing: .2px; color: #b1b5a8; }
 .set-cell { min-width: 0; display: flex; align-items: center; justify-content: center; }
 .set-row { border: 1px solid #ffffff08; border-radius: 5px; padding: 5px 3px; min-height: 56px; transition: background .2s, border-color .2s; }
@@ -229,7 +229,7 @@
   .ironflow-dialog { border-radius: 14px 14px 0 0; max-height: calc(100dvh - 20px); padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px); }
   .ironflow-dialog h2 { font-size: 19px; }
 }
-@media (max-width: 360px) { .set-grid { grid-template-columns: 22px minmax(43px,.85fr) minmax(48px,1fr) minmax(40px,.8fr) 44px; gap: 4px; } .set-grid-heading { font-size: 8px; } .set-previous { font-size: 10px; } .exercise-metadata { gap: 10px; } }
+@media (max-width: 360px) { .set-grid { grid-template-columns: 22px minmax(60px,1fr) minmax(50px,1fr) 44px; gap: 4px; } .set-grid-heading { font-size: 8px; } .set-previous { font-size: 10px; } .exercise-metadata { gap: 10px; } }
 .set-input-wrap:focus-within { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 @media (max-width: 720px) {
   .workout-option-status { display: none; }
