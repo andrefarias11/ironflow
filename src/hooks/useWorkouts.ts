@@ -4,8 +4,8 @@ import { DEFAULT_WORKOUTS } from '../data/defaultWorkouts';
 import { DayActivity, calculateStreak, formatDateToKey, isScheduledRestDay, getWeekRange, getPreviousWeekRange } from '../utils/streak';
 
 const STORAGE_KEYS = {
-  WORKOUTS: 'treino_app_workouts_upper_lower_v3',
-  ACTIVE_WORKOUT_ID: 'treino_app_active_id_upper_lower_v3',
+  WORKOUTS: 'treino_app_workouts_recomp_v4',
+  ACTIVE_WORKOUT_ID: 'treino_app_active_id_recomp_v4',
   HISTORY: 'treino_app_history_v1',
   PREFERENCES: 'treino_app_preferences_v1',
   STREAK_HISTORY: 'treino_app_streak_history_v1'

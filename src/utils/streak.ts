@@ -16,8 +16,8 @@ export interface StreakState {
 // 0 = Domingo, 1 = Segunda, 2 = Terça, 3 = Quarta, 4 = Quinta, 5 = Sexta, 6 = Sábado
 export function isScheduledRestDay(date: Date): boolean {
   const day = date.getDay();
-  // Quarta (3), Sábado (6) e Domingo (0) são dias de descanso
-  return day === 3 || day === 6 || day === 0;
+  // Segunda a Sexta são dias de treino (A, B, C, D, E). Sábado (6) e Domingo (0) são descanso programado.
+  return day === 6 || day === 0;
 }
 
 export function formatDateToKey(d: Date): string {

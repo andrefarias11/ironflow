@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dumbbell, Settings, Calendar, Users, User as UserIcon } from 'lucide-react';
+import { Dumbbell, Settings, Calendar, Users, User as UserIcon, Target } from 'lucide-react';
 import { StreakFlame } from './StreakFlame';
 
 interface HeaderProps {
@@ -8,6 +8,7 @@ interface HeaderProps {
   onOpenStreakModal: () => void;
   onOpenRoomModal: () => void;
   onOpenAuthModal: () => void;
+  onOpenPlanModal?: () => void;
   currentStreak: number;
   percentage: number;
   isTodayRestDay: boolean;
@@ -23,6 +24,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenStreakModal,
   onOpenRoomModal,
   onOpenAuthModal,
+  onOpenPlanModal,
   currentStreak,
   percentage,
   isTodayRestDay,
@@ -88,6 +90,18 @@ export const Header: React.FC<HeaderProps> = ({
           isTodayRestDay={isTodayRestDay}
           onOpenModal={onOpenStreakModal}
         />
+
+        {/* Botão Plano & Diretrizes 111kg -> 90kg */}
+        {onOpenPlanModal && (
+          <button
+            onClick={onOpenPlanModal}
+            aria-label="Plano 111kg para 90kg"
+            className="w-8 h-8 rounded-full bg-zinc-900 border border-ios-accent/30 flex items-center justify-center text-ios-accent hover:text-white active:bg-ios-accent/20 transition-colors shrink-0"
+            title="Diretrizes do Plano 111kg → 90kg"
+          >
+            <Target className="w-3.5 h-3.5" />
+          </button>
+        )}
 
         {/* Botão Calendário */}
         <button

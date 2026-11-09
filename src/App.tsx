@@ -16,13 +16,15 @@ import { MonthCalendarModal } from './components/MonthCalendarModal';
 import { StreakModal } from './components/StreakModal';
 import { ShareStoryModal } from './components/ShareStoryModal';
 import { Exercise, WorkoutHistoryEntry } from './types/workout';
-import { Plus, Dumbbell } from 'lucide-react';
+import { Plus, Dumbbell, Target } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 import { useWorkoutRoom } from './hooks/useWorkoutRoom';
 import { AuthModal } from './components/AuthModal';
 import { WorkoutRoomModal } from './components/WorkoutRoomModal';
 import { RoomLiveBar } from './components/RoomLiveBar';
+import { ProgramPlanModal } from './components/ProgramPlanModal';
 import { workoutSyncService } from './services/workoutSync';
+import { DEFAULT_WORKOUTS } from './data/defaultWorkouts';
 import { formatDateToKey } from './utils/streak';
 
 export function App() {
@@ -78,6 +80,7 @@ export function App() {
   } = useWorkoutRoom();
 
   // Estados dos Modais
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [isStreakOpen, setIsStreakOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -166,9 +169,16 @@ export function App() {
         // 1. Carrega rotinas do usuário salvas na nuvem
         const cloudWorkouts = await workoutSyncService.loadWorkoutsFromCloud(user.id);
         if (cloudWorkouts.workouts && cloudWorkouts.workouts.length > 0 && isMounted) {
-          setWorkouts(cloudWorkouts.workouts);
-          if (cloudWorkouts.activeWorkoutId) {
-            setActiveWorkoutId(cloudWorkouts.activeWorkoutId);
+          const isLegacy = cloudWorkouts.workouts.some(w => w.id === 'workout-upper-a' || w.id === 'workout-lower-a');
+          if (isLegacy) {
+            setWorkouts(DEFAULT_WORKOUTS);
+            setActiveWorkoutId(DEFAULT_WORKOUTS[0].id);
+            await workoutSyncService.saveWorkoutsToCloud(user.id, DEFAULT_WORKOUTS, DEFAULT_WORKOUTS[0].id);
+          } else {
+            setWorkouts(cloudWorkouts.workouts);
+            if (cloudWorkouts.activeWorkoutId) {
+              setActiveWorkoutId(cloudWorkouts.activeWorkoutId);
+            }
           }
         } else {
           // Se for a primeira vez, salva os treinos atuais na nuvem
@@ -340,6 +350,7 @@ export function App() {
         onOpenStreakModal={() => setIsStreakOpen(true)}
         onOpenRoomModal={() => setIsRoomOpen(true)}
         onOpenAuthModal={() => setIsAuthOpen(true)}
+        onOpenPlanModal={() => setIsPlanModalOpen(true)}
         currentStreak={currentStreak}
         percentage={progress.percentage}
         isTodayRestDay={isTodayRestDay}
@@ -376,6 +387,31 @@ export function App() {
           roomWorkoutName={activeRoom?.workout_name}
         />
       </div>
+
+      {/* Mini-banner de orientação da sessão ativa & Diretrizes 12 semanas */}
+      {activeWorkout && (
+        <div className="px-4 pt-1 pb-1">
+          <div className="flex items-center justify-between p-2.5 px-3 rounded-2xl bg-zinc-900/90 border border-white/10 text-xs shadow-sm">
+            <div className="flex items-center gap-2 min-w-0">
+              <Target className="w-4 h-4 text-ios-accent shrink-0" />
+              <div className="min-w-0">
+                <span className="font-bold text-white text-[11px] block truncate">
+                  {activeWorkout.name}: {activeWorkout.category}
+                </span>
+                <span className="text-[10px] text-zinc-400 block truncate">
+                  {activeWorkout.description || '60 min cravados • Mobilidade + Musculação + Cardio'}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsPlanModalOpen(true)}
+              className="shrink-0 ml-2 px-2.5 py-1 rounded-xl bg-ios-accent/15 hover:bg-ios-accent/25 text-ios-accent text-[10px] font-bold border border-ios-accent/30 active:scale-95 transition-all"
+            >
+              Diretrizes
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* 3. Barra de Progresso Geral & Métricas */}
       <OverallProgress
@@ -581,6 +617,12 @@ export function App() {
         onJoinRoom={joinRoom}
         onLeaveRoom={leaveRoom}
         onOpenAuth={() => setIsAuthOpen(true)}
+      />
+
+      {/* Modal do Plano 111kg -> 90kg com Diretrizes e Progressão */}
+      <ProgramPlanModal
+        isOpen={isPlanModalOpen}
+        onClose={() => setIsPlanModalOpen(false)}
       />
     </div>
   );

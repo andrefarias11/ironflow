@@ -199,7 +199,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         <div className="mt-5 pt-3 border-t border-white/5">
           <button
             onClick={() => {
-              if (confirm('Deseja restaurar a planilha padrão Upper / Lower? Seus pesos e edições voltarão ao padrão inicial.')) {
+              if (confirm('Deseja restaurar a planilha padrão oficial (Treinos A, B, C, D, E - 111kg → 90kg)? Seus exercícios voltarão ao padrão inicial.')) {
                 onResetToDefaults();
                 onClose();
               }
@@ -207,7 +207,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             className="w-full py-2.5 rounded-xl text-xs text-zinc-500 hover:text-red-400 flex items-center justify-center gap-1.5 transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Restaurar planilha padrão de fábrica</span>
+            <span>Restaurar planilha padrão oficial (A, B, C, D, E)</span>
           </button>
         </div>
       </div>
