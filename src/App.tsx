@@ -16,11 +16,7 @@ import { MonthCalendarModal } from './components/MonthCalendarModal';
 import { StreakModal } from './components/StreakModal';
 import { ShareStoryModal } from './components/ShareStoryModal';
 import { Exercise, WorkoutHistoryEntry } from './types/workout';
-<<<<<<< HEAD
-import { Plus, Dumbbell, Target } from 'lucide-react';
-=======
-import { Plus, Dumbbell, History, CalendarDays, ArrowUpRight, Layers, Users } from 'lucide-react';
->>>>>>> 1695103b45c374fcd4e61e586eb015f088b83e2a
+import { Plus, Dumbbell, Target, History, CalendarDays, ArrowUpRight, Layers, Users } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 import { useWorkoutRoom } from './hooks/useWorkoutRoom';
 import { AuthModal } from './components/AuthModal';

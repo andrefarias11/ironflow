@@ -1,8 +1,10 @@
 export interface ExerciseSet {
   id: string;
   setNumber: number;
+  weight?: number; // kg
   reps: number;
   completed: boolean;
+  previousWeight?: number;
   previousReps?: number;
 }
 

@@ -1,10 +1,6 @@
 import React from 'react';
-<<<<<<< HEAD
-import { Dumbbell, Settings, Calendar, Users, User as UserIcon, Target } from 'lucide-react';
-=======
 import { BrandMark } from './BrandMark';
-import { Settings, Calendar, Users, User as UserIcon } from 'lucide-react';
->>>>>>> 1695103b45c374fcd4e61e586eb015f088b83e2a
+import { Settings, Calendar, Users, User as UserIcon, Target } from 'lucide-react';
 import { StreakFlame } from './StreakFlame';
 
 interface HeaderProps {
@@ -59,7 +55,6 @@ export const Header: React.FC<HeaderProps> = ({
             <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-white leading-none truncate">
               IRONFLOW
             </h1>
-
           </div>
           <p className="text-[10px] sm:text-[11px] text-zinc-400 capitalize font-medium mt-0.5 truncate">
             {todayFormatted}
