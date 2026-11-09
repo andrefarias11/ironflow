@@ -6,6 +6,7 @@ export default {
   ],
   theme: {
     extend: {
+      borderRadius: { xl: "6px", "2xl": "8px", "3xl": "10px" },
       colors: {
         ios: {
           bg: "#000000",
@@ -15,8 +16,8 @@ export default {
           subtle: "#3A3A3C",
           separator: "#2C2C2E",
           textSecondary: "#8E8E93",
-          accent: "#D4FF00",
-          accentGreen: "#30D158",
+          accent: "#F07848",
+          accentGreen: "#8DA694",
           accentBlue: "#0A84FF",
           accentOrange: "#FF9F0A"
         }
@@ -35,8 +36,8 @@ export default {
         ]
       },
       boxShadow: {
-        'glow-accent': '0 0 20px -3px rgba(212, 255, 0, 0.25)',
-        'glow-green': '0 0 20px -3px rgba(48, 209, 88, 0.3)',
+        'glow-accent': 'none',
+        'glow-green': 'none',
       }
     },
   },

@@ -1,12 +1,12 @@
 {
-  "name": "Treino - Gym Tracker",
-  "short_name": "Treino",
-  "description": "Seu controle minimalista e inteligente de séries e treinos para academia",
+  "name": "Ironflow — Diário de treino",
+  "short_name": "Ironflow",
+  "description": "Cargas, séries e repetições. Seu diário de musculação.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#000000",
-  "theme_color": "#000000",
+  "background_color": "#111211",
+  "theme_color": "#111211",
   "icons": [
     {
       "src": "/apple-touch-icon.png",
@@ -32,4 +32,3 @@
     }
   ]
 }
-

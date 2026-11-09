@@ -1,10 +1,8 @@
 export interface ExerciseSet {
   id: string;
   setNumber: number;
-  weight: number; // kg
   reps: number;
   completed: boolean;
-  previousWeight?: number;
   previousReps?: number;
 }
 
@@ -22,6 +20,7 @@ export interface Exercise {
   name: string;
   muscleGroup: string;
   notes?: string;
+  repRange?: { min: number; max: number };
   restSeconds: number; // descanso padrão entre séries
   sets: ExerciseSet[];
   guide?: ExerciseGuide;
@@ -33,6 +32,7 @@ export interface Workout {
   category: string;
   description?: string;
   exercises: Exercise[];
+  templateVersion?: number;
   lastCompleted?: string;
 }
 
@@ -44,7 +44,6 @@ export interface WorkoutHistoryEntry {
   totalSets: number;
   completedSets: number;
   exercisesCount?: number;
-  totalVolumeKg?: number;
   durationMinutes: number;
   caloriesBurned?: number;
   avgHeartRate?: number;

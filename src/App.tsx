@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useWorkouts } from './hooks/useWorkouts';
 import { Header } from './components/Header';
 import { OverallProgress } from './components/OverallProgress';
@@ -16,7 +16,11 @@ import { MonthCalendarModal } from './components/MonthCalendarModal';
 import { StreakModal } from './components/StreakModal';
 import { ShareStoryModal } from './components/ShareStoryModal';
 import { Exercise, WorkoutHistoryEntry } from './types/workout';
+<<<<<<< HEAD
 import { Plus, Dumbbell, Target } from 'lucide-react';
+=======
+import { Plus, Dumbbell, History, CalendarDays, ArrowUpRight, Layers, Users } from 'lucide-react';
+>>>>>>> 1695103b45c374fcd4e61e586eb015f088b83e2a
 import { useAuth } from './contexts/AuthContext';
 import { useWorkoutRoom } from './hooks/useWorkoutRoom';
 import { AuthModal } from './components/AuthModal';
@@ -58,6 +62,9 @@ export function App() {
     isTodayRestDay,
     cycleInfo
   } = useWorkouts();
+
+  const timerDeadline = useRef<number | null>(null);
+  const [cloudReadyFor, setCloudReadyFor] = useState<string | null>(null);
 
   // Autenticação e Perfil
   const { user, profile } = useAuth();
@@ -115,23 +122,18 @@ export function App() {
     } catch {}
   }, []);
 
-  // Loop do Cronômetro de Descanso
+  // Use wall time so background tabs do not delay the rest timer.
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | null = null;
-
-    if (timerActive && !isTimerPaused && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+    if (!timerActive || isTimerPaused || timeLeft <= 0) {
+      return;
     }
-
+    if (timerDeadline.current === null) timerDeadline.current = Date.now() + timeLeft * 1000;
+    const tick = () => setTimeLeft(Math.max(0, Math.ceil(((timerDeadline.current ?? Date.now()) - Date.now()) / 1000)));
+    const interval = setInterval(tick, 250);
+    document.addEventListener('visibilitychange', tick);
     return () => {
-      if (interval) clearInterval(interval);
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', tick);
     };
   }, [timerActive, isTimerPaused, timeLeft]);
 
@@ -158,6 +160,7 @@ export function App() {
 
   // Carrega e sincroniza dados do Supabase quando o usuário logar
   useEffect(() => {
+    setCloudReadyFor(null);
     if (!user) return;
 
     let isMounted = true;
@@ -234,6 +237,8 @@ export function App() {
         }
       } catch (err) {
         console.error('Erro na sincronização com Supabase:', err);
+      } finally {
+        if (isMounted) setCloudReadyFor(user.id);
       }
     }
 
@@ -246,13 +251,14 @@ export function App() {
 
   // Salva alterações nas rotinas na nuvem
   useEffect(() => {
-    if (user && workouts.length > 0) {
+    if (user && cloudReadyFor === user.id && workouts.length > 0) {
       workoutSyncService.saveWorkoutsToCloud(user.id, workouts, activeWorkoutId);
     }
-  }, [user, workouts, activeWorkoutId]);
+  }, [user, cloudReadyFor, workouts, activeWorkoutId]);
 
   const startRestTimer = (seconds: number, exerciseName?: string) => {
     const validSec = Math.max(5, seconds);
+    timerDeadline.current = Date.now() + validSec * 1000;
     setTotalTimerTime(validSec);
     setTimeLeft(validSec);
     setIsTimerPaused(false);
@@ -275,7 +281,7 @@ export function App() {
 
     // Se estiver em sala com parceiro, envia a atualização em tempo real
     if (activeRoom && targetSet) {
-      broadcastSetProgress(exerciseId, targetSet.setNumber, justCompleted, targetSet.weight, targetSet.reps);
+      broadcastSetProgress(exerciseId, targetSet.setNumber, justCompleted, targetSet.reps);
     }
   };
 
@@ -286,7 +292,6 @@ export function App() {
     const entry = finishWorkout(durationMinutes, stats);
     if (user && entry) {
       await workoutSyncService.saveHistoryEntryToCloud(user.id, entry);
-      await workoutSyncService.saveWorkoutsToCloud(user.id, workouts, activeWorkoutId);
     }
     setIsFinishWorkoutOpen(false);
     setTimerActive(false);
@@ -320,6 +325,7 @@ export function App() {
         entryIds: removedIds,
         dateKey,
         deleteAllDay: !entryId,
+        completedAt: removed.find(entry => entry.id === entryId)?.completedAt,
       });
     }
   };
@@ -335,6 +341,7 @@ export function App() {
     if (user) {
       await workoutSyncService.deleteHistoryEntryFromCloud(user.id, {
         entryIds: [entry.id],
+        completedAt: entry.completedAt,
         dateKey,
         deleteAllDay: false,
       });
@@ -342,7 +349,7 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col font-sans safe-bottom">
+    <div className="app-shell min-h-screen text-white flex flex-col font-sans safe-bottom">
       {/* 1. Cabeçalho iOS Minimalista */}
       <Header
         onOpenCalendar={() => setIsCalendarOpen(true)}
@@ -373,6 +380,26 @@ export function App() {
         />
       )}
 
+      <div className="dashboard-layout">
+        <aside className="dashboard-sidebar">
+          <span className="eyebrow">DIÁRIO DE TREINO</span>
+          <button className="nav-item active" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><Dumbbell size={18} /> Meu treino <ArrowUpRight size={16} /></button>
+          <button className="nav-item" onClick={() => setIsHistoryOpen(true)}><History size={18} /> Histórico</button>
+          <button className="nav-item" onClick={() => setIsCalendarOpen(true)}><CalendarDays size={18} /> Calendário</button>
+          <button className="nav-item" onClick={() => setIsRoomOpen(true)}><Users size={18} /> Treinar em dupla</button>
+          <div className="sidebar-note"><span className="eyebrow">NA FICHA</span><strong>{String(workouts.length).padStart(2, '0')}</strong><p>rotinas de treino</p><div className="plate-lines" aria-hidden="true"><i /><i /><i /><i /></div></div>
+          <span className="sidebar-version">IRONFLOW / REGISTRE. REPITA.</span>
+        </aside>
+        <div className="dashboard-content">
+          <section className="dashboard-heading">
+            <div><span className="eyebrow">IRONFLOW / DIÁRIO DE TREINO</span><h2>Meu treino</h2><p>{profile?.name ? `${profile.name}, sua ficha está pronta.` : 'Selecione sua ficha e registre as séries.'}</p></div>
+            <button className="history-shortcut" onClick={() => setIsHistoryOpen(true)}><History size={16} /> Histórico <ArrowUpRight size={16} /></button>
+          </section>
+          <div className="overview-stats">
+            <div><span><CalendarDays size={16} /> Nesta semana</span><strong>{cycleInfo.completedCountThisWeek}<small> / {cycleInfo.totalCycleWorkouts} treinos</small></strong></div>
+            <div><span><Layers size={16} /> Sua sequência</span><strong>{currentStreak}<small> treinos</small></strong></div>
+          </div>
+          <div className="section-label"><span>01 / FICHAS</span><span>{workouts.length} rotinas</span></div>
       {/* 2. Seletor de Divisões de Treino */}
       <div className="pt-2">
         <WorkoutTabs
@@ -423,13 +450,18 @@ export function App() {
       />
 
       {/* 4. Lista de Exercícios */}
-      <main className="flex-1 pb-24">
+      <main id="workout" className="flex-1 pb-24">
+        <div className="exercise-heading"><div><span className="eyebrow">02 / NO TREINO</span><h2>{activeWorkout?.name} <span>{activeWorkout?.category}</span></h2></div><span>{progress.exercisesCount} exercícios</span></div>
+        {activeWorkout?.description && <p className="mb-5 text-xs leading-relaxed text-zinc-400">{activeWorkout.description}</p>}
         {activeWorkout && activeWorkout.exercises.length > 0 ? (
-          <div>
-            {activeWorkout.exercises.map((exercise) => (
+          <div className="exercise-list">
+            {activeWorkout.exercises.map((exercise, index) => (
               <ExerciseCard
                 key={exercise.id}
                 exercise={exercise}
+                position={index + 1}
+                soundEnabled={preferences.soundEnabled}
+                vibrateEnabled={preferences.vibrateEnabled}
                 onToggleSet={handleToggleSet}
                 onUpdateSet={updateSet}
                 onAddSet={addSet}
@@ -439,7 +471,7 @@ export function App() {
                 onStartCustomTimer={(sec, name) => startRestTimer(sec, name)}
                 onOpenGuide={(ex) => setSelectedGuideExercise(ex)}
                 partnerSets={partnerSets}
-                userColor={profile?.color || '#30D158'}
+                userColor={profile?.color || '#8da694'}
               />
             ))}
 
@@ -450,7 +482,7 @@ export function App() {
                 className="w-full py-3.5 rounded-3xl bg-zinc-950/70 hover:bg-zinc-900 border border-dashed border-white/15 text-zinc-300 hover:text-white text-xs font-semibold flex items-center justify-center gap-2 active:scale-98 transition-all"
               >
                 <Plus className="w-4 h-4 text-ios-accent" />
-                <span>Adicionar Exercício a este treino</span>
+                <span>Adicionar exercício à ficha</span>
               </button>
             </div>
           </div>
@@ -473,15 +505,20 @@ export function App() {
         )}
       </main>
 
+        </div>
+      </div>
+
       {/* 5. Cronômetro de Descanso Flutuante */}
       <RestTimerBar
+        soundEnabled={preferences.soundEnabled}
+        vibrateEnabled={preferences.vibrateEnabled}
         isActive={timerActive}
         timeLeft={timeLeft}
         totalTime={totalTimerTime}
         isPaused={isTimerPaused}
         exerciseName={timerExerciseName}
-        onPauseToggle={() => setIsTimerPaused(!isTimerPaused)}
-        onAddSeconds={(sec) => setTimeLeft(prev => prev + sec)}
+        onPauseToggle={() => { timerDeadline.current = null; setIsTimerPaused(!isTimerPaused); }}
+        onAddSeconds={(sec) => { timerDeadline.current = null; setTimeLeft(prev => prev + sec); setTotalTimerTime(prev => prev + sec); }}
         onStop={() => setTimerActive(false)}
       />
 
@@ -513,8 +550,15 @@ export function App() {
         onClose={() => setIsHistoryOpen(false)}
         history={history}
         onClearHistory={() => {
-          localStorage.removeItem('treino_app_history_v1');
-          window.location.reload();
+          const dates = new Set(history.map(entry => formatDateToKey(new Date(entry.completedAt))));
+          setHistory([]);
+          setStreakHistory({});
+          resetWorkout();
+          if (user) {
+            for (const dateKey of dates) {
+              void workoutSyncService.deleteHistoryEntryFromCloud(user.id, { dateKey, deleteAllDay: true });
+            }
+          }
         }}
         onShareEntry={(entry: WorkoutHistoryEntry) => {
           setStoryData({

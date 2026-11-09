@@ -1,5 +1,10 @@
 import React from 'react';
+<<<<<<< HEAD
 import { Dumbbell, Settings, Calendar, Users, User as UserIcon, Target } from 'lucide-react';
+=======
+import { BrandMark } from './BrandMark';
+import { Settings, Calendar, Users, User as UserIcon } from 'lucide-react';
+>>>>>>> 1695103b45c374fcd4e61e586eb015f088b83e2a
 import { StreakFlame } from './StreakFlame';
 
 interface HeaderProps {
@@ -41,22 +46,20 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header 
-      className="px-3 sm:px-4 pb-2.5 flex items-center justify-between border-b border-white/10 bg-black/90 backdrop-blur-xl sticky top-0 z-30"
+      className="app-header px-3 sm:px-4 pb-2.5 flex items-center justify-between border-b border-white/10 bg-black/90 backdrop-blur-xl sticky top-0 z-30"
       style={{ paddingTop: 'max(env(safe-area-inset-top, 0px), 14px)' }}
     >
       {/* Lado Esquerdo: Logo e Título */}
       <div className="flex items-center gap-2 min-w-0 shrink">
         <div className="w-8 h-8 rounded-xl bg-ios-accent flex items-center justify-center text-black shadow-glow-accent shrink-0">
-          <Dumbbell className="w-4 h-4 fill-current stroke-current" />
+          <BrandMark className="brand-mark" />
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
             <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-white leading-none truncate">
-              Ironflow
+              IRONFLOW
             </h1>
-            <span className="hidden sm:inline-block text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-white/10 text-zinc-300 shrink-0">
-              Pro
-            </span>
+
           </div>
           <p className="text-[10px] sm:text-[11px] text-zinc-400 capitalize font-medium mt-0.5 truncate">
             {todayFormatted}
