@@ -9,6 +9,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { MuscleFigure } from './MuscleFigure';
+import { useDialogClose } from '../hooks/useDialogClose';
 
 interface ShareStoryModalProps {
   isOpen: boolean;
@@ -38,6 +39,8 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
   const cardRef = useRef<HTMLDivElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useDialogClose(isOpen, onClose);
 
   if (!isOpen) return null;
 
@@ -95,7 +98,10 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-xl animate-fadeIn">
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-xl animate-fadeIn"
+    >
       {toastMessage && (
         <div className="absolute top-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-white text-black font-semibold text-xs shadow-2xl flex items-center gap-2 animate-bounce">
           <Sparkles className="w-4 h-4 text-orange-500" />
@@ -103,8 +109,15 @@ export const ShareStoryModal: React.FC<ShareStoryModalProps> = ({
         </div>
       )}
 
-      <div className="w-full max-w-sm max-h-[96vh] flex flex-col items-center relative overflow-y-auto no-scrollbar py-2">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Compartilhar resumo do treino"
+        className="w-full max-w-sm max-h-[96vh] flex flex-col items-center relative overflow-y-auto no-scrollbar py-2"
+      >
         <button
+          type="button"
+          aria-label="Fechar compartilhamento"
           onClick={onClose}
           className="absolute top-2 right-2 p-2.5 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-300 hover:text-white z-20 active:scale-95 transition-all"
         >

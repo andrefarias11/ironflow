@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Dumbbell, Clock } from 'lucide-react';
+import { useDialogClose } from '../hooks/useDialogClose';
 
 interface NewExerciseModalProps {
   isOpen: boolean;
@@ -31,6 +32,8 @@ export const NewExerciseModal: React.FC<NewExerciseModalProps> = ({
   const [notes, setNotes] = useState('');
   const [restSeconds, setRestSeconds] = useState(60);
 
+  useDialogClose(isOpen, onClose);
+
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -50,9 +53,19 @@ export const NewExerciseModal: React.FC<NewExerciseModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 p-6 shadow-2xl relative">
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Adicionar novo exercício"
+        className="ironflow-dialog w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 p-6 shadow-2xl relative"
+      >
         <button
+          type="button"
+          aria-label="Fechar novo exercício"
           onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5"
         >

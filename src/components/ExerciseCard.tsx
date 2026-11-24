@@ -1,7 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Exercise } from '../types/workout';
-import { Check, Plus, Trash2, Clock, ChevronDown, ChevronUp, PlayCircle } from 'lucide-react';
+import { Check, Plus, Minus, Trash2, Clock, ChevronDown, ChevronUp, PlayCircle } from 'lucide-react';
 import { soundManager } from '../utils/sound';
+
+interface RepsStepperProps {
+  reps: number;
+  label: string;
+  onCommit: (nextReps: number) => void;
+}
+
+const RepsStepper: React.FC<RepsStepperProps> = ({ reps, label, onCommit }) => {
+  const [draft, setDraft] = useState(String(reps));
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (!isEditing) {
+      setDraft(String(reps));
+    }
+  }, [reps, isEditing]);
+
+  const commitDraft = () => {
+    setIsEditing(false);
+    const parsed = parseInt(draft, 10);
+    const next = Number.isFinite(parsed) && parsed >= 1 ? Math.min(999, parsed) : reps;
+    setDraft(String(next));
+    if (next !== reps) {
+      onCommit(next);
+    }
+  };
+
+  return (
+    <div className="set-input-wrap set-stepper-wrap">
+      <button
+        type="button"
+        onClick={() => onCommit(Math.max(1, reps - 1))}
+        disabled={reps <= 1}
+        aria-label={`Diminuir repetições da ${label}`}
+        className="set-step-btn"
+      >
+        <Minus className="w-3 h-3" />
+      </button>
+      <input
+        aria-label={`Repetições da ${label}`}
+        inputMode="numeric"
+        type="text"
+        pattern="[0-9]*"
+        value={isEditing ? draft : String(reps)}
+        onFocus={(e) => {
+          setIsEditing(true);
+          setDraft(String(reps));
+          e.currentTarget.select();
+        }}
+        onChange={(e) => {
+          const digitsOnly = e.target.value.replace(/\D/g, '').slice(0, 3);
+          setDraft(digitsOnly);
+        }}
+        onBlur={commitDraft}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') {
+            e.currentTarget.blur();
+          }
+        }}
+        className="text-center bg-transparent text-white font-mono font-bold text-xs focus:outline-none"
+      />
+      <button
+        type="button"
+        onClick={() => onCommit(Math.min(999, reps + 1))}
+        aria-label={`Aumentar repetições da ${label}`}
+        className="set-step-btn"
+      >
+        <Plus className="w-3 h-3" />
+      </button>
+    </div>
+  );
+};
 
 interface ExerciseCardProps {
   exercise: Exercise;
@@ -54,23 +126,49 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
     onToggleSet(exercise.id, setId);
   };
 
-  const restTimeOptions = [60, 90, 120, 150, 180];
+  const restTimeOptions = [45, 60, 75, 90, 120];
 
   return (
     <article className={`exercise-card ${isAllComplete ? 'exercise-card-complete' : ''}`}>
       <div className="exercise-card-header">
         <div className="exercise-title-row">
           <span className="exercise-number">{String(position).padStart(2, '0')}</span>
-          <div className="exercise-title-content"><h3>{exercise.name}</h3><span className="exercise-muscle">{exercise.muscleGroup || 'Geral'}</span></div>
-          <button type="button" className="exercise-collapse" aria-label={isExpanded ? "Recolher exercício" : "Expandir exercício"} aria-expanded={isExpanded} aria-controls={`exercise-${exercise.id}`} onClick={() => setIsExpanded(!isExpanded)}>{isExpanded ? <ChevronUp size={17} /> : <ChevronDown size={17} />}</button>
+          <div className="exercise-title-content">
+            <h3>{exercise.name}</h3>
+            <span className="exercise-muscle">{exercise.muscleGroup || 'Geral'}</span>
+          </div>
+          <button
+            type="button"
+            className="exercise-collapse"
+            aria-label={isExpanded ? 'Recolher exercício' : 'Expandir exercício'}
+            aria-expanded={isExpanded}
+            aria-controls={`exercise-${exercise.id}`}
+            onClick={() => setIsExpanded(!isExpanded)}
+          >
+            {isExpanded ? <ChevronUp size={17} /> : <ChevronDown size={17} />}
+          </button>
         </div>
         {exercise.notes && <p className="exercise-notes">{exercise.notes}</p>}
         <div className="exercise-metadata">
-          <button type="button" onClick={() => onOpenGuide(exercise)}><PlayCircle size={14} /> Técnica</button>
-          <button type="button" aria-expanded={showRestPicker} onClick={() => setShowRestPicker(!showRestPicker)}><Clock size={14} /> {exercise.restSeconds || 60}s de descanso</button>
-          <span className={`exercise-set-count ${isAllComplete ? 'is-complete' : ''}`}>{isAllComplete && <Check size={13} />}{isAllComplete ? 'Concluído' : `${completedSetsCount}/${totalSetsCount} séries`}</span>
+          <button type="button" onClick={() => onOpenGuide(exercise)} title="Ver movimento, postura e vídeo demonstrativo">
+            <PlayCircle size={14} /> Técnica
+          </button>
+          <button type="button" aria-expanded={showRestPicker} onClick={() => setShowRestPicker(!showRestPicker)}>
+            <Clock size={14} /> {exercise.restSeconds || 60}s de descanso
+          </button>
+          {exercise.repRange && (
+            <span className="text-[10px] font-mono text-zinc-400">
+              Alvo {exercise.repRange.min}–{exercise.repRange.max} reps
+            </span>
+          )}
+          <span className={`exercise-set-count ${isAllComplete ? 'is-complete' : ''}`}>
+            {isAllComplete && <Check size={13} />}
+            {isAllComplete ? 'Concluído' : `${completedSetsCount}/${totalSetsCount} séries`}
+          </span>
         </div>
-        <div className="exercise-mini-track" aria-hidden="true"><div style={{ width: `${exerciseProgressPct}%` }} /></div>
+        <div className="exercise-mini-track" aria-hidden="true">
+          <div style={{ width: `${exerciseProgressPct}%` }} />
+        </div>
       </div>
 
       {showRestPicker && (
@@ -80,6 +178,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
             {restTimeOptions.map(sec => (
               <button
                 key={sec}
+                type="button"
                 onClick={() => {
                   onUpdateRestTime(exercise.id, sec);
                   setShowRestPicker(false);
@@ -101,7 +200,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
         <div id={`exercise-${exercise.id}`} className="exercise-table">
           <div className="set-grid set-grid-heading">
             <span className="set-cell">Série</span>
-            <span className="set-cell">Reps anteriores</span>
+            <span className="set-cell">Anterior</span>
             <span className="set-cell">Reps</span>
             <span className="set-cell">Feito</span>
           </div>
@@ -113,11 +212,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
               return (
                 <div
                   key={set.id}
-                  className={`set-grid set-row ${
-                    set.completed
-                      ? 'set-row-complete'
-                      : ''
-                  }`}
+                  className={`set-grid set-row ${set.completed ? 'set-row-complete' : ''}`}
                 >
                   <div className="set-cell">
                     <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-mono font-bold ${
@@ -133,20 +228,12 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                     </span>
                   </div>
 
-
                   <div className="set-cell">
-                    <div className="set-input-wrap">
-                      <input
-                        aria-label={`Repetições da série ${set.setNumber} de ${exercise.name}`}
-                        inputMode="numeric"
-                        type="number"
-                        step="1"
-                        min="0"
-                        value={set.reps}
-                        onChange={(e) => onUpdateSet(exercise.id, set.id, 'reps', parseInt(e.target.value, 10) || 0)}
-                        className="w-full text-center bg-transparent text-white font-mono font-bold text-xs focus:outline-none"
-                      />
-                    </div>
+                    <RepsStepper
+                      reps={set.reps}
+                      label={`série ${set.setNumber} de ${exercise.name}`}
+                      onCommit={(next) => onUpdateSet(exercise.id, set.id, 'reps', next)}
+                    />
                   </div>
 
                   <div className="set-cell set-completion-cell">
@@ -163,14 +250,10 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                     <button
                       type="button"
                       onClick={() => handleToggle(set.id, set.completed)}
-                      className={`set-check ${
-                        set.completed
-                          ? 'set-check-complete'
-                          : ''
-                      }`}
+                      className={`set-check ${set.completed ? 'set-check-complete' : ''}`}
                       style={set.completed ? { backgroundColor: userColor || '#8da694' } : undefined}
                       aria-pressed={set.completed}
-                      aria-label={`${set.completed ? "Desmarcar" : "Concluir"} série ${set.setNumber} de ${exercise.name}`}
+                      aria-label={`${set.completed ? 'Desmarcar' : 'Concluir'} série ${set.setNumber} de ${exercise.name}`}
                     >
                       <Check className={`w-4 h-4 stroke-[3] transition-transform ${
                         set.completed ? 'scale-110' : 'scale-90 opacity-40'
@@ -209,6 +292,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                 onClick={() => onStartCustomTimer(exercise.restSeconds || 60, exercise.name)}
                 className="px-2.5 py-1.5 rounded-xl text-zinc-400 hover:text-ios-accent hover:bg-white/5 transition-colors"
                 title="Iniciar cronômetro de descanso para este exercício"
+                aria-label={`Iniciar descanso de ${exercise.restSeconds || 60} segundos para ${exercise.name}`}
               >
                 <Clock className="w-3.5 h-3.5" />
               </button>
@@ -222,6 +306,7 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
                 }}
                 className="p-1.5 rounded-xl text-zinc-600 hover:text-red-400 transition-colors"
                 title="Excluir exercício"
+                aria-label={`Excluir exercício ${exercise.name}`}
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -232,4 +317,3 @@ export const ExerciseCard: React.FC<ExerciseCardProps> = ({
     </article>
   );
 };
-

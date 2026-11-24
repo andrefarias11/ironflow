@@ -1,1188 +1,765 @@
-import { Workout } from '../types/workout';
+import { Workout, ExerciseSet } from '../types/workout';
+
+export const CURRENT_TEMPLATE_VERSION = 5;
+
+const LEGACY_DEFAULT_IDS = new Set([
+  'workout-upper-a',
+  'workout-lower-a',
+  'workout-upper-b',
+  'workout-lower-b',
+  'workout-a-upper-push',
+  'workout-b-lower-quads',
+  'workout-c-conditioning-core',
+  'workout-d-upper-pull',
+  'workout-e-lower-posterior',
+  'workout-a-upper-1',
+  'workout-b-lower-1',
+  'workout-c-upper-2',
+  'workout-d-lower-2',
+]);
+
+function makeSets(prefix: string, count: number, reps: number): ExerciseSet[] {
+  return Array.from({ length: count }, (_, idx) => ({
+    id: `${prefix}-s${idx + 1}`,
+    setNumber: idx + 1,
+    reps,
+    completed: false,
+  }));
+}
 
 export const DEFAULT_WORKOUTS: Workout[] = [
   // =========================================================================
-  // TREINO A (Segunda-feira): Superiores Completo (Foco Empurrar)
-  // 5 min Mobilidade + 40 min Musculação + 15 min Cardio sem impacto
+  // TREINO A: Superiores A — Peito, Costas e Braços (~40 min, 6 exercícios)
   // =========================================================================
   {
-    id: 'workout-a-upper-push',
+    id: 'workout-a-upper-1',
     name: 'Treino A',
-    category: 'Superiores (Empurrar)',
-    description: 'Foco Empurrar: 5 min mobilidade + 40 min musculação + 15 min cardio esteira inclinada',
+    category: 'Superiores A — Peito, Costas e Braços',
+    description:
+      'Treino prático de tronco e braços em máquinas e polias. Estável, confortável e fácil de ajustar.',
+    templateVersion: CURRENT_TEMPLATE_VERSION,
     exercises: [
       {
-        id: 'ta-mob',
-        name: 'Mobilidade Articular (Ombros & Torácica)',
-        muscleGroup: 'Mobilidade / Aquecimento',
-        notes: 'Rotação de ombros com bastão (2x15) + Abertura torácica na parede (2x10 cada lado). 5 min para destravar articulações.',
-        restSeconds: 30,
-        sets: [
-          { id: 'ta-mob-s1', setNumber: 1, weight: 0, reps: 15, completed: false, previousWeight: 0, previousReps: 15 },
-          { id: 'ta-mob-s2', setNumber: 2, weight: 0, reps: 15, completed: false, previousWeight: 0, previousReps: 15 }
-        ],
-        guide: {
-          primaryMuscle: 'Manguito Rotador e Coluna Torácica',
-          secondaryMuscles: ['Deltóides', 'Peitoral Menor'],
-          instructions: [
-            'Segure um bastão com pegada ampla e passe por cima da cabeça até as costas sem dobrar os braços (15 rotações).',
-            'Em seguida, apoie um antebraço na parede e gire o tronco para o lado oposto para abrir a caixa torácica (10 reps por lado).',
-            'Respire fundo e aumente a amplitude gradualmente sem forçar a articulação.'
-          ],
-          tips: [
-            'Não pule esta etapa: ela aquece a articulação do ombro para o supino e o desenvolvimento pesado.',
-            'Mantenha o abdômen firme durante todo o movimento para não compensar na lombar.'
-          ],
-          mistakes: [
-            'Fazer movimentos bruscos ou com pressa.',
-            'Dobrar os cotovelos na rotação com bastão.'
-          ],
-          videoQuery: 'mobilidade de ombro com bastao e abertura toracica'
-        }
-      },
-      {
         id: 'ta-1',
-        name: 'Supino Reto com Halteres (ou Máquina)',
+        name: 'Supino Reto na Máquina',
         muscleGroup: 'Peitoral',
-        notes: 'Escápulas travadas, cotovelos fechados a 45°-60° (formato de seta, nunca em "T"), 10 a 12 reps',
+        notes:
+          'Faça 1 série leve antes para aquecer. Mantenha costas apoiadas e cotovelos abaixo da linha dos ombros. Ocupado? Use Supino Reto com Halteres.',
+        repRange: { min: 10, max: 12 },
         restSeconds: 75,
-        sets: [
-          { id: 'ta-1-s1', setNumber: 1, weight: 18, reps: 10, completed: false, previousWeight: 18, previousReps: 10 },
-          { id: 'ta-1-s2', setNumber: 2, weight: 18, reps: 10, completed: false, previousWeight: 18, previousReps: 10 },
-          { id: 'ta-1-s3', setNumber: 3, weight: 18, reps: 10, completed: false, previousWeight: 18, previousReps: 10 },
-          { id: 'ta-1-s4', setNumber: 4, weight: 18, reps: 10, completed: false, previousWeight: 18, previousReps: 10 }
-        ],
+        sets: makeSets('ta-1', 3, 12),
         guide: {
           primaryMuscle: 'Peitoral Maior',
           secondaryMuscles: ['Tríceps', 'Deltóide Anterior'],
           instructions: [
-            'Deite no banco com os pés bem firmes e cravados no chão.',
-            'Aperte e abaixe as escápulas contra o banco para criar uma base sólida de estabilidade.',
-            'Desça os halteres de forma controlada até a linha média/inferior do peitoral.',
-            'Mantenha os cotovelos fechados a cerca de 45° a 60° em relação ao tronco (formato de seta).',
-            'Empurre os halteres contraindo o peito, parando logo antes de esticar totalmente os cotovelos.'
+            'Ajuste o banco para que as manoplas fiquem alinhadas com o meio do peito.',
+            'Apoie bem as costas e a cabeça no encosto e mantenha os pés firmes no chão.',
+            'Empurre as alças à frente de forma controlada, sem travar totalmente os cotovelos no final.',
+            'Retorne devagar sentindo o peitoral alongar sem deixar as placas baterem.',
           ],
           tips: [
-            'Regra de postura: Nunca desça os cotovelos alinhados em 90° com a linha do ombro (formato de "T"), pois isso pinça o tendão do ombro.',
-            'Pressione o peito para cima enquanto os halteres sobem.'
+            'Mantenha os ombros baixos e encaixados contra o banco durante todo o movimento.',
+            'Solte o ar ao empurrar e inspire na volta.',
           ],
           mistakes: [
-            'Abrir os cotovelos a 90° forçando o manguito rotador.',
-            'Bater os halteres com força no topo perdendo a tensão.',
-            'Tirar o quadril ou os pés do chão durante o esforço.'
+            'Ajustar o banco baixo demais, deixando as mãos na altura do pescoço.',
+            'Descolar as costas do encosto para empurrar mais peso.',
           ],
-          videoQuery: 'execucao correta supino reto com halteres'
-        }
+          videoQuery: 'execucao correta supino reto maquina articulada',
+        },
       },
       {
         id: 'ta-2',
         name: 'Puxada Alta na Polia (Pegada Aberta)',
-        muscleGroup: 'Costas / Dorsal',
-        notes: 'Abaixe os ombros antes de puxar, direcione os cotovelos para as costelas/bolsos, 10 a 12 reps',
+        muscleGroup: 'Costas',
+        notes:
+          'Puxe a barra na direção do peito alto mantendo os ombros longe das orelhas. Ocupado? Use Puxada na Máquina Articulada.',
+        repRange: { min: 10, max: 12 },
         restSeconds: 75,
-        sets: [
-          { id: 'ta-2-s1', setNumber: 1, weight: 45, reps: 10, completed: false, previousWeight: 45, previousReps: 10 },
-          { id: 'ta-2-s2', setNumber: 2, weight: 45, reps: 10, completed: false, previousWeight: 45, previousReps: 10 },
-          { id: 'ta-2-s3', setNumber: 3, weight: 45, reps: 10, completed: false, previousWeight: 45, previousReps: 10 },
-          { id: 'ta-2-s4', setNumber: 4, weight: 45, reps: 10, completed: false, previousWeight: 45, previousReps: 10 }
-        ],
+        sets: makeSets('ta-2', 3, 12),
         guide: {
           primaryMuscle: 'Grande Dorsal (Costas)',
-          secondaryMuscles: ['Bíceps', 'Braquial', 'Trapézio'],
+          secondaryMuscles: ['Bíceps', 'Trapézio Médio'],
           instructions: [
-            'Ajuste o suporte das coxas para ficar bem travado no banco.',
-            'Segure a barra com pegada pronada um pouco além da largura dos ombros.',
-            'Antes de flexionar os cotovelos, abaixe ativamente as escápulas (afaste os ombros das orelhas).',
-            'Puxe a barra em direção ao peito alto, pensando em colocar os cotovelos nos bolsos traseiros da bermuda.',
-            'Suba controlando o peso até estender os braços e alongar a musculatura das costas.'
+            'Sente-se e ajuste o apoio acolchoado firme sobre as coxas.',
+            'Segure a barra um pouco além da largura dos ombros com as palmas voltadas para frente.',
+            'Incline sutilmente o tronco para trás e puxe a barra até a altura da clavícula/peito alto.',
+            'Retorne devagar estendendo os braços no topo sem soltar o peso de vez.',
           ],
           tips: [
-            'Iniciantes costumam puxar com o bíceps: pense em cotoveladas para baixo.',
-            'Mantenha uma leve inclinação do tronco para trás (10° a 15°), sem balançar com a lombar.'
+            'Pense em puxar os cotovelos para baixo, em direção às costelas.',
+            'Mantenha o peito aberto durante toda a descida da barra.',
           ],
           mistakes: [
-            'Puxar a barra por trás da cabeça.',
-            'Dar tranco com a lombar para iniciar a puxada.',
-            'Encolher os ombros junto ao pescoço no final do movimento.'
+            'Puxar a barra por trás da nuca (força a articulação do ombro).',
+            'Balançar o tronco para trás usando impulso da lombar.',
           ],
-          videoQuery: 'execucao correta puxada alta pegada aberta pulley'
-        }
+          videoQuery: 'execucao correta puxada alta frente aberta pulley',
+        },
       },
       {
         id: 'ta-3',
-        name: 'Desenvolvimento com Halteres (Sentado)',
+        name: 'Desenvolvimento de Ombros na Máquina',
         muscleGroup: 'Ombros',
-        notes: 'Banco a ~75°-80°, cotovelos no plano escapular (levemente à frente do corpo), 10 a 12 reps',
-        restSeconds: 60,
-        sets: [
-          { id: 'ta-3-s1', setNumber: 1, weight: 14, reps: 10, completed: false, previousWeight: 14, previousReps: 10 },
-          { id: 'ta-3-s2', setNumber: 2, weight: 14, reps: 10, completed: false, previousWeight: 14, previousReps: 10 },
-          { id: 'ta-3-s3', setNumber: 3, weight: 14, reps: 10, completed: false, previousWeight: 14, previousReps: 10 }
-        ],
+        notes:
+          'Costas coladas no encosto; empurre para o alto sem esticar com tranco no topo. Ocupado? Faça Desenvolvimento Sentado com Halteres.',
+        repRange: { min: 10, max: 12 },
+        restSeconds: 75,
+        sets: makeSets('ta-3', 3, 12),
         guide: {
           primaryMuscle: 'Deltóide Anterior e Lateral',
           secondaryMuscles: ['Tríceps', 'Trapézio Superior'],
           instructions: [
-            'Sente-se em um banco ajustado a cerca de 75° a 80° (encosto quase reto).',
-            'Suba os halteres na altura das orelhas, com os cotovelos apontando levemente à frente (plano escapular).',
-            'Empurre os halteres para o alto em linha reta sem deixá-los bater no topo.',
-            'Desça lentamente até os halteres ficarem alinhados ao queixo/orelha.'
+            'Regule o assento para que as manoplas comecem aproximadamente na linha das orelhas ou queixo.',
+            'Segure as alças (pegada neutra ou aberta, a que for mais confortável para seu ombro).',
+            'Empurre para cima até quase estender totalmente os braços.',
+            'Desça de maneira controlada até a altura inicial.',
           ],
           tips: [
-            'Mantenha o peito aberto e a lombar apoiada.',
-            'Nunca abra os cotovelos em 180° retilíneos para preservar a articulação dos ombros.'
+            'Se sentir qualquer desconforto no ombro, prefira a pegada neutra (palmas viradas uma para a outra).',
+            'Mantenha o abdômen levemente firme para não arquear a lombar.',
           ],
           mistakes: [
-            'Arquear excessivamente a coluna tirando as costas do encosto.',
-            'Bater os halteres em cima perdendo a tensão muscular contínua.',
-            'Descer muito pouco (meia repetição).'
+            'Descer além da linha do queixo forçando o fundo da articulação.',
+            'Tirar o quadril para frente no banco para compensar carga alta.',
           ],
-          videoQuery: 'execucao correta desenvolvimento sentado com halteres'
-        }
+          videoQuery: 'execucao correta desenvolvimento de ombros na maquina',
+        },
       },
       {
         id: 'ta-4',
-        name: 'Remada Baixa no Triângulo',
-        muscleGroup: 'Costas / Meio das Costas',
-        notes: 'Tronco firme e reto, estufe o peito e puxe com os cotovelos até a linha da cintura, 12 reps',
-        restSeconds: 60,
-        sets: [
-          { id: 'ta-4-s1', setNumber: 1, weight: 40, reps: 12, completed: false, previousWeight: 40, previousReps: 12 },
-          { id: 'ta-4-s2', setNumber: 2, weight: 40, reps: 12, completed: false, previousWeight: 40, previousReps: 12 },
-          { id: 'ta-4-s3', setNumber: 3, weight: 40, reps: 12, completed: false, previousWeight: 40, previousReps: 12 }
-        ],
+        name: 'Remada Baixa na Polia (Triângulo)',
+        muscleGroup: 'Costas',
+        notes:
+          'Coluna reta e peito estufado; puxe o triângulo até próximo ao umbigo sem gangorrar o corpo. Ocupado? Use Remada Sentada na Máquina.',
+        repRange: { min: 10, max: 12 },
+        restSeconds: 75,
+        sets: makeSets('ta-4', 3, 12),
         guide: {
-          primaryMuscle: 'Rombóides, Trapézio Médio e Dorsal',
-          secondaryMuscles: ['Bíceps', 'Antebraço', 'Lombar Isométrica'],
+          primaryMuscle: 'Meio das Costas (Rombóides e Dorsal)',
+          secondaryMuscles: ['Bíceps', 'Antebraço'],
           instructions: [
-            'Sente-se com os pés firmes nos apoios e joelhos levemente destravados.',
-            'Segure o triângulo, mantenha o peito estufado e a coluna neutra.',
-            'Puxe o triângulo em direção ao umbigo, projetando os cotovelos rente às costelas para trás.',
-            'Aperte as escápulas juntas por 1 segundo no ponto de pico.',
-            'Retorne controladamente sentindo o alongamento das costas.'
+            'Apoie os pés na plataforma mantendo os joelhos levemente flexionados.',
+            'Segure o puxador triângulo e sente-se ereto, abrindo bem o peito.',
+            'Puxe o triângulo na direção do abdômen passando os cotovelos rente ao corpo.',
+            'Aperte as costas por 1 segundo e retorne controlando o cabo.',
           ],
           tips: [
-            'Evite balançar o corpo para frente e para trás; o movimento deve ser feito pelos braços e escápulas.',
-            'Foque na sensação de "esmagar uma caneta entre as omoplatas".'
+            'Imagine fechar as escápulas atrás das costas a cada repetição.',
+            'Deixe apenas os braços irem à frente na volta, mantendo a coluna firme.',
           ],
           mistakes: [
-            'Curvar as costas (arredondar a coluna lombar).',
-            'Puxar com o bíceps trazendo o triângulo para o peito alto.'
+            'Arredondar as costas formando corcunda.',
+            'Jogar o tronco muito para trás a cada puxada.',
           ],
-          videoQuery: 'execucao correta remada baixa triangulo pulley'
-        }
+          videoQuery: 'execucao correta remada baixa triangulo polia',
+        },
       },
       {
         id: 'ta-5',
-        name: 'Tríceps Corda na Polia',
+        name: 'Tríceps na Polia Alta (Barra Reta ou W)',
         muscleGroup: 'Tríceps',
-        notes: 'Cotovelos travados ao lado das costelas, abra a corda na parte de baixo contraindo forte, 12 a 15 reps',
-        restSeconds: 45,
-        sets: [
-          { id: 'ta-5-s1', setNumber: 1, weight: 20, reps: 12, completed: false, previousWeight: 20, previousReps: 12 },
-          { id: 'ta-5-s2', setNumber: 2, weight: 20, reps: 12, completed: false, previousWeight: 20, previousReps: 12 },
-          { id: 'ta-5-s3', setNumber: 3, weight: 20, reps: 12, completed: false, previousWeight: 20, previousReps: 12 }
-        ],
+        notes:
+          'Cotovelos fixos ao lado das costelas, movendo apenas os antebraços. Ocupado? Use Tríceps Corda ou Tríceps Máquina.',
+        repRange: { min: 12, max: 15 },
+        restSeconds: 60,
+        sets: makeSets('ta-5', 3, 12),
         guide: {
-          primaryMuscle: 'Tríceps Braquial (Cabeça Lateral e Longa)',
+          primaryMuscle: 'Tríceps Braquial',
           secondaryMuscles: ['Antebraço'],
           instructions: [
-            'Prenda a corda na polia alta. Incline o tronco sutilmente à frente.',
-            'Trave os cotovelos firmes e grudados ao lado do tórax.',
-            'Estenda os braços para baixo até que fiquem retos.',
-            'No ponto final, afaste as pontas da corda para os lados forçando a contração máxima do tríceps.',
-            'Suba a mão até a linha do peito sem mover os cotovelos do lugar.'
+            'Em pé diante da polia alta, segure a barra com as palmas voltadas para baixo.',
+            'Incline o tronco levemente à frente e cole os cotovelos ao lado do corpo.',
+            'Empurre a barra para baixo até estender completamente os braços.',
+            'Suba devagar até os antebraços passarem levemente da linha horizontal.',
           ],
           tips: [
-            'Os cotovelos funcionam como dobradiças fixas; se eles forem para frente e para trás, o ombro entra na jogada.'
+            'A barra W costuma ser ainda mais confortável para os punhos do que a barra reta.',
+            'Segure meio segundo lá embaixo contraindo a parte de trás do braço.',
           ],
           mistakes: [
-            'Balançar o tronco para jogar o peso para baixo.',
-            'Abrir os cotovelos para fora durante a descida.'
+            'Deixar os cotovelos subirem junto com a barra.',
+            'Jogar o peso dos ombros por cima da barra.',
           ],
-          videoQuery: 'execucao correta triceps corda pulley'
-        }
+          videoQuery: 'execucao correta triceps pulley barra',
+        },
       },
       {
         id: 'ta-6',
-        name: 'Rosca Direta na Polia Baixa (ou Halteres)',
+        name: 'Rosca Bíceps na Polia Baixa (Barra Reta ou W)',
         muscleGroup: 'Bíceps',
-        notes: 'Tronco fixo sem balanço lombar, amplitude completa controlando a descida, 12 a 15 reps',
-        restSeconds: 45,
-        sets: [
-          { id: 'ta-6-s1', setNumber: 1, weight: 20, reps: 12, completed: false, previousWeight: 20, previousReps: 12 },
-          { id: 'ta-6-s2', setNumber: 2, weight: 20, reps: 12, completed: false, previousWeight: 20, previousReps: 12 },
-          { id: 'ta-6-s3', setNumber: 3, weight: 20, reps: 12, completed: false, previousWeight: 20, previousReps: 12 }
-        ],
+        notes:
+          'Postura firme e cotovelos colados ao tronco; desça devagar aproveitando a tensão do cabo. Ocupado? Faça Rosca com Halteres.',
+        repRange: { min: 12, max: 15 },
+        restSeconds: 60,
+        sets: makeSets('ta-6', 3, 12),
         guide: {
           primaryMuscle: 'Bíceps Braquial',
-          secondaryMuscles: ['Braquial Anterior', 'Braquiorradial'],
+          secondaryMuscles: ['Antebraço'],
           instructions: [
-            'Fique em pé com pés paralelos na largura dos ombros.',
-            'Segure a barra reta ou halteres com as palmas voltadas para cima.',
-            'Mantenha os cotovelos colados ao lado do tronco.',
-            'Flexione os antebraços erguendo a carga e contraindo o bíceps no topo.',
-            'Desça lentamente em 2 a 3 segundos até a extensão quase total dos braços.'
+            'Prenda a barra na polia baixa e segure com as palmas voltadas para cima.',
+            'Fique em pé com os pés na largura dos ombros e cotovelos encostados na lateral do tronco.',
+            'Suba a barra dobrando os cotovelos até contrair bem o bíceps.',
+            'Desça controlando em 2 segundos até quase esticar totalmente os braços.',
           ],
           tips: [
-            'A polia baixa mantém tensão constante mesmo no final do movimento.',
-            'Mantenha os punhos retos e estáveis.'
+            'Como você já estava na polia no exercício anterior, basta descer a regulagem para o chão!',
+            'Mantenha os punhos firmes, sem dobrá-los para trás.',
           ],
           mistakes: [
-            'Jogar os cotovelos para frente no topo.',
-            'Balançar a coluna lombar para impulsionar a carga.'
+            'Balançar a lombar para impulsionar o peso.',
+            'Despencar a carga na descida sem controle.',
           ],
-          videoQuery: 'execucao correta rosca direta polia baixa'
-        }
+          videoQuery: 'execucao correta rosca direta na polia baixa',
+        },
       },
-      {
-        id: 'ta-cardio',
-        name: 'Cardio Final: Esteira Inclinada',
-        muscleGroup: 'Cardio / Queima de Gordura',
-        notes: 'Inclinação 5% a 8%, velocidade 5.0 a 5.5 km/h. Caminhada firme sem impacto articular por 15 minutos.',
-        restSeconds: 60,
-        sets: [
-          { id: 'ta-cardio-s1', setNumber: 1, weight: 0, reps: 15, completed: false, previousWeight: 0, previousReps: 15 }
-        ],
-        guide: {
-          primaryMuscle: 'Sistema Cardiovascular & Metabolismo',
-          secondaryMuscles: ['Glúteos', 'Panturrilhas'],
-          instructions: [
-            'Suba na esteira e ajuste a inclinação entre 5% e 8%.',
-            'Regule a velocidade entre 5.0 e 5.5 km/h (caminhada rápida e cadenciada).',
-            'Mantenha os braços oscilando naturalmente ao lado do corpo, sem segurar nas barras de apoio.',
-            'Mantenha a postura ereta e respire de forma controlada durante os 15 minutos.'
-          ],
-          tips: [
-            'Regra para 111 kg: Caminhada inclinada gera o mesmo gasto calórico que um trote, mas com ZERO impacto destrutivo nos joelhos e canelas.',
-            'Não se segure no painel; segurar no painel retira a carga de inclinação das pernas.'
-          ],
-          mistakes: [
-            'Correr em dia de musculação pesada (guarde o impacto da corrida para a quarta-feira).',
-            'Segurar o peso do corpo nos apoios da esteira.'
-          ],
-          videoQuery: 'beneficios caminhada esteira inclinada queima gordura'
-        }
-      }
-    ]
+    ],
   },
 
   // =========================================================================
-  // TREINO B (Terça-feira): Inferiores Completo (Foco Quadríceps)
-  // 5 min Mobilidade + 45 min Musculação + 10 min Caminhada leve
+  // TREINO B: Inferiores A — Pernas, Glúteos e Abdômen (~40 min, 6 exercícios)
   // =========================================================================
   {
-    id: 'workout-b-lower-quads',
+    id: 'workout-b-lower-1',
     name: 'Treino B',
-    category: 'Inferiores (Quadríceps)',
-    description: 'Foco Quadríceps: 5 min mobilidade + 45 min musculação + 10 min bicicleta leve',
+    category: 'Inferiores A — Pernas, Glúteos e Abdômen',
+    description:
+      'Treino guiado de pernas, panturrilhas e abdômen em aparelhos confortáveis, sem sobrecarga na coluna.',
+    templateVersion: CURRENT_TEMPLATE_VERSION,
     exercises: [
-      {
-        id: 'tb-mob',
-        name: 'Mobilidade Articular (Tornozelo & Quadril)',
-        muscleGroup: 'Mobilidade / Aquecimento',
-        notes: 'Mobilidade de tornozelo na parede (2x12 cada pé) + Agachamento profundo segurando no rack (2x30s). 5 min.',
-        restSeconds: 30,
-        sets: [
-          { id: 'tb-mob-s1', setNumber: 1, weight: 0, reps: 12, completed: false, previousWeight: 0, previousReps: 12 },
-          { id: 'tb-mob-s2', setNumber: 2, weight: 0, reps: 12, completed: false, previousWeight: 0, previousReps: 12 }
-        ],
-        guide: {
-          primaryMuscle: 'Tornozelos e Articulação Coxofemoral',
-          secondaryMuscles: ['Glúteos', 'Panturrilhas'],
-          instructions: [
-            'Fique em frente a uma parede com o pé a cerca de 10 cm. Empurre o joelho em direção à parede sem tirar o calcanhar do chão (12 reps cada pé).',
-            'Depois, segure nas hastes de um rack/aparelho e desça em agachamento profundo, mantendo o peito alto e a coluna reta por 30 segundos.'
-          ],
-          tips: [
-            'A dorsiflexão de tornozelo evita que seus calcanhares subam durante o Leg Press e o Agachamento.'
-          ],
-          mistakes: [
-            'Tirar o calcanhar do chão na mobilidade de tornozelo.'
-          ],
-          videoQuery: 'mobilidade de tornozelo na parede agachamento'
-        }
-      },
       {
         id: 'tb-1',
         name: 'Leg Press 45°',
-        muscleGroup: 'Quadríceps & Glúteos',
-        notes: 'Pés largura dos ombros (15°-30° para fora). Joelhos acompanham os pés (sem valgo). Descer a 90° sem descolar a lombar e sem travar no topo, 10 a 12 reps',
+        muscleGroup: 'Quadríceps e Glúteos',
+        notes:
+          'Faça 1 série leve para aquecer. Lombar sempre apoiada no banco e joelhos alinhados aos pés. Ocupado? Use o Leg Press Horizontal.',
+        repRange: { min: 10, max: 12 },
         restSeconds: 90,
-        sets: [
-          { id: 'tb-1-s1', setNumber: 1, weight: 120, reps: 10, completed: false, previousWeight: 120, previousReps: 10 },
-          { id: 'tb-1-s2', setNumber: 2, weight: 130, reps: 10, completed: false, previousWeight: 130, previousReps: 10 },
-          { id: 'tb-1-s3', setNumber: 3, weight: 140, reps: 10, completed: false, previousWeight: 140, previousReps: 10 },
-          { id: 'tb-1-s4', setNumber: 4, weight: 140, reps: 10, completed: false, previousWeight: 140, previousReps: 10 }
-        ],
+        sets: makeSets('tb-1', 3, 12),
         guide: {
           primaryMuscle: 'Quadríceps e Glúteos',
-          secondaryMuscles: ['Isquiotibiais', 'Panturrilhas'],
+          secondaryMuscles: ['Posterior de Coxa'],
           instructions: [
-            'Sente-se com quadril e coluna lombar totalmente apoiados e travados no encosto.',
-            'Pés na largura dos ombros, pontas dos pés levemente apontadas para fora (15° a 30°).',
-            'Destrave a plataforma e desça de forma controlada até que a coxa forme cerca de 90° com a perna.',
-            'Durante a descida, empurre ativamente os joelhos para fora na direção da ponta dos pés.',
-            'Empurre a plataforma com o pé inteiro, parando logo antes de esticar totalmente os joelhos.'
+            'Sente-se encaixando bem o quadril e a lombar contra o encosto.',
+            'Apoie os pés no centro da plataforma na largura dos ombros, pontas levemente para fora.',
+            'Destrave o aparelho e desça a plataforma devagar até os joelhos formarem cerca de 90°.',
+            'Empurre com a sola inteira do pé, parando um pouco antes de esticar tudo no topo.',
           ],
           tips: [
-            'Regra crítica: Nunca deixe os joelhos caírem para dentro (valgo dinâmico) ao empurrar a carga.',
-            'Nunca trave os joelhos totalmente esticados ("bloqueio articular") no topo sob carga pesada.',
-            'Se a lombar começar a descolar do assento, reduza um pouco a amplitude.'
+            'Segure firme nas alças laterais do banco para manter o quadril preso no assento.',
+            'Desça apenas até onde sua lombar permanece 100% colada no apoio.',
           ],
           mistakes: [
-            'Deixar a lombar descolar do banco no fundo (risco de hérnia de disco).',
-            'Apoiar as mãos nos joelhos para empurrar.'
+            'Travar os joelhos totalmente esticados no final da subida.',
+            'Deixar os joelhos fecharem para dentro ao fazer força.',
           ],
-          videoQuery: 'execucao correta leg press 45 postura'
-        }
+          videoQuery: 'execucao correta leg press 45 iniciante',
+        },
       },
       {
         id: 'tb-2',
-        name: 'Agachamento Goblet (com Halter no peito)',
-        muscleGroup: 'Quadríceps & Glúteos',
-        notes: 'Halter grudado no peito, cotovelos fechados, joelhos para fora na linha dos pés, peito erguido, 10 a 12 reps',
+        name: 'Cadeira Extensora',
+        muscleGroup: 'Quadríceps',
+        notes:
+          'Alinhe o joelho ao eixo da máquina, segure 1s no topo e desça sem soltar o peso. Ocupado? Faça a Cadeira Flexora antes e volte aqui depois.',
+        repRange: { min: 12, max: 15 },
         restSeconds: 75,
-        sets: [
-          { id: 'tb-2-s1', setNumber: 1, weight: 16, reps: 10, completed: false, previousWeight: 16, previousReps: 10 },
-          { id: 'tb-2-s2', setNumber: 2, weight: 18, reps: 10, completed: false, previousWeight: 18, previousReps: 10 },
-          { id: 'tb-2-s3', setNumber: 3, weight: 20, reps: 10, completed: false, previousWeight: 20, previousReps: 10 }
-        ],
+        sets: makeSets('tb-2', 3, 12),
         guide: {
-          primaryMuscle: 'Quadríceps e Glúteo Máximo',
-          secondaryMuscles: ['Core / Abdômen', 'Eretores da Espinha'],
+          primaryMuscle: 'Quadríceps (Frente da Coxa)',
+          secondaryMuscles: [],
           instructions: [
-            'Segure um halter verticalmente com ambas as mãos apoiadas sob a cabeça superior do peso, encostado no peito.',
-            'Pés na largura dos ombros, pontas viradas levemente para fora.',
-            'Agache projetando o quadril para trás e para baixo, mantendo o peito alto e os cotovelos entre os joelhos no fundo.',
-            'Desça até as coxas ficarem paralelas ao chão.',
-            'Empurre o solo pela sola inteira do pé para retornar à posição inicial.'
+            'Ajuste o encosto para que a dobra de trás do joelho encoste suavemente na borda do assento.',
+            'Posicione o rolo acolchoado logo acima do tornozelo (frente da canela baixa).',
+            'Estenda as pernas até o topo, segurando 1 segundo com a coxa contraída.',
+            'Desça devagar controlando o retorno das placas.',
           ],
           tips: [
-            'O halter no peito força a postura ereta e fortalece o abdômen sem comprimir a coluna como a barra nas costas.',
-            'Mantenha o peso distribuído nos calcanhares e meio do pé.'
+            'Segurar nas alças laterais evita que você levante o quadril do banco.',
+            'Carga moderada com pausa de 1s em cima trabalha muito melhor e protege o joelho.',
           ],
           mistakes: [
-            'Curvar o tronco para frente deixando o halter se afastar do peito.',
-            'Subir os calcanhares do solo.'
+            'Chutar o peso com embalo e soltar rápido na descida.',
+            'Deixar o rolo apoiado em cima do peito do pé.',
           ],
-          videoQuery: 'execucao correta agachamento goblet halter'
-        }
+          videoQuery: 'como ajustar e executar cadeira extensora',
+        },
       },
       {
         id: 'tb-3',
-        name: 'Cadeira Extensora',
-        muscleGroup: 'Quadríceps',
-        notes: 'Encosto ajustado, extensão máxima segurando 1s no pico, descida lenta em 2s a 3s, 12 a 15 reps',
-        restSeconds: 60,
-        sets: [
-          { id: 'tb-3-s1', setNumber: 1, weight: 45, reps: 12, completed: false, previousWeight: 45, previousReps: 12 },
-          { id: 'tb-3-s2', setNumber: 2, weight: 50, reps: 12, completed: false, previousWeight: 50, previousReps: 12 },
-          { id: 'tb-3-s3', setNumber: 3, weight: 50, reps: 12, completed: false, previousWeight: 50, previousReps: 12 }
-        ],
+        name: 'Cadeira Flexora',
+        muscleGroup: 'Posterior de Coxa',
+        notes:
+          'Trave bem o apoio acolchoado sobre as coxas e puxe os calcanhares para baixo com controle. Ocupado? Use a Mesa Flexora.',
+        repRange: { min: 12, max: 15 },
+        restSeconds: 75,
+        sets: makeSets('tb-3', 3, 12),
         guide: {
-          primaryMuscle: 'Quadríceps (Foco no Reto Femoral)',
-          secondaryMuscles: [],
+          primaryMuscle: 'Isquiotibiais (Posterior de Coxa)',
+          secondaryMuscles: ['Panturrilhas'],
           instructions: [
-            'Alinhe o joelho exatamente com o eixo de rotação circular da máquina.',
-            'A almofada deve ficar confortavelmente ajustada sobre a canela inferior.',
-            'Segure firme nas alças do banco para manter a bacia presa ao assento.',
-            'Estenda os joelhos até alinhar as pernas, pausando por 1 segundo no topo com máxima contração.',
-            'Desça a carga controlando lentamente sem deixar os pesos baterem.'
+            'Ajuste o encosto e posicione o rolo inferior atrás do tornozelo (logo acima do calcanhar).',
+            'Baixe a trava acolchoada sobre as coxas para manter as pernas firmes no lugar.',
+            'Dobre os joelhos puxando o rolo para baixo e para trás ao máximo.',
+            'Retorne lentamente em 2 a 3 segundos alongando a parte de trás da coxa.',
           ],
           tips: [
-            'Excelente exercício para queimar calorias e fortalecer o tendão patelar sem carga axial na coluna.'
+            'Mantenha as pontas dos pés apontando para cima (neutras) durante a execução.',
+            'Ótimo substituto guiado para trabalhar posterior sem exigir equilíbrio ou forçar a lombar.',
           ],
           mistakes: [
-            'Usar embalo ou chutar a perna para cima.',
-            'Tirar o quadril do assento durante a subida.'
+            'Deixar a trava de cima frouxa, fazendo a coxa subir.',
+            'Tirar as costas do encosto para puxar mais peso.',
           ],
-          videoQuery: 'execucao correta cadeira extensora postura'
-        }
+          videoQuery: 'como ajustar e fazer cadeira flexora',
+        },
       },
       {
         id: 'tb-4',
-        name: 'Mesa Flexora (ou Cadeira Flexora)',
-        muscleGroup: 'Posterior de Coxa',
-        notes: 'Quadril colado no apoio, controle excêntrico na descida, 12 a 15 reps',
+        name: 'Cadeira Abdutora',
+        muscleGroup: 'Glúteos e Quadril',
+        notes:
+          'Afaste as pernas com firmeza, segure 1s na abertura e feche devagar. Ocupado? Use a Cadeira Adutora ou pule para a Panturrilha.',
+        repRange: { min: 12, max: 15 },
         restSeconds: 60,
-        sets: [
-          { id: 'tb-4-s1', setNumber: 1, weight: 35, reps: 12, completed: false, previousWeight: 35, previousReps: 12 },
-          { id: 'tb-4-s2', setNumber: 2, weight: 35, reps: 12, completed: false, previousWeight: 35, previousReps: 12 },
-          { id: 'tb-4-s3', setNumber: 3, weight: 40, reps: 12, completed: false, previousWeight: 40, previousReps: 12 }
-        ],
+        sets: makeSets('tb-4', 3, 15),
         guide: {
-          primaryMuscle: 'Isquiotibiais (Posterior de Coxa)',
-          secondaryMuscles: ['Gastrocnêmio'],
+          primaryMuscle: 'Glúteo Médio e Lateral do Quadril',
+          secondaryMuscles: ['Glúteo Máximo'],
           instructions: [
-            'Deite de bruços (ou sente-se caso faça na Cadeira Flexora) com a almofada de rolo ajustada logo abaixo das panturrilhas.',
-            'Segure firme nos pegadores para manter o quadril 100% colado ao banco.',
-            'Puxe os calcanhares em direção aos glúteos de forma potente.',
-            'Segure a contração por 1 segundo e retorne alongando a musculatura devagar.'
+            'Sente-se no aparelho com a parte externa das coxas apoiada nas almofadas.',
+            'Mantenha a coluna reta (apoiada no encosto ou sutilmente inclinada à frente com postura firme).',
+            'Empurre as almofadas para fora abrindo as pernas com controle.',
+            'Segure 1 segundo aberto e retorne devagar sem bater os pesos.',
           ],
           tips: [
-            'Equilibrar a força de quadríceps com posterior de coxa é a regra de ouro para não ter dor no joelho ao correr.'
+            'Fortalecer a lateral do quadril dá grande estabilidade para os joelhos no dia a dia.',
           ],
           mistakes: [
-            'Empurrar o quadril para cima tirando a pelve do banco.',
-            'Soltar o peso de forma descontrolada na volta.'
+            'Fazer repetições curtas e rápidas no embalo.',
+            'Sentar escorregado no banco arredondando a lombar.',
           ],
-          videoQuery: 'execucao correta mesa flexora posterior coxa'
-        }
+          videoQuery: 'execucao correta cadeira abdutora',
+        },
       },
       {
         id: 'tb-5',
-        name: 'Panturrilha no Leg Press (ou Sentado)',
+        name: 'Panturrilha no Leg Press (ou Máquina)',
         muscleGroup: 'Panturrilhas',
-        notes: 'Ponta dos pés na borda da plataforma, amplitude completa com descida alongando e subida máxima (1s no topo), 15 reps',
-        restSeconds: 45,
-        sets: [
-          { id: 'tb-5-s1', setNumber: 1, weight: 80, reps: 15, completed: false, previousWeight: 80, previousReps: 15 },
-          { id: 'tb-5-s2', setNumber: 2, weight: 90, reps: 15, completed: false, previousWeight: 90, previousReps: 15 },
-          { id: 'tb-5-s3', setNumber: 3, weight: 90, reps: 15, completed: false, previousWeight: 90, previousReps: 15 },
-          { id: 'tb-5-s4', setNumber: 4, weight: 90, reps: 15, completed: false, previousWeight: 90, previousReps: 15 }
-        ],
+        notes:
+          'Apoie metade da frente do pé com segurança, alongue bem e suba na ponta máxima. Ocupado? Use Panturrilha Sentado ou em Pé na Máquina.',
+        repRange: { min: 12, max: 15 },
+        restSeconds: 60,
+        sets: makeSets('tb-5', 3, 15),
         guide: {
-          primaryMuscle: 'Gastrocnêmio e Sóleo',
-          secondaryMuscles: [],
+          primaryMuscle: 'Panturrilhas (Gastrocnêmio)',
+          secondaryMuscles: ['Sóleo'],
           instructions: [
-            'Apoie apenas a ponta dos pés na borda inferior da plataforma do Leg Press.',
-            'Destrave a segurança mantendo os joelhos destravados com uma micro-flexão.',
-            'Deixe os calcanhares descerem ao máximo sentindo um alongamento profundo na panturrilha.',
-            'Empurre a plataforma ficando na ponta dos pés ao máximo e segure por 1 segundo.'
+            'No Leg Press (45° ou Horizontal), apoie a parte da frente dos pés na base da plataforma com firmeza.',
+            'Mantenha os joelhos quase estendidos, mas destravados (leve microflexão fixa).',
+            'Deixe os calcanhares recuarem alongando bem a panturrilha.',
+            'Empurre com a ponta dos pés e segure 1 segundo lá no alto.',
           ],
           tips: [
-            'Panturrilha forte amortece o impacto de cada passada na esteira e corrida.'
+            'Evite colocar só a pontinha dos dedos para o pé nunca escapar; apoie toda a frente do pé.',
           ],
           mistakes: [
-            'Fazer repetições curtas e rápidas aproveitando a elasticidade do tendão.',
-            'Flexionar e estender os joelhos para ajudar.'
+            'Quicar rápido sem alongar nem pausar em cima.',
+            'Dobrar e esticar os joelhos junto com o tornozelo.',
           ],
-          videoQuery: 'execucao correta panturrilha leg press 45'
-        }
+          videoQuery: 'execucao correta panturrilha no leg press',
+        },
       },
       {
         id: 'tb-6',
-        name: 'Prancha Abdominal Isométrica',
-        muscleGroup: 'Abdômen / Core',
-        notes: 'Cotovelos alinhados sob os ombros, abdômen e glúteos contraídos, coluna neutra por 30s a 45s',
-        restSeconds: 45,
-        sets: [
-          { id: 'tb-6-s1', setNumber: 1, weight: 0, reps: 35, completed: false, previousWeight: 0, previousReps: 35 },
-          { id: 'tb-6-s2', setNumber: 2, weight: 0, reps: 40, completed: false, previousWeight: 0, previousReps: 40 },
-          { id: 'tb-6-s3', setNumber: 3, weight: 0, reps: 45, completed: false, previousWeight: 0, previousReps: 45 }
-        ],
-        guide: {
-          primaryMuscle: 'Transverso do Abdômen e Reto Abdominal',
-          secondaryMuscles: ['Glúteos', 'Eretores da Espinha'],
-          instructions: [
-            'Apoie os antebraços e as pontas dos pés no chão.',
-            'Mantenha o corpo formando uma linha reta da cabeça aos calcanhares.',
-            'Contraia fortemente o abdômen como se fosse levar um soco, e aperte os glúteos.',
-            'Respire devagar e segure a posição sem deixar a cintura afundar.'
-          ],
-          tips: [
-            'O tempo registrado nas repetições corresponde aos segundos em isometria (ex: 35s, 40s, 45s).'
-          ],
-          mistakes: [
-            'Deixar a lombar desabar arqueada em direção ao chão.',
-            'Elevar o quadril muito alto formando um triângulo.'
-          ],
-          videoQuery: 'execucao correta prancha abdominal isometrica'
-        }
-      },
-      {
-        id: 'tb-cardio',
-        name: 'Cardio Final: Bicicleta Ergométrica',
-        muscleGroup: 'Cardio / Recuperação',
-        notes: 'Ritmo moderado constante por 10 minutos para soltar a musculatura das pernas e acelerar a circulação.',
+        name: 'Abdominal na Máquina (Crunch Sentado)',
+        muscleGroup: 'Abdômen',
+        notes:
+          'Enrole o tronco contraindo o abdômen e soltando o ar na descida. Ocupado? Faça Abdominal Supra Curto no Colchonete.',
+        repRange: { min: 12, max: 15 },
         restSeconds: 60,
-        sets: [
-          { id: 'tb-cardio-s1', setNumber: 1, weight: 0, reps: 10, completed: false, previousWeight: 0, previousReps: 10 }
-        ],
+        sets: makeSets('tb-6', 3, 15),
         guide: {
-          primaryMuscle: 'Sistema Cardiovascular',
-          secondaryMuscles: ['Quadríceps'],
-          instructions: [
-            'Ajuste o banco da bike na altura do quadril (ao pedalar, o joelho não deve esticar totalmente nem ficar excessivamente dobrado).',
-            'Pedale com cadência constante de 70 a 85 RPM por 10 minutos.',
-            'Mantenha o tronco relaxado sem sobrecarregar os punhos no guidão.'
-          ],
-          tips: [
-            'A bicicleta ajuda na remoção de metabólitos após o treino de perna sem gerar impacto.'
-          ],
-          mistakes: [
-            'Colocar carga pesada demais travando a pedalada.'
-          ],
-          videoQuery: 'como ajustar altura do banco bicicleta ergometrica'
-        }
-      }
-    ]
-  },
-
-  // =========================================================================
-  // TREINO C (Quarta-feira): Condicionamento (Corrida + Core + Mobilidade)
-  // 10 min Mobilidade + 15 min Core + 35 min Treino de Corrida/Caminhada
-  // =========================================================================
-  {
-    id: 'workout-c-conditioning-core',
-    name: 'Treino C',
-    category: 'Corrida, Core & Mobilidade',
-    description: 'Condicionamento: 10 min mobilidade + 15 min core estabilizador + 35 min corrida intervalada',
-    exercises: [
-      {
-        id: 'tc-mob',
-        name: 'Bloco 1 — Mobilidade Dinâmica de Quadril & Coluna',
-        muscleGroup: 'Mobilidade / Flexibilidade',
-        notes: 'Afundo de flexores de quadril no chão (2x12/perna) + Perdigueiro 4 apoios (2x10/lado) + Gato-Vaca (2x12). 10 min.',
-        restSeconds: 30,
-        sets: [
-          { id: 'tc-mob-s1', setNumber: 1, weight: 0, reps: 12, completed: false, previousWeight: 0, previousReps: 12 },
-          { id: 'tc-mob-s2', setNumber: 2, weight: 0, reps: 12, completed: false, previousWeight: 0, previousReps: 12 }
-        ],
-        guide: {
-          primaryMuscle: 'Flexores de Quadril e Coluna Vertebral',
-          secondaryMuscles: ['Glúteos', 'Core'],
-          instructions: [
-            'Afundo no chão: com um joelho no chão e outro pé à frente, projete o quadril para frente sentindo alongar a virilha/coxa (12 reps por lado).',
-            'Perdigueiro: em 4 apoios, estenda o braço direito à frente e a perna esquerda atrás, alinhados com o tronco. Segure 1s e alterne (10 reps por lado).',
-            'Gato-Vaca: em 4 apoios, curve a coluna para cima soltando o ar e depois inverta olhando para frente (12 reps).'
-          ],
-          tips: [
-            'Destrava a bacia e a coluna lombar, preparando o corpo para o impacto da corrida com mais de 100 kg.'
-          ],
-          mistakes: [
-            'Girar o quadril de lado no perdigueiro.',
-            'Fazer os movimentos com pressa.'
-          ],
-          videoQuery: 'alongamento dinamico flexores de quadril perdigueiro'
-        }
-      },
-      {
-        id: 'tc-core1',
-        name: 'Abdominal Infra no Solo (Elevação com Joelhos Semiflexionados)',
-        muscleGroup: 'Abdômen Infra / Core',
-        notes: 'Lombar colada no chão, joelhos semiflexionados, suba controlando o quadril sem dar tranco, 12 a 15 reps',
-        restSeconds: 45,
-        sets: [
-          { id: 'tc-core1-s1', setNumber: 1, weight: 0, reps: 15, completed: false, previousWeight: 0, previousReps: 15 },
-          { id: 'tc-core1-s2', setNumber: 2, weight: 0, reps: 15, completed: false, previousWeight: 0, previousReps: 15 },
-          { id: 'tc-core1-s3', setNumber: 3, weight: 0, reps: 15, completed: false, previousWeight: 0, previousReps: 15 }
-        ],
-        guide: {
-          primaryMuscle: 'Porção Inferior do Reto Abdominal',
-          secondaryMuscles: ['Oblíquos', 'Flexores de Quadril'],
-          instructions: [
-            'Deite de costas no solo com as mãos ao lado do corpo ou sob a parte superior dos glúteos.',
-            'Flexione levemente os joelhos e cravou a coluna lombar contra o chão.',
-            'Eleve as pernas em direção ao teto, tirando levemente o quadril do solo no final.',
-            'Desça as pernas de forma lenta e controlada, parando antes que a lombar descole do solo.'
-          ],
-          tips: [
-            'Se a lombar arquear, não desça os pés tão perto do chão.'
-          ],
-          mistakes: [
-            'Balançar as pernas usando o embalo.',
-            'Arquear a coluna lombar na descida.'
-          ],
-          videoQuery: 'execucao correta abdominal infra solo elevação de pernas'
-        }
-      },
-      {
-        id: 'tc-core2',
-        name: 'Prancha Lateral (Core & Estabilizadores)',
-        muscleGroup: 'Oblíquos / Core',
-        notes: 'Cotovelo sob o ombro, quadril elevado formando uma linha reta, 25s a 30s de cada lado',
-        restSeconds: 45,
-        sets: [
-          { id: 'tc-core2-s1', setNumber: 1, weight: 0, reps: 30, completed: false, previousWeight: 0, previousReps: 30 },
-          { id: 'tc-core2-s2', setNumber: 2, weight: 0, reps: 30, completed: false, previousWeight: 0, previousReps: 30 },
-          { id: 'tc-core2-s3', setNumber: 3, weight: 0, reps: 30, completed: false, previousWeight: 0, previousReps: 30 }
-        ],
-        guide: {
-          primaryMuscle: 'Oblíquos Interno e Externo e Quadrado Lombar',
-          secondaryMuscles: ['Glúteo Médio', 'Deltóide'],
-          instructions: [
-            'Deite de lado e apoie o antebraço no chão, alinhando o cotovelo diretamente sob o ombro.',
-            'Estenda as pernas sobrepostas ou com um pé à frente do outro para maior equilíbrio.',
-            'Eleve o quadril até o tronco e as pernas formarem uma linha reta contínua.',
-            'Segure firme por 25 a 30 segundos, depois inverta o lado.'
-          ],
-          tips: [
-            'A prancha lateral fortalece o glúteo médio e os estabilizadores que impedem a bacia de oscilar na corrida.'
-          ],
-          mistakes: [
-            'Deixar o quadril cair em direção ao chão.',
-            'Rodar o peito para baixo.'
-          ],
-          videoQuery: 'execucao correta prancha lateral postura'
-        }
-      },
-      {
-        id: 'tc-core3',
-        name: 'Abdominal Supra na Polia Alta (ou Crunch no Solo)',
-        muscleGroup: 'Abdômen Supra',
-        notes: 'Ajoelhado com corda na nuca, flexione o tronco enrolando o abdômen sem mexer o quadril, 15 reps',
-        restSeconds: 45,
-        sets: [
-          { id: 'tc-core3-s1', setNumber: 1, weight: 25, reps: 15, completed: false, previousWeight: 25, previousReps: 15 },
-          { id: 'tc-core3-s2', setNumber: 2, weight: 25, reps: 15, completed: false, previousWeight: 25, previousReps: 15 },
-          { id: 'tc-core3-s3', setNumber: 3, weight: 30, reps: 15, completed: false, previousWeight: 30, previousReps: 15 }
-        ],
-        guide: {
-          primaryMuscle: 'Reto Abdominal (Porção Superior)',
+          primaryMuscle: 'Reto Abdominal',
           secondaryMuscles: ['Oblíquos'],
           instructions: [
-            'Ajoelhe-se em frente à polia alta e segure as pontas da corda posicionadas ao lado da cabeça/nuca.',
-            'Mantenha os quadris travados em um ângulo fixo de cerca de 90°.',
-            'Enrole a coluna para baixo, aproximando as costelas da bacia, contraindo fortemente o abdômen.',
-            'Retorne controladamente sentindo o alongamento da musculatura abdominal.'
+            'Sente-se no aparelho de abdômen e segure as alças superiores ou apoie o peito no suporte.',
+            'Solte todo o ar pela boca enquanto curva o tronco para baixo aproximando as costelas do quadril.',
+            'Segure 1 segundo sentindo o abdômen firme.',
+            'Retorne devagar inspirando, sem deixar as placas encostarem.',
           ],
           tips: [
-            'O movimento é de flexão da coluna, não de sentar nos calcanhares com o quadril.'
+            'Concentre a força no abdômen, usando os braços apenas como gancho fixo nas alças.',
           ],
           mistakes: [
-            'Mover o quadril para frente e para trás fingindo que está fazendo o abdominal.',
-            'Puxar a corda com os braços em vez de enrolar o abdômen.'
+            'Puxar o peso fazendo força com os braços ou pescoço.',
+            'Usar carga pesada demais que impede curvar a coluna.',
           ],
-          videoQuery: 'execucao correta abdominal na polia alta com corda'
-        }
+          videoQuery: 'execucao correta abdominal na maquina sentado',
+        },
       },
-      {
-        id: 'tc-run',
-        name: 'Treino Intervalado de Corrida/Caminhada (35 min)',
-        muscleGroup: 'Cardio / Corrida & Resistência',
-        notes: '5 min aquec. (5.5 km/h) + 25 min intervalado (trote x caminhada rápida) + 5 min volta à calma. Veja progressão de 12 semanas no guia!',
-        restSeconds: 60,
-        sets: [
-          { id: 'tc-run-s1', setNumber: 1, weight: 0, reps: 35, completed: false, previousWeight: 0, previousReps: 35 }
-        ],
-        guide: {
-          primaryMuscle: 'Sistema Cardiorrespiratório e Resistência Aeróbica',
-          secondaryMuscles: ['Pernas Inteiras', 'Core'],
-          instructions: [
-            'Aquecimento (0 a 5 min): Caminhada firme a 5.5 km/h para aquecer os tendões e elevar a frequência cardíaca.',
-            'Bloco Principal (5 a 30 min): Intervalos conforme sua semana de treino:',
-            '• Semanas 1 a 3: 1 min de trote leve (7.5 a 8.5 km/h) intercalado com 2 min de caminhada rápida (5.5 a 6.0 km/h).',
-            '• Semanas 4 a 6: 2 min de trote para 1 min de caminhada rápida.',
-            '• Semanas 7 a 10: 3 a 4 min de corrida contínua para 1 min de caminhada.',
-            '• Semanas 11 e 12: 25 min de corrida contínua em ritmo confortável (Zona 2/3).',
-            'Volta à calma (30 a 35 min): Caminhada leve a 5.0 km/h para normalizar os batimentos.'
-          ],
-          tips: [
-            'Pisar suavemente sem bater os calcanhares com força no chão (passada elástica e cadenciada).',
-            'Não tente correr acima de 9.0 km/h nas primeiras semanas com 111 kg: o objetivo agora é resistência e queima de gordura sem canelite.'
-          ],
-          mistakes: [
-            'Começar em sprint veloz e ficar sem fôlego em 2 minutos.',
-            'Pular o aquecimento de 5 minutos.'
-          ],
-          videoQuery: 'como comecar a correr acima de 100 kg sem lesao'
-        }
-      }
-    ]
+    ],
   },
 
   // =========================================================================
-  // TREINO D (Quinta-feira): Superiores Completo (Foco Puxar)
-  // 5 min Mobilidade + 40 min Musculação + 15 min Cardio sem impacto
+  // TREINO C: Superiores B — Peito, Costas e Ombros (~40 min, 6 exercícios)
   // =========================================================================
   {
-    id: 'workout-d-upper-pull',
-    name: 'Treino D',
-    category: 'Superiores (Puxar)',
-    description: 'Foco Puxar: 5 min mobilidade + 40 min musculação + 15 min cardio elíptico/bike',
+    id: 'workout-c-upper-2',
+    name: 'Treino C',
+    category: 'Superiores B — Peito, Costas e Ombros',
+    description:
+      'Variação leve e eficiente para peito, costas, ombros e braços com foco em postura e conforto articular.',
+    templateVersion: CURRENT_TEMPLATE_VERSION,
     exercises: [
       {
-        id: 'td-mob',
-        name: 'Mobilidade Articular (Ombros & Manguito)',
-        muscleGroup: 'Mobilidade / Aquecimento',
-        notes: 'Dislocamento de ombros com elástico/bastão (2x15) + Rotação externa de ombro na polia com carga mínima (2x12). 5 min.',
-        restSeconds: 30,
-        sets: [
-          { id: 'td-mob-s1', setNumber: 1, weight: 0, reps: 15, completed: false, previousWeight: 0, previousReps: 15 },
-          { id: 'td-mob-s2', setNumber: 2, weight: 0, reps: 15, completed: false, previousWeight: 0, previousReps: 15 }
-        ],
+        id: 'tc-1',
+        name: 'Supino Inclinado na Máquina',
+        muscleGroup: 'Peitoral',
+        notes:
+          'Faça 1 série leve antes para aquecer. Empurre na diagonal alta mantendo ombros baixos. Ocupado? Use Halteres no banco inclinado (30° a 45°).',
+        repRange: { min: 10, max: 12 },
+        restSeconds: 75,
+        sets: makeSets('tc-1', 3, 12),
         guide: {
-          primaryMuscle: 'Manguito Rotador (Infraespinhal e Redondo Menor)',
-          secondaryMuscles: ['Deltóides'],
+          primaryMuscle: 'Peitoral Superior',
+          secondaryMuscles: ['Deltóide Anterior', 'Tríceps'],
           instructions: [
-            'Passe o bastão ou elástico estendido da frente do corpo até trás das costas sem flexionar os cotovelos (15 reps).',
-            'Na polia na altura do cotovelo, com carga leve (2,5kg a 5kg), mantenha o cotovelo colado ao corpo e gire a mão para fora em rotação externa (12 reps cada braço).'
+            'Ajuste o banco para que as alças fiquem na altura da parte superior do peito.',
+            'Apoie bem as costas e encaixe as escápulas contra o banco.',
+            'Empurre para cima e à frente em movimento contínuo e controlado.',
+            'Desça lentamente até sentir um alongamento confortável no peito.',
           ],
           tips: [
-            'O manguito rotador estabiliza a cabeça do úmero durante remadas pesadas e supino inclinado.'
+            'Cotovelos sempre levemente abaixo da linha dos ombros (nunca abertos em 90°).',
           ],
           mistakes: [
-            'Usar peso pesado na rotação de ombro; o foco é ativação e saúde articular.'
+            'Encolher os ombros em direção às orelhas ao empurrar.',
+            'Tirar o quadril do banco para ganhar alavanca.',
           ],
-          videoQuery: 'rotacao externa ombro polia manguito rotador'
-        }
+          videoQuery: 'execucao correta supino inclinado maquina articulada',
+        },
       },
       {
-        id: 'td-1',
-        name: 'Remada Curvada na Máquina (Apoio no Peito)',
-        muscleGroup: 'Costas / Dorsais',
-        notes: 'Apoio no peito, abaixe os ombros antes de puxar, direcione os cotovelos para o quadril apertando as escápulas, 10 a 12 reps',
+        id: 'tc-2',
+        name: 'Remada na Máquina (Apoio no Peito)',
+        muscleGroup: 'Costas',
+        notes:
+          'Apoie o peito no encosto para aliviar 100% a lombar e puxe fechando as costas. Ocupado? Use Puxada Alta com Triângulo na Polia.',
+        repRange: { min: 10, max: 12 },
         restSeconds: 75,
-        sets: [
-          { id: 'td-1-s1', setNumber: 1, weight: 40, reps: 10, completed: false, previousWeight: 40, previousReps: 10 },
-          { id: 'td-1-s2', setNumber: 2, weight: 40, reps: 10, completed: false, previousWeight: 40, previousReps: 10 },
-          { id: 'td-1-s3', setNumber: 3, weight: 45, reps: 10, completed: false, previousWeight: 45, previousReps: 10 },
-          { id: 'td-1-s4', setNumber: 4, weight: 45, reps: 10, completed: false, previousWeight: 45, previousReps: 10 }
-        ],
+        sets: makeSets('tc-2', 3, 12),
         guide: {
-          primaryMuscle: 'Dorsais, Trapézio Médio e Rombóides',
-          secondaryMuscles: ['Bíceps', 'Deltóide Posterior'],
+          primaryMuscle: 'Costas (Dorsais e Trapézio Médio)',
+          secondaryMuscles: ['Deltóide Posterior', 'Bíceps'],
           instructions: [
-            'Ajuste a altura do banco para que o apoio fique na parte média do esterno.',
-            'Segure as manoplas com pegada neutra ou pronada.',
-            'Abaixe as escápulas afastando os ombros das orelhas.',
-            'Puxe com a força dos cotovelos em direção ao quadril, esmagando a musculatura dorsal atrás por 1 segundo.',
-            'Retorne controladamente estendendo os braços e permitindo que as escápulas abram.'
+            'Regule o assento para o apoio acolchoado ficar confortável no meio do peito.',
+            'Segure as manoplas mantendo os ombros relaxados para baixo.',
+            'Puxe levando os cotovelos para trás e apertando o meio das costas por 1 segundo.',
+            'Volte devagar estendendo os braços sem soltar o peso.',
           ],
           tips: [
-            'O apoio no peito protege sua coluna lombar, permitindo focar 100% nas costas sem risco de sobrecarga na coluna.'
+            'Excelente exercício para melhorar a postura de quem passa muito tempo sentado.',
           ],
           mistakes: [
-            'Tirar o peito do apoio para puxar com o peso do corpo.',
-            'Puxar com o bíceps fechando o cotovelo antes de mover o ombro.'
+            'Descolar o peito da almofada dando tranco para trás.',
+            'Dobrar os punhos para tentar puxar mais longe.',
           ],
-          videoQuery: 'execucao correta remada articulada apoio no peito maquina'
-        }
+          videoQuery: 'execucao correta remada maquina apoio no peito',
+        },
+      },
+      {
+        id: 'tc-3',
+        name: 'Voador Peitoral (Peck Deck)',
+        muscleGroup: 'Peitoral',
+        notes:
+          'Mãos alinhadas ao meio do peito; feche de forma suave e não leve os braços muito para trás na volta. Ocupado? Faça Crucifixo na Polia.',
+        repRange: { min: 12, max: 15 },
+        restSeconds: 60,
+        sets: makeSets('tc-3', 3, 12),
+        guide: {
+          primaryMuscle: 'Peitoral Maior',
+          secondaryMuscles: ['Deltóide Anterior'],
+          instructions: [
+            'Ajuste o banco para que os pegadores fiquem na linha do centro do peito (abaixo dos ombros).',
+            'Com as costas apoiadas e cotovelos levemente flexionados, traga as alças à frente.',
+            'Aperte o peitoral por 1 segundo quando as mãos se aproximarem.',
+            'Abra os braços devagar apenas até a linha do tronco, preservando os ombros.',
+          ],
+          tips: [
+            'Regule a abertura inicial do aparelho em uma posição confortável para entrar e sair sem forçar.',
+          ],
+          mistakes: [
+            'Deixar os braços passarem muito para trás da linha do corpo.',
+            'Bater as alças com força na frente.',
+          ],
+          videoQuery: 'execucao correta voador peck deck maquina',
+        },
+      },
+      {
+        id: 'tc-4',
+        name: 'Elevação Lateral na Máquina (ou com Halteres)',
+        muscleGroup: 'Ombros',
+        notes:
+          'Suba apenas até a linha dos ombros com carga moderada e zero balanço. Ocupado? Faça sentado ou em pé com um par de Halteres leves.',
+        repRange: { min: 12, max: 15 },
+        restSeconds: 60,
+        sets: makeSets('tc-4', 3, 15),
+        guide: {
+          primaryMuscle: 'Deltóide Lateral (Ombros)',
+          secondaryMuscles: ['Trapézio'],
+          instructions: [
+            'Na máquina (ou segurando halteres ao lado do corpo), mantenha a postura ereta e abdômen firme.',
+            'Eleve os braços lateralmente até os cotovelos alcançarem a altura dos ombros.',
+            'Faça uma breve pausa no topo e desça controlando o movimento em 2 segundos.',
+          ],
+          tips: [
+            'Neste exercício, menos peso e mais controle funcionam muito melhor para o ombro.',
+            'Se fizer com halteres, mantenha uma leve dobra nos cotovelos.',
+          ],
+          mistakes: [
+            'Pegar peso alto e dar impulso com o corpo.',
+            'Subir os braços acima da linha dos ombros encolhendo o pescoço.',
+          ],
+          videoQuery: 'execucao correta elevacao lateral ombros maquina ou halteres',
+        },
+      },
+      {
+        id: 'tc-5',
+        name: 'Tríceps Corda na Polia Alta',
+        muscleGroup: 'Tríceps',
+        notes:
+          'Cotovelos parados ao lado do tronco; estenda os braços afastando levemente as pontas da corda embaixo. Ocupado? Use Tríceps Máquina.',
+        repRange: { min: 12, max: 15 },
+        restSeconds: 60,
+        sets: makeSets('tc-5', 3, 12),
+        guide: {
+          primaryMuscle: 'Tríceps Braquial',
+          secondaryMuscles: ['Antebraço'],
+          instructions: [
+            'Segure a corda na polia alta e dê meio passo para trás inclinando levemente o tronco.',
+            'Trave os cotovelos colados às costelas.',
+            'Empurre a corda para baixo até esticar os braços, separando suavemente as mãos no final.',
+            'Volte devagar até a altura do peito sem tirar os cotovelos do lugar.',
+          ],
+          tips: ['A corda deixa os punhos em posição anatômica super confortável.'],
+          mistakes: ['Movimentar os ombros para frente e para trás durante a série.'],
+          videoQuery: 'execucao correta triceps corda na polia',
+        },
+      },
+      {
+        id: 'tc-6',
+        name: 'Rosca Bíceps na Máquina Scott (ou Martelo com Halteres)',
+        muscleGroup: 'Bíceps',
+        notes:
+          'Braços totalmente apoiados na almofada; desça devagar sem hiperestender no final. Ocupado? Faça Rosca Martelo com Halteres.',
+        repRange: { min: 10, max: 12 },
+        restSeconds: 60,
+        sets: makeSets('tc-6', 3, 12),
+        guide: {
+          primaryMuscle: 'Bíceps e Braquial',
+          secondaryMuscles: ['Antebraço'],
+          instructions: [
+            'Ajuste o banco da máquina Scott para que suas axilas fiquem bem encaixadas no topo da almofada.',
+            'Segure as alças e suba contraindo o bíceps até o topo.',
+            'Desça de maneira lenta e controlada, parando um instante antes de esticar 100% o cotovelo.',
+          ],
+          tips: [
+            'Caso faça a opção de Rosca Martelo com halteres, basta segurar os pesos com as palmas viradas uma para a outra.',
+          ],
+          mistakes: [
+            'Soltar o peso rápido no fundo esticando o cotovelo com tranco.',
+            'Levantar o quadril do banco para ajudar na subida.',
+          ],
+          videoQuery: 'execucao correta rosca scott maquina',
+        },
+      },
+    ],
+  },
+
+  // =========================================================================
+  // TREINO D: Inferiores B — Pernas, Posterior e Core (~35 min, 5 exercícios)
+  // =========================================================================
+  {
+    id: 'workout-d-lower-2',
+    name: 'Treino D',
+    category: 'Inferiores B — Pernas, Posterior e Core',
+    description:
+      'Foco em coxas, posterior, glúteos e abdômen usando apenas aparelhos seguros, rápidos e intuitivos.',
+    templateVersion: CURRENT_TEMPLATE_VERSION,
+    exercises: [
+      {
+        id: 'td-1',
+        name: 'Leg Press Horizontal na Máquina',
+        muscleGroup: 'Glúteos e Quadríceps',
+        notes:
+          'Faça 1 série leve antes para aquecer. Posicione os pés um pouco mais altos na base para ativar mais glúteos e posterior. Ocupado? Use o Leg Press 45°.',
+        repRange: { min: 10, max: 12 },
+        restSeconds: 90,
+        sets: makeSets('td-1', 3, 12),
+        guide: {
+          primaryMuscle: 'Quadríceps e Glúteo Máximo',
+          secondaryMuscles: ['Posterior de Coxa'],
+          instructions: [
+            'Sente-se no Leg Press Horizontal e regule a distância do banco para começar com os joelhos perto de 90°.',
+            'Apoie os pés na largura dos ombros, um pouco acima do centro da plataforma.',
+            'Empurre o apoio usando o pé inteiro (foco nos calcanhares), sem travar os joelhos no final.',
+            'Volte devagar mantendo a coluna apoiada no encosto.',
+          ],
+          tips: [
+            'Pés levemente mais altos na plataforma tiram tensão dos joelhos e recrutam muito bem glúteos e coxas.',
+          ],
+          mistakes: [
+            'Empurrar na ponta dos pés tirando os calcanhares da base.',
+            'Bater as placas de peso a cada repetição.',
+          ],
+          videoQuery: 'execucao correta leg press horizontal maquina',
+        },
       },
       {
         id: 'td-2',
-        name: 'Supino Inclinado com Halteres (ou Máquina)',
-        muscleGroup: 'Peitoral Superior',
-        notes: 'Banco inclinado a 30°-45°, cotovelos fechados a 45°-60° (formato de seta), descida controlada no peito superior, 10 a 12 reps',
+        name: 'Mesa Flexora',
+        muscleGroup: 'Posterior de Coxa',
+        notes:
+          'Deitado de bruços, mantenha o quadril sempre encostado no banco ao subir os calcanhares. Ocupado? Use a Cadeira Flexora.',
+        repRange: { min: 10, max: 12 },
         restSeconds: 75,
-        sets: [
-          { id: 'td-2-s1', setNumber: 1, weight: 16, reps: 10, completed: false, previousWeight: 16, previousReps: 10 },
-          { id: 'td-2-s2', setNumber: 2, weight: 16, reps: 10, completed: false, previousWeight: 16, previousReps: 10 },
-          { id: 'td-2-s3', setNumber: 3, weight: 18, reps: 10, completed: false, previousWeight: 18, previousReps: 10 },
-          { id: 'td-2-s4', setNumber: 4, weight: 18, reps: 10, completed: false, previousWeight: 18, previousReps: 10 }
-        ],
+        sets: makeSets('td-2', 3, 12),
         guide: {
-          primaryMuscle: 'Peitoral Maior (Porção Clavicular Superior)',
-          secondaryMuscles: ['Deltóide Anterior', 'Tríceps'],
+          primaryMuscle: 'Isquiotibiais (Posterior de Coxa)',
+          secondaryMuscles: ['Panturrilhas', 'Glúteos'],
           instructions: [
-            'Ajuste o banco em uma inclinação suave de 30° a 45° (não mais que isso para não sobrecarregar demais os ombros).',
-            'Suba os halteres com as escápulas travadas contra o encosto.',
-            'Desça os halteres com os cotovelos posicionados em seta (cerca de 45° a 60° em relação ao tronco).',
-            'Toque suavemente na linha alta do peito e empurre para cima convergindo levemente os pesos sem encostá-los.'
+            'Deite-se de bruços alinhando os joelhos logo fora da borda do banco e o rolo atrás dos tornozelos.',
+            'Segure firme nas alças frontais mantendo a bacia colada ao estofado.',
+            'Flexione as pernas trazendo os calcanhares na direção dos glúteos.',
+            'Segure 1 segundo e desça controlando o peso devagar.',
           ],
           tips: [
-            'Trabalhar a porção clavicular dá o aspecto de peitoral cheio e erguido.'
+            'Trabalha toda a cadeia posterior da coxa com segurança total, mantendo a coluna 100% relaxada no banco.',
           ],
           mistakes: [
-            'Inclinar o banco a 60° (vira quase um desenvolvimento de ombros).',
-            'Abrir os cotovelos em 90° gerando atrito no ombro.'
+            'Levantar o quadril do banco ao puxar a carga.',
+            'Soltar o peso de forma brusca na volta.',
           ],
-          videoQuery: 'execucao correta supino inclinado com halteres'
-        }
+          videoQuery: 'execucao correta mesa flexora',
+        },
       },
       {
         id: 'td-3',
-        name: 'Puxada Alta no Triângulo (Pegada Fechada)',
-        muscleGroup: 'Costas / Dorsais & Espessura',
-        notes: 'Leve inclinação para trás (10°), puxe o triângulo até a clavícula/alto do peito apertando as costas, 12 reps',
+        name: 'Cadeira Adutora',
+        muscleGroup: 'Interno de Coxa',
+        notes:
+          'Ajuste uma abertura confortável sem forçar a virilha; feche as pernas segurando 1s no centro. Ocupado? Use a Cadeira Extensora ou Abdutora.',
+        repRange: { min: 12, max: 15 },
         restSeconds: 60,
-        sets: [
-          { id: 'td-3-s1', setNumber: 1, weight: 45, reps: 12, completed: false, previousWeight: 45, previousReps: 12 },
-          { id: 'td-3-s2', setNumber: 2, weight: 45, reps: 12, completed: false, previousWeight: 45, previousReps: 12 },
-          { id: 'td-3-s3', setNumber: 3, weight: 50, reps: 12, completed: false, previousWeight: 50, previousReps: 12 }
-        ],
+        sets: makeSets('td-3', 3, 15),
         guide: {
-          primaryMuscle: 'Grande Dorsal e Redondo Maior',
-          secondaryMuscles: ['Bíceps', 'Braquial'],
+          primaryMuscle: 'Adutores (Parte Interna da Coxa)',
+          secondaryMuscles: ['Estabilizadores Pélvicos'],
           instructions: [
-            'Coloque o triângulo na polia alta da puxada.',
-            'Trave as pernas sob os apoios e incline o tronco cerca de 10° a 15° para trás.',
-            'Abaixe as escápulas e puxe o triângulo em direção ao peitoral superior.',
-            'Aperte as costas no final e retorne alongando totalmente as dorsais até o topo.'
+            'Sente-se com as costas apoiadas e posicione as almofadas na parte interna dos joelhos.',
+            'Regule a trava em uma abertura confortável e sem dor.',
+            'Feche as pernas contraindo a parte interna das coxas e segure 1 segundo.',
+            'Abra devagar controlando o retorno das placas.',
           ],
           tips: [
-            'A pegada neutra com triângulo permite maior amplitude e conforto para os punhos e cotovelos.'
+            'Fortalece a musculatura estabilizadora do quadril e complementa perfeitamente o trabalho do Leg Press.',
           ],
           mistakes: [
-            'Jogar o tronco muito para trás quase virando uma remada deitada.',
-            'Soltar o peso de forma brusca no retorno.'
+            'Colocar abertura exagerada além da sua flexibilidade atual.',
+            'Deixar as pernas abrirem no tranco.',
           ],
-          videoQuery: 'execucao correta puxada alta triangulo pulley'
-        }
+          videoQuery: 'execucao correta cadeira adutora',
+        },
       },
       {
         id: 'td-4',
-        name: 'Elevação Lateral com Halteres',
-        muscleGroup: 'Ombros / Deltoide Lateral',
-        notes: 'Tronco levemente inclinado, cotovelos semiflexionados, suba na linha dos ombros sem balanço, 12 a 15 reps',
+        name: 'Panturrilha Sentado na Máquina',
+        muscleGroup: 'Panturrilhas',
+        notes:
+          'Alongue bem o calcanhar para baixo e suba tudo segurando 1s no topo. Ocupado? Faça Panturrilha em Pé na Máquina ou no Leg Press.',
+        repRange: { min: 12, max: 15 },
         restSeconds: 60,
-        sets: [
-          { id: 'td-4-s1', setNumber: 1, weight: 8, reps: 12, completed: false, previousWeight: 8, previousReps: 12 },
-          { id: 'td-4-s2', setNumber: 2, weight: 8, reps: 12, completed: false, previousWeight: 8, previousReps: 12 },
-          { id: 'td-4-s3', setNumber: 3, weight: 10, reps: 12, completed: false, previousWeight: 10, previousReps: 12 },
-          { id: 'td-4-s4', setNumber: 4, weight: 10, reps: 12, completed: false, previousWeight: 10, previousReps: 12 }
-        ],
+        sets: makeSets('td-4', 3, 15),
         guide: {
-          primaryMuscle: 'Deltóide Lateral',
-          secondaryMuscles: ['Trapézio Superior'],
+          primaryMuscle: 'Sóleo (Panturrilha)',
+          secondaryMuscles: ['Gastrocnêmio'],
           instructions: [
-            'Fique em pé com os pés na largura do quadril e incline o tronco 5° para a frente.',
-            'Segure os halteres ao lado das coxas com os cotovelos levemente destravados.',
-            'Eleve os braços lateralmente até a linha dos ombros, como se estivesse despejando água de uma jarra.',
-            'Desça controlando a carga em 2 segundos sem encostar os halteres no corpo.'
+            'Sente-se apoiando a parte da frente dos pés na plataforma e ajuste o apoio acolchoado firme sobre os joelhos.',
+            'Suba na ponta dos pés para liberar a trava de segurança.',
+            'Desça os calcanhares de forma controlada sentindo alongar bem.',
+            'Suba o máximo que conseguir, pause 1 segundo no alto e repita.',
           ],
           tips: [
-            'O deltoide lateral é o músculo que cria a silhueta em "V", fazendo a cintura parecer visualmente menor.'
+            'Feita sentado (joelho dobrado), trabalha especialmente o músculo sóleo, complementando a panturrilha de perna estendida do Treino B.',
           ],
-          mistakes: [
-            'Jogar o tronco para trás e usar impulso das pernas.',
-            'Subir as mãos mais alto do que os cotovelos.'
-          ],
-          videoQuery: 'execucao correta elevacao lateral ombros halteres'
-        }
+          mistakes: ['Fazer movimentos curtinhos e acelerados.'],
+          videoQuery: 'execucao correta panturrilha sentado maquina',
+        },
       },
       {
         id: 'td-5',
-        name: 'Crucifixo Inverso na Máquina (Peck Deck Invertido)',
-        muscleGroup: 'Ombros / Deltoide Posterior',
-        notes: 'Peito firme no encosto, abra os braços no plano dos ombros focando na parte de trás dos ombros, 12 a 15 reps',
+        name: 'Abdominal na Polia Alta (ou Máquina)',
+        muscleGroup: 'Abdômen e Core',
+        notes:
+          'Enrole o tronco para baixo contraindo o abdômen sem sentar nos calcanhares. Ocupado? Use o Abdominal na Máquina Sentado ou Colchonete.',
+        repRange: { min: 12, max: 15 },
         restSeconds: 60,
-        sets: [
-          { id: 'td-5-s1', setNumber: 1, weight: 30, reps: 12, completed: false, previousWeight: 30, previousReps: 12 },
-          { id: 'td-5-s2', setNumber: 2, weight: 30, reps: 12, completed: false, previousWeight: 30, previousReps: 12 },
-          { id: 'td-5-s3', setNumber: 3, weight: 35, reps: 12, completed: false, previousWeight: 35, previousReps: 12 }
-        ],
+        sets: makeSets('td-5', 3, 15),
         guide: {
-          primaryMuscle: 'Deltóide Posterior',
-          secondaryMuscles: ['Rombóides', 'Trapézio'],
+          primaryMuscle: 'Reto Abdominal',
+          secondaryMuscles: ['Oblíquos'],
           instructions: [
-            'Sente-se de frente para o aparelho com o peito apoiado no encosto.',
-            'Ajuste o banco para que as manoplas fiquem alinhadas com a altura dos seus ombros.',
-            'Com os cotovelos levemente flexionados, empurre as manoplas para trás abrindo os braços.',
-            'Aperte a parte de trás do ombro por 1 segundo e retorne lentamente.'
+            'Ajoelhe-se sobre um colchonete diante da polia alta segurando as pontas da corda ao lado da cabeça.',
+            'Mantenha o quadril parado no lugar.',
+            'Solte o ar curvando a coluna para baixo, aproximando as costelas da bacia.',
+            'Volte devagar sentindo o abdômen alongar.',
           ],
           tips: [
-            'Fortalecer o posterior de ombro puxa seus ombros para trás, corrigindo a postura curvada típica de quem trabalha sentado.'
+            'Prefere não ajoelhar? Faça tranquilamente na Máquina de Abdominal Sentado.',
           ],
           mistakes: [
-            'Encolher os ombros ativando em excesso o trapézio superior.',
-            'Fazer o movimento rápido sem segurar a contração.'
+            'Sentar nos calcanhares mexendo o quadril em vez de dobrar o abdômen.',
+            'Puxar a corda com a força dos braços.',
           ],
-          videoQuery: 'execucao correta crucifixo inverso peck deck maquina'
-        }
+          videoQuery: 'execucao correta abdominal na polia alta corda',
+        },
       },
-      {
-        id: 'td-6',
-        name: 'Super-série: Rosca Martelo + Tríceps Barra Reta',
-        muscleGroup: 'Braquial / Bíceps & Tríceps',
-        notes: 'Faça 12 reps de Rosca Martelo com halteres e imediatamente sem descanso 12 reps de Tríceps Barra na polia. Descanse 60s.',
-        restSeconds: 60,
-        sets: [
-          { id: 'td-6-s1', setNumber: 1, weight: 12, reps: 12, completed: false, previousWeight: 12, previousReps: 12 },
-          { id: 'td-6-s2', setNumber: 2, weight: 12, reps: 12, completed: false, previousWeight: 12, previousReps: 12 },
-          { id: 'td-6-s3', setNumber: 3, weight: 14, reps: 12, completed: false, previousWeight: 14, previousReps: 12 }
-        ],
-        guide: {
-          primaryMuscle: 'Braquial, Bíceps e Tríceps',
-          secondaryMuscles: ['Antebraços'],
-          instructions: [
-            'Parte 1 (Rosca Martelo): Em pé com halteres, palmas voltadas uma para a outra (pegada neutra). Suba controladamente 12 repetições.',
-            'Parte 2 (Tríceps Barra Reta): Imediatamente vá para a polia alta, trave os cotovelos ao lado do tronco e estenda os braços para baixo até o final por 12 repetições.',
-            'Descanse 60 segundos somente após terminar os dois exercícios.'
-          ],
-          tips: [
-            'A super-série economiza tempo na sessão e gera grande volume de sangue nos braços elevando o gasto calórico.'
-          ],
-          mistakes: [
-            'Descansar entre o primeiro e o segundo exercício.',
-            'Balançar o corpo nos exercícios de braço.'
-          ],
-          videoQuery: 'super serie rosca martelo triceps pulley'
-        }
-      },
-      {
-        id: 'td-cardio',
-        name: 'Cardio Final: Elíptico (Transport) ou Bicicleta',
-        muscleGroup: 'Cardio / Queima de Gordura',
-        notes: 'Ritmo moderado constante por 15 minutos sem impacto nas articulações.',
-        restSeconds: 60,
-        sets: [
-          { id: 'td-cardio-s1', setNumber: 1, weight: 0, reps: 15, completed: false, previousWeight: 0, previousReps: 15 }
-        ],
-        guide: {
-          primaryMuscle: 'Sistema Cardiorrespiratório',
-          secondaryMuscles: ['Glúteos', 'Pernas'],
-          instructions: [
-            'Suba no aparelho elíptico mantendo a sola do pé totalmente apoiada nas sapatas.',
-            'Mantenha cadência contínua e moderada sem interrupções por 15 minutos.',
-            'Segure nas alças móveis para recrutar também a parte superior do corpo no gasto calórico.'
-          ],
-          tips: [
-            'O elíptico tem impacto zero nos meniscos e coluna, ideal para acelerar o déficit calórico de quinta-feira.'
-          ],
-          mistakes: [
-            'Pedalar na ponta dos pés gerando desconforto nos dedos.'
-          ],
-          videoQuery: 'como treinar no eliptico postura correta'
-        }
-      }
-    ]
+    ],
   },
-
-  // =========================================================================
-  // TREINO E (Sexta-feira): Inferiores Completo (Foco Posterior & Glúteos)
-  // 5 min Mobilidade + 45 min Musculação + 10 min Cardio sem impacto
-  // =========================================================================
-  {
-    id: 'workout-e-lower-posterior',
-    name: 'Treino E',
-    category: 'Inferiores (Posterior & Glúteos)',
-    description: 'Foco Posterior & Glúteos: 5 min mobilidade + 45 min musculação + 10 min esteira inclinada/bike',
-    exercises: [
-      {
-        id: 'te-mob',
-        name: 'Mobilidade Articular (Posterior & Glúteos)',
-        muscleGroup: 'Mobilidade / Aquecimento',
-        notes: 'Alongamento dinâmico de posterior de coxa (2x12) + Ponte de glúteo no solo sem peso (2x15 segurando 2s no topo). 5 min.',
-        restSeconds: 30,
-        sets: [
-          { id: 'te-mob-s1', setNumber: 1, weight: 0, reps: 15, completed: false, previousWeight: 0, previousReps: 15 },
-          { id: 'te-mob-s2', setNumber: 2, weight: 0, reps: 15, completed: false, previousWeight: 0, previousReps: 15 }
-        ],
-        guide: {
-          primaryMuscle: 'Glúteo Máximo e Isquiotibiais',
-          secondaryMuscles: ['Lombar'],
-          instructions: [
-            'Em pé, balance a perna estendida para frente e para trás de forma controlada para soltar o posterior (12 reps por perna).',
-            'Deite de costas no solo, dobre os joelhos e eleve a bacia contraindo o glúteo no topo por 2 segundos antes de descer (15 reps).'
-          ],
-          tips: [
-            'A ponte de glúteo ativa a musculatura que vai proteger sua lombar durante o Stiff pesado.'
-          ],
-          mistakes: [
-            'Hiperestender a lombar no topo da ponte de glúteo.'
-          ],
-          videoQuery: 'ponte de gluteo ativacao solo e mobilidade posterior'
-        }
-      },
-      {
-        id: 'te-1',
-        name: 'Stiff com Halteres (ou Barra)',
-        muscleGroup: 'Posterior de Coxa & Glúteos',
-        notes: 'Dobradiça de quadril: imagine encostar a bunda na parede atrás. Joelhos levemente destravados, costas retas, descer rente à canela, 10 a 12 reps',
-        restSeconds: 90,
-        sets: [
-          { id: 'te-1-s1', setNumber: 1, weight: 20, reps: 10, completed: false, previousWeight: 20, previousReps: 10 },
-          { id: 'te-1-s2', setNumber: 2, weight: 22, reps: 10, completed: false, previousWeight: 22, previousReps: 10 },
-          { id: 'te-1-s3', setNumber: 3, weight: 24, reps: 10, completed: false, previousWeight: 24, previousReps: 10 },
-          { id: 'te-1-s4', setNumber: 4, weight: 24, reps: 10, completed: false, previousWeight: 24, previousReps: 10 }
-        ],
-        guide: {
-          primaryMuscle: 'Isquiotibiais (Posterior de Coxa) e Glúteos',
-          secondaryMuscles: ['Eretores da Espinha / Lombar'],
-          instructions: [
-            'Fique em pé com pés na largura do quadril segurando os halteres à frente das coxas.',
-            'Destrave levemente os joelhos em um ângulo fixo e mantenha-os assim durante todo o movimento.',
-            'Inicie o movimento jogando o quadril para trás (dobradiça de quadril), mantendo peito aberto e costas 100% retas.',
-            'Desça os halteres rente às canelas até sentir um forte alongamento no posterior da coxa (geralmente meia canela).',
-            'Suba empurrando o quadril para frente e contraindo fortemente os glúteos no topo.'
-          ],
-          tips: [
-            'Regra anatômica de ouro: O movimento é uma dobradiça de quadril, nunca de coluna. Imagine que quer tocar os glúteos na parede atrás de você.',
-            'Não tente descer até o chão curvando as costas; a amplitude máxima é até onde suas costas ficarem retas.'
-          ],
-          mistakes: [
-            'Arredondar a coluna lombar (curvar as costas).',
-            'Dobrar os joelhos como se fosse um agachamento comum.',
-            'Afastar os halteres das canelas.'
-          ],
-          videoQuery: 'execucao correta stiff halteres posterior coxa'
-        }
-      },
-      {
-        id: 'te-2',
-        name: 'Cadeira Flexora (ou Mesa Flexora)',
-        muscleGroup: 'Posterior de Coxa',
-        notes: 'Encosto travado firme sobre as coxas, flexão potente e retorno lento em 3 segundos, 12 reps',
-        restSeconds: 60,
-        sets: [
-          { id: 'te-2-s1', setNumber: 1, weight: 40, reps: 12, completed: false, previousWeight: 40, previousReps: 12 },
-          { id: 'te-2-s2', setNumber: 2, weight: 45, reps: 12, completed: false, previousWeight: 45, previousReps: 12 },
-          { id: 'te-2-s3', setNumber: 3, weight: 45, reps: 12, completed: false, previousWeight: 45, previousReps: 12 },
-          { id: 'te-2-s4', setNumber: 4, weight: 50, reps: 12, completed: false, previousWeight: 50, previousReps: 12 }
-        ],
-        guide: {
-          primaryMuscle: 'Isquiotibiais',
-          secondaryMuscles: ['Panturrilhas'],
-          instructions: [
-            'Sente-se com as costas apoiadas e trave a almofada de fixação bem firme em cima das coxas.',
-            'O rolo inferior deve ficar apoiado logo acima dos calcanhares.',
-            'Puxe os pés para baixo e para trás flexionando os joelhos ao máximo.',
-            'Segure 1 segundo na contração máxima e retorne controlando a descida dos pesos em 3 segundos.'
-          ],
-          tips: [
-            'Manter a almofada superior bem travada impede a bacia de subir e isola o posterior de forma cirúrgica.'
-          ],
-          mistakes: [
-            'Deixar o rolo bater nos pesos ao estender.',
-            'Tirar as costas do encosto.'
-          ],
-          videoQuery: 'execucao correta cadeira flexora postura'
-        }
-      },
-      {
-        id: 'te-3',
-        name: 'Elevação Pélvica na Máquina (ou com Barra)',
-        muscleGroup: 'Glúteos & Isquiotibiais',
-        notes: 'Pés firmes no chão, suba estendendo o quadril e esprema o glúteo no topo por 1s a 2s, 10 a 12 reps',
-        restSeconds: 75,
-        sets: [
-          { id: 'te-3-s1', setNumber: 1, weight: 50, reps: 10, completed: false, previousWeight: 50, previousReps: 10 },
-          { id: 'te-3-s2', setNumber: 2, weight: 60, reps: 10, completed: false, previousWeight: 60, previousReps: 10 },
-          { id: 'te-3-s3', setNumber: 3, weight: 60, reps: 10, completed: false, previousWeight: 60, previousReps: 10 }
-        ],
-        guide: {
-          primaryMuscle: 'Glúteo Máximo',
-          secondaryMuscles: ['Isquiotibiais', 'Core'],
-          instructions: [
-            'Apoie a cintura sob o cinto/almofada da máquina (ou apoie a parte superior das costas em um banco com a barra na pelve).',
-            'Pés firmes no chão na largura dos ombros.',
-            'Empurre o solo com os calcanhares e erga o quadril até formar uma ponte alinhada.',
-            'Aperte os glúteos no topo com intensidade máxima por 1 a 2 segundos antes de descer.'
-          ],
-          tips: [
-            'Glúteo forte é o motor principal que impulsiona o corpo na corrida e protege o joelho de dor patelofemoral.'
-          ],
-          mistakes: [
-            'Hiperestender a coluna lombar em vez de mover o quadril.',
-            'Tirar os calcanhares do solo.'
-          ],
-          videoQuery: 'execucao correta elevacao pelvica maquina gluteos'
-        }
-      },
-      {
-        id: 'te-4',
-        name: 'Passada Estática (Afundo) Segurando no Apoio',
-        muscleGroup: 'Quadríceps & Glúteos Unilateral',
-        notes: 'Passo largo, desça o joelho de trás em direção ao solo a 90°. Segure na barra/rack para equilíbrio seguro em 111 kg, 10 por perna',
-        restSeconds: 75,
-        sets: [
-          { id: 'te-4-s1', setNumber: 1, weight: 10, reps: 10, completed: false, previousWeight: 10, previousReps: 10 },
-          { id: 'te-4-s2', setNumber: 2, weight: 10, reps: 10, completed: false, previousWeight: 10, previousReps: 10 },
-          { id: 'te-4-s3', setNumber: 3, weight: 12, reps: 10, completed: false, previousWeight: 12, previousReps: 10 }
-        ],
-        guide: {
-          primaryMuscle: 'Glúteo Máximo e Quadríceps',
-          secondaryMuscles: ['Isquiotibiais', 'Estabilizadores do Quadril'],
-          instructions: [
-            'Dê um passo largo à frente mantendo os pés na largura do quadril.',
-            'Segure um halter em uma das mãos e apoie a outra mão em uma coluna ou rack para garantir equilíbrio seguro.',
-            'Desça verticalmente até que o joelho da frente e o de trás formem ângulos próximos a 90°.',
-            'O joelho de trás deve quase tocar o solo sem bater.',
-            'Empurre pelo calcanhar da perna da frente para retornar.'
-          ],
-          tips: [
-            'Para pessoas com peso acima de 100 kg, apoiar a mão elimina o risco de torção de tornozelo ou perda de equilíbrio, mantendo o estímulo perfeito na perna.'
-          ],
-          mistakes: [
-            'Dar passo muito curto projetando o joelho da frente excessivamente além dos dedos.',
-            'Deixar o joelho da frente tombar para dentro.'
-          ],
-          videoQuery: 'execucao correta afundo com apoio pernas'
-        }
-      },
-      {
-        id: 'te-5',
-        name: 'Cadeira Abdutora',
-        muscleGroup: 'Glúteo Médio / Estabilizadores',
-        notes: 'Tronco levemente inclinado à frente, abra com força e segure 1s na abertura máxima, 15 reps',
-        restSeconds: 45,
-        sets: [
-          { id: 'te-5-s1', setNumber: 1, weight: 45, reps: 15, completed: false, previousWeight: 45, previousReps: 15 },
-          { id: 'te-5-s2', setNumber: 2, weight: 50, reps: 15, completed: false, previousWeight: 50, previousReps: 15 },
-          { id: 'te-5-s3', setNumber: 3, weight: 50, reps: 15, completed: false, previousWeight: 50, previousReps: 15 }
-        ],
-        guide: {
-          primaryMuscle: 'Glúteo Médio e Mínimo',
-          secondaryMuscles: ['Tensor da Fáscia Lata'],
-          instructions: [
-            'Sente-se no aparelho com as almofadas na parte externa dos joelhos.',
-            'Incline o tronco levemente para frente (cerca de 15°) mantendo a coluna ereta.',
-            'Abra as pernas com força empurrando as almofadas para os lados.',
-            'Segure por 1 segundo na contração máxima e feche de forma controlada.'
-          ],
-          tips: [
-            'O glúteo médio é o principal responsável por evitar o valgo dinâmico e proteger o menisco na corrida.'
-          ],
-          mistakes: [
-            'Usar peso em excesso e fazer trancos sem amplitude.',
-            'Deixar os pesos baterem no retorno.'
-          ],
-          videoQuery: 'execucao correta cadeira abdutora tronco inclinado'
-        }
-      },
-      {
-        id: 'te-6',
-        name: 'Panturrilha em Pé na Máquina',
-        muscleGroup: 'Panturrilhas',
-        notes: 'Joelhos estendidos sem travar, desça o calcanhar até o máximo do alongamento e suba na ponta máxima (1s no topo), 15 reps',
-        restSeconds: 45,
-        sets: [
-          { id: 'te-6-s1', setNumber: 1, weight: 50, reps: 15, completed: false, previousWeight: 50, previousReps: 15 },
-          { id: 'te-6-s2', setNumber: 2, weight: 55, reps: 15, completed: false, previousWeight: 55, previousReps: 15 },
-          { id: 'te-6-s3', setNumber: 3, weight: 60, reps: 15, completed: false, previousWeight: 60, previousReps: 15 },
-          { id: 'te-6-s4', setNumber: 4, weight: 60, reps: 15, completed: false, previousWeight: 60, previousReps: 15 }
-        ],
-        guide: {
-          primaryMuscle: 'Gastrocnêmio',
-          secondaryMuscles: ['Sóleo'],
-          instructions: [
-            'Apoie os ombros sob as almofadas e a ponta dos pés na borda da plataforma.',
-            'Mantenha as pernas retas sem hiperestender a articulação dos joelhos.',
-            'Desça os calcanhares sentindo alongar a panturrilha profundamente.',
-            'Empurre na ponta dos pés até a altura máxima e segure 1 segundo no topo.'
-          ],
-          tips: [
-            'Execute com ritmo cadenciado: 2 segundos para descer, 1 segundo de pausa em cima.'
-          ],
-          mistakes: [
-            'Ficar quicando rapidamente na ponta dos pés sem amplitude.'
-          ],
-          videoQuery: 'execucao correta panturrilha em pe maquina'
-        }
-      },
-      {
-        id: 'te-cardio',
-        name: 'Cardio Final: Esteira Inclinada ou Bicicleta',
-        muscleGroup: 'Cardio / Recuperação',
-        notes: 'Caminhada forte inclinada (5% a 8%, 5.0 a 5.5 km/h) ou bicicleta por 10 minutos para arrefecimento e queima metabólica.',
-        restSeconds: 60,
-        sets: [
-          { id: 'te-cardio-s1', setNumber: 1, weight: 0, reps: 10, completed: false, previousWeight: 0, previousReps: 10 }
-        ],
-        guide: {
-          primaryMuscle: 'Sistema Cardiorrespiratório',
-          secondaryMuscles: ['Glúteos', 'Panturrilhas'],
-          instructions: [
-            'Opte por caminhada inclinada suave ou bicicleta em ritmo de volta à calma.',
-            'Permaneça por 10 minutos recuperando a respiração e fechando a semana com chave de ouro.'
-          ],
-          tips: [
-            'Parabéns pela semana completa de 5 treinos! Sábado e domingo serão dias de descanso e recuperação muscular.'
-          ],
-          mistakes: [
-            'Sair correndo após um treino pesado de perna.'
-          ],
-          videoQuery: 'importancia do desaquecimento apos musculacao'
-        }
-      }
-    ]
-  }
 ];
 
+function sanitizeWorkouts(workouts: Workout[]): Workout[] {
+  return workouts.map((workout) => ({
+    ...workout,
+    exercises: (workout.exercises || []).map((exercise) => ({
+      ...exercise,
+      sets: (exercise.sets || []).map((set, idx) => ({
+        id: set.id,
+        setNumber: Number.isFinite(set.setNumber) ? set.setNumber : idx + 1,
+        reps: Number.isFinite(set.reps) ? Math.max(1, Math.floor(set.reps)) : 12,
+        completed: Boolean(set.completed),
+        ...(set.previousReps !== undefined && Number.isFinite(set.previousReps)
+          ? { previousReps: Math.max(0, Math.floor(set.previousReps)) }
+          : {}),
+      })),
+    })),
+  }));
+}
+
+export function needsDefaultMigration(workouts: Workout[]): boolean {
+  if (!Array.isArray(workouts) || workouts.length === 0) return true;
+  return workouts.some(
+    (w) => LEGACY_DEFAULT_IDS.has(w.id) && w.templateVersion !== CURRENT_TEMPLATE_VERSION
+  );
+}
 
 export function prepareWorkouts(workouts: Workout[]): Workout[] {
-  return workouts;
+  if (needsDefaultMigration(workouts)) {
+    const customWorkouts = Array.isArray(workouts)
+      ? workouts.filter((w) => !LEGACY_DEFAULT_IDS.has(w.id))
+      : [];
+    return sanitizeWorkouts([...DEFAULT_WORKOUTS, ...customWorkouts]);
+  }
+  return sanitizeWorkouts(workouts);
 }

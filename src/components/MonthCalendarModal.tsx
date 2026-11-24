@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ChevronLeft, 
   ChevronRight, 
@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { DayActivity, isScheduledRestDay, formatDateToKey } from '../utils/streak';
 import { WorkoutHistoryEntry, Workout } from '../types/workout';
+import { useDialogClose } from '../hooks/useDialogClose';
 
 interface MonthCalendarModalProps {
   isOpen: boolean;
@@ -45,8 +46,17 @@ export const MonthCalendarModal: React.FC<MonthCalendarModalProps> = ({
   const [selectedDayKey, setSelectedDayKey] = useState<string>(() => formatDateToKey(new Date()));
   const [isAddingPast, setIsAddingPast] = useState(false);
   const [selectedWorkoutId, setSelectedWorkoutId] = useState<string>(workouts[0]?.id || '');
-  const [pastDuration, setPastDuration] = useState<number>(50);
-  const [pastCalories, setPastCalories] = useState<number>(360);
+  const [pastDuration, setPastDuration] = useState<number>(40);
+  const [pastCalories, setPastCalories] = useState<number>(300);
+
+  useDialogClose(isOpen, onClose);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (workouts.length > 0 && !workouts.some(w => w.id === selectedWorkoutId)) {
+      setSelectedWorkoutId(workouts[0].id);
+    }
+  }, [isOpen, workouts, selectedWorkoutId]);
 
   if (!isOpen) return null;
 
@@ -147,20 +157,32 @@ export const MonthCalendarModal: React.FC<MonthCalendarModalProps> = ({
     const chosen = workouts.find(w => w.id === selectedWorkoutId) || workouts[0];
     if (!chosen) return;
 
+    const completedAtLocal = new Date(
+      selectedDateParts[0],
+      selectedDateParts[1] - 1,
+      selectedDateParts[2],
+      18,
+      0,
+      0
+    );
+
     onAddPastWorkout({
       workoutId: chosen.id,
       workoutName: chosen.name,
-      completedAt: selectedDateObj.toISOString(),
-      durationMinutes: pastDuration || 50,
+      completedAt: completedAtLocal.toISOString(),
+      durationMinutes: pastDuration || 40,
       exercisesCount: chosen.exercises?.length || 6,
-      caloriesBurned: pastCalories || 360
+      caloriesBurned: pastCalories || 300
     });
 
     setIsAddingPast(false);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+    >
       <div role="dialog" aria-modal="true" aria-label="Calendário de treinos" className="ironflow-dialog w-full max-w-sm rounded-3xl bg-[#121316] border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col max-h-[92vh]">
         
         {/* Cabeçalho do Modal */}

@@ -16,15 +16,14 @@ import { MonthCalendarModal } from './components/MonthCalendarModal';
 import { StreakModal } from './components/StreakModal';
 import { ShareStoryModal } from './components/ShareStoryModal';
 import { Exercise, WorkoutHistoryEntry } from './types/workout';
-import { Plus, Dumbbell, Target, History, CalendarDays, ArrowUpRight, Layers, Users } from 'lucide-react';
+import { Plus, Dumbbell, History, CalendarDays, ArrowUpRight, Layers, Users, Trash2 } from 'lucide-react';
 import { useAuth } from './contexts/AuthContext';
 import { useWorkoutRoom } from './hooks/useWorkoutRoom';
 import { AuthModal } from './components/AuthModal';
 import { WorkoutRoomModal } from './components/WorkoutRoomModal';
 import { RoomLiveBar } from './components/RoomLiveBar';
-import { ProgramPlanModal } from './components/ProgramPlanModal';
 import { workoutSyncService } from './services/workoutSync';
-import { DEFAULT_WORKOUTS } from './data/defaultWorkouts';
+import { prepareWorkouts, needsDefaultMigration } from './data/defaultWorkouts';
 import { formatDateToKey } from './utils/streak';
 
 export function App() {
@@ -35,6 +34,7 @@ export function App() {
     setActiveWorkoutId,
     activeWorkout,
     progress,
+    estimatedDurationMinutes,
     history,
     setHistory,
     preferences,
@@ -46,6 +46,7 @@ export function App() {
     addExercise,
     removeExercise,
     createWorkout,
+    deleteWorkout,
     resetWorkout,
     finishWorkout,
     addPastWorkoutEntry,
@@ -60,6 +61,7 @@ export function App() {
   } = useWorkouts();
 
   const timerDeadline = useRef<number | null>(null);
+  const timeLeftRef = useRef<number>(0);
   const [cloudReadyFor, setCloudReadyFor] = useState<string | null>(null);
 
   // Autenticação e Perfil
@@ -83,7 +85,6 @@ export function App() {
   } = useWorkoutRoom();
 
   // Estados dos Modais
-  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [isStreakOpen, setIsStreakOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
@@ -111,27 +112,45 @@ export function App() {
   const [isTimerPaused, setIsTimerPaused] = useState(false);
   const [timerExerciseName, setTimerExerciseName] = useState<string | undefined>(undefined);
 
-  // Limpeza de rastreadores antigos de notificação
+  // Cronômetro em wall time (sem recriar intervalos a cada segundo)
   useEffect(() => {
-    try {
-      localStorage.removeItem('treino_notification_tracker_v1');
-    } catch {}
-  }, []);
-
-  // Use wall time so background tabs do not delay the rest timer.
-  useEffect(() => {
-    if (!timerActive || isTimerPaused || timeLeft <= 0) {
+    if (!timerActive || isTimerPaused) {
       return;
     }
-    if (timerDeadline.current === null) timerDeadline.current = Date.now() + timeLeft * 1000;
-    const tick = () => setTimeLeft(Math.max(0, Math.ceil(((timerDeadline.current ?? Date.now()) - Date.now()) / 1000)));
+
+    if (timerDeadline.current === null) {
+      timerDeadline.current = Date.now() + timeLeftRef.current * 1000;
+    }
+
+    const tick = () => {
+      if (timerDeadline.current === null) return;
+      const remaining = Math.max(0, Math.ceil((timerDeadline.current - Date.now()) / 1000));
+      timeLeftRef.current = remaining;
+      setTimeLeft(remaining);
+    };
+
+    tick();
     const interval = setInterval(tick, 250);
     document.addEventListener('visibilitychange', tick);
+
     return () => {
       clearInterval(interval);
       document.removeEventListener('visibilitychange', tick);
     };
-  }, [timerActive, isTimerPaused, timeLeft]);
+  }, [timerActive, isTimerPaused]);
+
+  // Fecha automaticamente a barra 2.8s após concluir o descanso
+  useEffect(() => {
+    if (!timerActive || timeLeft > 0) return;
+
+    const autoClose = setTimeout(() => {
+      timerDeadline.current = null;
+      timeLeftRef.current = 0;
+      setTimerActive(false);
+    }, 2800);
+
+    return () => clearTimeout(autoClose);
+  }, [timerActive, timeLeft]);
 
   // Sincroniza cronômetro acionado pelo parceiro de treino
   useEffect(() => {
@@ -168,16 +187,14 @@ export function App() {
         // 1. Carrega rotinas do usuário salvas na nuvem
         const cloudWorkouts = await workoutSyncService.loadWorkoutsFromCloud(user.id);
         if (cloudWorkouts.workouts && cloudWorkouts.workouts.length > 0 && isMounted) {
-          const isLegacy = cloudWorkouts.workouts.some(w => w.id === 'workout-upper-a' || w.id === 'workout-lower-a');
+          const isLegacy = needsDefaultMigration(cloudWorkouts.workouts);
+          const prepared = prepareWorkouts(cloudWorkouts.workouts);
+          setWorkouts(prepared);
           if (isLegacy) {
-            setWorkouts(DEFAULT_WORKOUTS);
-            setActiveWorkoutId(DEFAULT_WORKOUTS[0].id);
-            await workoutSyncService.saveWorkoutsToCloud(user.id, DEFAULT_WORKOUTS, DEFAULT_WORKOUTS[0].id);
-          } else {
-            setWorkouts(cloudWorkouts.workouts);
-            if (cloudWorkouts.activeWorkoutId) {
-              setActiveWorkoutId(cloudWorkouts.activeWorkoutId);
-            }
+            setActiveWorkoutId(prepared[0].id);
+            await workoutSyncService.saveWorkoutsToCloud(user.id, prepared, prepared[0].id);
+          } else if (cloudWorkouts.activeWorkoutId) {
+            setActiveWorkoutId(cloudWorkouts.activeWorkoutId);
           }
         } else {
           // Se for a primeira vez, salva os treinos atuais na nuvem
@@ -255,11 +272,44 @@ export function App() {
   const startRestTimer = (seconds: number, exerciseName?: string) => {
     const validSec = Math.max(5, seconds);
     timerDeadline.current = Date.now() + validSec * 1000;
+    timeLeftRef.current = validSec;
     setTotalTimerTime(validSec);
     setTimeLeft(validSec);
     setIsTimerPaused(false);
     setTimerActive(true);
     setTimerExerciseName(exerciseName);
+  };
+
+  const handleToggleTimerPause = () => {
+    if (isTimerPaused) {
+      timerDeadline.current = Date.now() + timeLeftRef.current * 1000;
+      setIsTimerPaused(false);
+    } else {
+      const remaining = timerDeadline.current
+        ? Math.max(0, Math.ceil((timerDeadline.current - Date.now()) / 1000))
+        : timeLeftRef.current;
+      timerDeadline.current = null;
+      timeLeftRef.current = remaining;
+      setTimeLeft(remaining);
+      setIsTimerPaused(true);
+    }
+  };
+
+  const handleAdjustTimerSeconds = (delta: number) => {
+    const remaining = !isTimerPaused && timerDeadline.current
+      ? Math.max(0, Math.ceil((timerDeadline.current - Date.now()) / 1000))
+      : timeLeftRef.current;
+    const nextTime = Math.max(0, remaining + delta);
+    timeLeftRef.current = nextTime;
+    timerDeadline.current = isTimerPaused || !timerActive ? null : Date.now() + nextTime * 1000;
+    setTimeLeft(nextTime);
+    setTotalTimerTime(prev => Math.max(prev, nextTime));
+  };
+
+  const handleStopTimer = () => {
+    timerDeadline.current = null;
+    timeLeftRef.current = 0;
+    setTimerActive(false);
   };
 
   const handleToggleSet = (exerciseId: string, setId: string) => {
@@ -353,7 +403,6 @@ export function App() {
         onOpenStreakModal={() => setIsStreakOpen(true)}
         onOpenRoomModal={() => setIsRoomOpen(true)}
         onOpenAuthModal={() => setIsAuthOpen(true)}
-        onOpenPlanModal={() => setIsPlanModalOpen(true)}
         currentStreak={currentStreak}
         percentage={progress.percentage}
         isTodayRestDay={isTodayRestDay}
@@ -411,31 +460,6 @@ export function App() {
         />
       </div>
 
-      {/* Mini-banner de orientação da sessão ativa & Diretrizes 12 semanas */}
-      {activeWorkout && (
-        <div className="px-4 pt-1 pb-1">
-          <div className="flex items-center justify-between p-2.5 px-3 rounded-2xl bg-zinc-900/90 border border-white/10 text-xs shadow-sm">
-            <div className="flex items-center gap-2 min-w-0">
-              <Target className="w-4 h-4 text-ios-accent shrink-0" />
-              <div className="min-w-0">
-                <span className="font-bold text-white text-[11px] block truncate">
-                  {activeWorkout.name}: {activeWorkout.category}
-                </span>
-                <span className="text-[10px] text-zinc-400 block truncate">
-                  {activeWorkout.description || '60 min cravados • Mobilidade + Musculação + Cardio'}
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={() => setIsPlanModalOpen(true)}
-              className="shrink-0 ml-2 px-2.5 py-1 rounded-xl bg-ios-accent/15 hover:bg-ios-accent/25 text-ios-accent text-[10px] font-bold border border-ios-accent/30 active:scale-95 transition-all"
-            >
-              Diretrizes
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* 3. Barra de Progresso Geral & Métricas */}
       <OverallProgress
         percentage={progress.percentage}
@@ -446,8 +470,31 @@ export function App() {
       />
 
       {/* 4. Lista de Exercícios */}
-      <main id="workout" className="flex-1 pb-24">
-        <div className="exercise-heading"><div><span className="eyebrow">02 / NO TREINO</span><h2>{activeWorkout?.name} <span>{activeWorkout?.category}</span></h2></div><span>{progress.exercisesCount} exercícios</span></div>
+      <main id="workout" className="flex-1 pb-28">
+        <div className="exercise-heading">
+          <div>
+            <span className="eyebrow">02 / NO TREINO</span>
+            <h2>{activeWorkout?.name} <span>{activeWorkout?.category}</span></h2>
+          </div>
+          <div className="exercise-heading-meta">
+            <span>{progress.exercisesCount} exercícios</span>
+            {activeWorkout && workouts.length > 1 && !activeRoom && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm(`Tem certeza que deseja excluir a ficha "${activeWorkout.name}"?`)) {
+                    deleteWorkout(activeWorkout.id);
+                  }
+                }}
+                className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                title={`Excluir ${activeWorkout.name}`}
+                aria-label={`Excluir ficha ${activeWorkout.name}`}
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
         {activeWorkout?.description && <p className="mb-5 text-xs leading-relaxed text-zinc-400">{activeWorkout.description}</p>}
         {activeWorkout && activeWorkout.exercises.length > 0 ? (
           <div className="exercise-list">
@@ -513,9 +560,9 @@ export function App() {
         totalTime={totalTimerTime}
         isPaused={isTimerPaused}
         exerciseName={timerExerciseName}
-        onPauseToggle={() => { timerDeadline.current = null; setIsTimerPaused(!isTimerPaused); }}
-        onAddSeconds={(sec) => { timerDeadline.current = null; setTimeLeft(prev => prev + sec); setTotalTimerTime(prev => prev + sec); }}
-        onStop={() => setTimerActive(false)}
+        onPauseToggle={handleToggleTimerPause}
+        onAddSeconds={handleAdjustTimerSeconds}
+        onStop={handleStopTimer}
       />
 
       {/* 6. Modais */}
@@ -539,6 +586,9 @@ export function App() {
         totalSets={progress.totalSets}
         exercisesCount={progress.exercisesCount}
         workoutName={activeWorkout?.name || 'Treino'}
+        initialDurationMinutes={estimatedDurationMinutes}
+        soundEnabled={preferences.soundEnabled}
+        vibrateEnabled={preferences.vibrateEnabled}
       />
 
       <HistoryModal
@@ -657,12 +707,6 @@ export function App() {
         onJoinRoom={joinRoom}
         onLeaveRoom={leaveRoom}
         onOpenAuth={() => setIsAuthOpen(true)}
-      />
-
-      {/* Modal do Plano 111kg -> 90kg com Diretrizes e Progressão */}
-      <ProgramPlanModal
-        isOpen={isPlanModalOpen}
-        onClose={() => setIsPlanModalOpen(false)}
       />
     </div>
   );

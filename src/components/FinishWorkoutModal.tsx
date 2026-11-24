@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { Trophy, CheckCircle, Clock, Dumbbell, Flame, X, Heart, Watch, Share2 } from 'lucide-react';
 import { soundManager } from '../utils/sound';
+import { useDialogClose } from '../hooks/useDialogClose';
 
 interface FinishWorkoutModalProps {
   isOpen: boolean;
@@ -19,6 +20,9 @@ interface FinishWorkoutModalProps {
   totalSets: number;
   exercisesCount: number;
   workoutName: string;
+  initialDurationMinutes?: number;
+  soundEnabled?: boolean;
+  vibrateEnabled?: boolean;
 }
 
 export const FinishWorkoutModal: React.FC<FinishWorkoutModalProps> = ({
@@ -29,17 +33,32 @@ export const FinishWorkoutModal: React.FC<FinishWorkoutModalProps> = ({
   completedSets,
   totalSets,
   exercisesCount,
-  workoutName
+  workoutName,
+  initialDurationMinutes = 40,
+  soundEnabled = true,
+  vibrateEnabled = true,
 }) => {
-  const [durationMinutes, setDurationMinutes] = useState(45);
+  const [durationMinutes, setDurationMinutes] = useState(initialDurationMinutes);
   const [caloriesBurned, setCaloriesBurned] = useState<string>('');
   const [avgHeartRate, setAvgHeartRate] = useState<string>('');
 
-  useEffect(() => {
-    if (isOpen) {
-      soundManager.playTimerDoneSound(true);
-      soundManager.vibrate([100, 50, 100, 50, 200], true);
+  useDialogClose(isOpen, onClose);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    setDurationMinutes(initialDurationMinutes);
+    setCaloriesBurned('');
+    setAvgHeartRate('');
+
+    soundManager.playTimerDoneSound(soundEnabled);
+    soundManager.vibrate([100, 50, 100, 50, 200], vibrateEnabled);
+
+    const prefersReducedMotion =
+      typeof window !== 'undefined' &&
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+    if (!prefersReducedMotion) {
       try {
         confetti({
           particleCount: 100,
@@ -51,7 +70,7 @@ export const FinishWorkoutModal: React.FC<FinishWorkoutModalProps> = ({
         console.warn('Confetti error', e);
       }
     }
-  }, [isOpen]);
+  }, [isOpen, initialDurationMinutes, soundEnabled, vibrateEnabled]);
 
   if (!isOpen) return null;
 
@@ -65,9 +84,19 @@ export const FinishWorkoutModal: React.FC<FinishWorkoutModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-sm rounded-3xl bg-zinc-900 border border-white/10 p-6 shadow-2xl relative max-h-[92vh] overflow-y-auto">
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Finalizar e registrar treino"
+        className="ironflow-dialog w-full max-w-sm rounded-3xl bg-zinc-900 border border-white/10 p-6 shadow-2xl relative max-h-[92vh] overflow-y-auto"
+      >
         <button
+          type="button"
+          aria-label="Fechar resumo do treino"
           onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5"
         >
@@ -131,17 +160,17 @@ export const FinishWorkoutModal: React.FC<FinishWorkoutModalProps> = ({
           />
         </div>
 
-        {/* Dados do Relógio (Redmi Watch 5 Lite / Mi Fitness) */}
+        {/* Dados do Relógio / Smartwatch */}
         <div className="rounded-2xl bg-gradient-to-b from-zinc-800/60 to-zinc-950/70 border border-white/10 p-3.5 mb-5">
           <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-zinc-200">
               <Watch className="w-3.5 h-3.5 text-[#0A84FF]" />
-              <span>Dados do Relógio (Redmi Watch)</span>
+              <span>Dados do Relógio / Smartwatch</span>
             </div>
             <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-wider">Opcional</span>
           </div>
           <p className="text-[11px] text-zinc-400 mb-3">
-            Veja no resumo do seu treino no relógio ou no Mi Fitness e anote abaixo:
+            Consulte o resumo no seu smartwatch ou aplicativo de saúde e registre abaixo:
           </p>
 
           <div className="grid grid-cols-2 gap-2">

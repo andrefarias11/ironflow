@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrandMark } from './BrandMark';
-import { Settings, Calendar, Users, User as UserIcon, Target } from 'lucide-react';
+import { Settings, Calendar, Users, User as UserIcon } from 'lucide-react';
 import { StreakFlame } from './StreakFlame';
 
 interface HeaderProps {
@@ -9,7 +9,6 @@ interface HeaderProps {
   onOpenStreakModal: () => void;
   onOpenRoomModal: () => void;
   onOpenAuthModal: () => void;
-  onOpenPlanModal?: () => void;
   currentStreak: number;
   percentage: number;
   isTodayRestDay: boolean;
@@ -25,7 +24,6 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenStreakModal,
   onOpenRoomModal,
   onOpenAuthModal,
-  onOpenPlanModal,
   currentStreak,
   percentage,
   isTodayRestDay,
@@ -66,6 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
         {/* Botão Treino em Dupla (Sala) */}
         <button
+          type="button"
           onClick={onOpenRoomModal}
           aria-label="Treino em Dupla"
           className={`relative w-8 h-8 rounded-full border flex items-center justify-center text-xs font-bold transition-all active:scale-95 shrink-0 ${
@@ -89,20 +88,9 @@ export const Header: React.FC<HeaderProps> = ({
           onOpenModal={onOpenStreakModal}
         />
 
-        {/* Botão Plano & Diretrizes 111kg -> 90kg */}
-        {onOpenPlanModal && (
-          <button
-            onClick={onOpenPlanModal}
-            aria-label="Plano 111kg para 90kg"
-            className="w-8 h-8 rounded-full bg-zinc-900 border border-ios-accent/30 flex items-center justify-center text-ios-accent hover:text-white active:bg-ios-accent/20 transition-colors shrink-0"
-            title="Diretrizes do Plano 111kg → 90kg"
-          >
-            <Target className="w-3.5 h-3.5" />
-          </button>
-        )}
-
         {/* Botão Calendário */}
         <button
+          type="button"
           onClick={onOpenCalendar}
           aria-label="Ver Calendário do Mês"
           className="w-8 h-8 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white active:bg-white/10 transition-colors shrink-0"
@@ -113,6 +101,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Botão Usuário / Login / Perfil */}
         <button
+          type="button"
           onClick={onOpenAuthModal}
           aria-label="Perfil do Atleta"
           className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-95 relative shrink-0"
@@ -132,6 +121,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Botão Configurações */}
         <button
+          type="button"
           onClick={onOpenSettings}
           aria-label="Configurações e Ajustes"
           className="w-8 h-8 rounded-full bg-zinc-900 border border-white/10 flex items-center justify-center text-zinc-300 hover:text-white active:bg-white/10 transition-colors shrink-0"

@@ -81,8 +81,17 @@ export const WorkoutTabs: React.FC<WorkoutTabsProps> = ({
               const isDone = completedWorkoutIdsThisWeek.has(workout.id);
               const isSuggested = workout.id === nextSuggestedWorkoutId && !isDone;
               return (
-                <button key={workout.id} aria-pressed={isActive} onClick={() => onSelectWorkout(workout.id)} className="workout-option">
-                  <span className="workout-option-title">{workout.name}{isActive ? <span className="workout-selected-dot" aria-hidden="true" /> : isDone ? <Check size={14} aria-label="Feito nesta semana" /> : null}</span>
+                <button type="button" key={workout.id} aria-pressed={isActive} onClick={() => onSelectWorkout(workout.id)} className="workout-option">
+                  <span className="workout-option-title">
+                    <span>{workout.name}</span>
+                    {isActive ? (
+                      <span className="workout-selected-dot" aria-hidden="true" />
+                    ) : isDone ? (
+                      <Check size={14} aria-label="Feito nesta semana" />
+                    ) : isSuggested ? (
+                      <span className="workout-suggested-badge">Sugerido</span>
+                    ) : null}
+                  </span>
                   <span className="workout-option-category">{workout.category || 'Personalizado'}</span>
                   <span className="workout-option-status">{isDone ? 'Feito na semana' : isActive ? 'Ficha selecionada' : isSuggested ? 'Próximo na sequência' : `${workout.exercises.length} exercícios`}</span>
                 </button>

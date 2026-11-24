@@ -1,6 +1,7 @@
 import React from 'react';
 import { UserPreferences } from '../types/workout';
 import { X, Volume2, Vibrate, PlayCircle, Clock, Settings, RotateCcw, Share2, History } from 'lucide-react';
+import { useDialogClose } from '../hooks/useDialogClose';
 
 interface SettingsModalProps {
   isOpen: boolean;
@@ -23,14 +24,20 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   onOpenHistory,
   onResetWorkout
 }) => {
+  useDialogClose(isOpen, onClose);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+    >
       <div role="dialog" aria-modal="true" aria-label="Ajustes" className="ironflow-dialog w-full sm:max-w-md max-h-[90vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 p-6 shadow-2xl relative">
         <button
+          type="button"
           aria-label="Fechar ajustes"
-            onClick={onClose}
+          onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5"
         >
           <X className="w-5 h-5" />
@@ -61,8 +68,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   <Share2 className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-white">Instalar no iPhone (PWA)</p>
-                  <p className="text-[11px] text-zinc-400">Adicionar à tela de início como app</p>
+                  <p className="text-xs font-bold text-white">Instalar Aplicativo no Celular</p>
+                  <p className="text-[11px] text-zinc-400">Adicionar à tela inicial (iPhone ou Android)</p>
                 </div>
               </div>
               <span className="text-xs text-ios-accent font-bold">Ver ↗</span>
@@ -208,8 +215,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         {/* Restaurar treinos originais */}
         <div className="mt-5 pt-3 border-t border-white/5">
           <button
+            type="button"
             onClick={() => {
-              if (confirm('Deseja restaurar a planilha padrão oficial (Treinos A, B, C, D, E - 111kg → 90kg)? Seus exercícios voltarão ao padrão inicial.')) {
+              if (confirm('Deseja restaurar as fichas padrão (Treinos A, B, C e D)? Suas personalizações voltarão ao modelo inicial.')) {
                 onResetToDefaults();
                 onClose();
               }
@@ -217,7 +225,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             className="w-full py-2.5 rounded-xl text-xs text-zinc-500 hover:text-red-400 flex items-center justify-center gap-1.5 transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>Restaurar planilha padrão oficial (A, B, C, D, E)</span>
+            <span>Restaurar fichas padrão (A, B, C e D)</span>
           </button>
         </div>
       </div>

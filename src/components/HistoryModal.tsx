@@ -1,6 +1,7 @@
 import React from 'react';
 import { WorkoutHistoryEntry } from '../types/workout';
 import { X, Calendar, Dumbbell, Clock, Trash2, Share2 } from 'lucide-react';
+import { useDialogClose } from '../hooks/useDialogClose';
 
 interface HistoryModalProps {
   isOpen: boolean;
@@ -19,6 +20,8 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
   onShareEntry,
   onDeleteEntry
 }) => {
+  useDialogClose(isOpen, onClose);
+
   if (!isOpen) return null;
 
   const formatDate = (isoString: string) => {
@@ -36,7 +39,10 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
+    >
       <div role="dialog" aria-modal="true" aria-label="Histórico de treinos" className="ironflow-dialog w-full sm:max-w-md max-h-[85vh] rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 flex flex-col shadow-2xl overflow-hidden">
         <div className="p-5 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -49,6 +55,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
             </div>
           </div>
           <button
+            type="button"
             aria-label="Fechar histórico de treinos"
             onClick={onClose}
             className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5"

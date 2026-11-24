@@ -4,12 +4,21 @@ import { DEFAULT_WORKOUTS, prepareWorkouts } from '../data/defaultWorkouts';
 import { DayActivity, calculateStreak, formatDateToKey, isScheduledRestDay, getWeekRange, getPreviousWeekRange } from '../utils/streak';
 
 const STORAGE_KEYS = {
-  WORKOUTS: 'treino_app_workouts_recomp_v4',
-  ACTIVE_WORKOUT_ID: 'treino_app_active_id_recomp_v4',
+  WORKOUTS: 'treino_app_workouts_general_v5',
+  ACTIVE_WORKOUT_ID: 'treino_app_active_id_general_v5',
   HISTORY: 'treino_app_history_v1',
   PREFERENCES: 'treino_app_preferences_v1',
-  STREAK_HISTORY: 'treino_app_streak_history_v1'
+  STREAK_HISTORY: 'treino_app_streak_history_v1',
+  SESSION_STARTED_AT: 'treino_app_session_started_v1',
 };
+
+const LEGACY_STORAGE_KEYS = [
+  'treino_app_workouts_upper_lower_v3',
+  'treino_app_active_id_upper_lower_v3',
+  'treino_app_workouts_recomp_v4',
+  'treino_app_active_id_recomp_v4',
+  'treino_notification_tracker_v1',
+];
 
 const DEFAULT_PREFERENCES: UserPreferences = {
   soundEnabled: true,
@@ -21,7 +30,10 @@ const DEFAULT_PREFERENCES: UserPreferences = {
 export function useWorkouts() {
   const [workouts, setWorkouts] = useState<Workout[]>(() => {
     try {
-      const saved = localStorage.getItem(STORAGE_KEYS.WORKOUTS);
+      const saved =
+        localStorage.getItem(STORAGE_KEYS.WORKOUTS) ||
+        localStorage.getItem('treino_app_workouts_recomp_v4') ||
+        localStorage.getItem('treino_app_workouts_upper_lower_v3');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) return prepareWorkouts(parsed);
@@ -31,6 +43,34 @@ export function useWorkouts() {
     }
     return DEFAULT_WORKOUTS;
   });
+
+  const [sessionStartedAt, setSessionStartedAt] = useState<number | null>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEYS.SESSION_STARTED_AT);
+      const parsed = saved ? Number(saved) : NaN;
+      return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      for (const oldKey of LEGACY_STORAGE_KEYS) {
+        localStorage.removeItem(oldKey);
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (sessionStartedAt) {
+        localStorage.setItem(STORAGE_KEYS.SESSION_STARTED_AT, String(sessionStartedAt));
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.SESSION_STARTED_AT);
+      }
+    } catch {}
+  }, [sessionStartedAt]);
 
   const [activeWorkoutId, setActiveWorkoutId] = useState<string>(() => {
     try {
@@ -147,6 +187,14 @@ export function useWorkouts() {
     };
   }, [activeWorkout]);
 
+  const estimatedDurationMinutes = useMemo(() => {
+    if (!sessionStartedAt) return 40;
+    const elapsedMs = Date.now() - sessionStartedAt;
+    if (elapsedMs < 5 * 60_000) return 40;
+    const rounded = Math.round(elapsedMs / 60_000 / 5) * 5;
+    return Math.min(120, Math.max(15, rounded));
+  }, [sessionStartedAt, progress.completedSets]);
+
   // Atualiza atividade diária para o cálculo do Streak
   useEffect(() => {
     const todayKey = formatDateToKey(new Date());
@@ -171,6 +219,9 @@ export function useWorkouts() {
         };
       });
     } else if (!workouts.some(workout => workout.exercises.some(exercise => exercise.sets.some(set => set.completed))) && !history.some(entry => formatDateToKey(new Date(entry.completedAt)) === todayKey)) {
+      if (sessionStartedAt !== null) {
+        setSessionStartedAt(null);
+      }
       setStreakHistory(prev => {
         if (!prev[todayKey]) return prev;
         const next = { ...prev };
@@ -178,7 +229,7 @@ export function useWorkouts() {
         return next;
       });
     }
-  }, [progress.percentage, progress.completedSets, progress.totalSets, history, workouts]);
+  }, [progress.percentage, progress.completedSets, progress.totalSets, history, workouts, sessionStartedAt]);
 
   // Sincroniza e consolida dias passados do streakHistory no histórico oficial
   useEffect(() => {
@@ -322,6 +373,10 @@ export function useWorkouts() {
     const justCompleted = currentSet ? !currentSet.completed : false;
     const restSeconds = currentEx?.restSeconds || 60;
 
+    if (justCompleted && sessionStartedAt === null) {
+      setSessionStartedAt(Date.now());
+    }
+
     setWorkouts(prevWorkouts =>
       prevWorkouts.map(w => {
         if (w.id !== activeWorkoutId) return w;
@@ -352,7 +407,7 @@ export function useWorkouts() {
     field: 'reps',
     val: number
   ) => {
-    const value = Number.isFinite(val) ? Math.max(0, Math.floor(val)) : 0;
+    const value = Number.isFinite(val) ? Math.max(1, Math.floor(val)) : 1;
     setWorkouts(prevWorkouts =>
       prevWorkouts.map(w => {
         if (w.id !== activeWorkoutId) return w;
@@ -481,7 +536,17 @@ export function useWorkouts() {
     setActiveWorkoutId(newWorkout.id);
   };
 
+  const deleteWorkout = (workoutId: string) => {
+    if (workouts.length <= 1) return;
+    const remaining = workouts.filter(w => w.id !== workoutId);
+    setWorkouts(remaining);
+    if (activeWorkoutId === workoutId && remaining[0]) {
+      setActiveWorkoutId(remaining[0].id);
+    }
+  };
+
   const resetWorkout = () => {
+    setSessionStartedAt(null);
     setWorkouts(prevWorkouts =>
       prevWorkouts.map(w => {
         if (w.id !== activeWorkoutId) return w;
@@ -540,15 +605,19 @@ export function useWorkouts() {
   }): WorkoutHistoryEntry => {
     const dateObj = new Date(params.completedAt);
     const dayKey = formatDateToKey(dateObj);
+    const targetWorkout = workouts.find(w => w.id === params.workoutId);
+    const actualTotalSets = targetWorkout
+      ? targetWorkout.exercises.reduce((acc, ex) => acc + ex.sets.length, 0) || 18
+      : 18;
 
     const entry: WorkoutHistoryEntry = {
       id: `hist-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
       workoutId: params.workoutId,
       workoutName: params.workoutName,
       completedAt: dateObj.toISOString(),
-      totalSets: 12,
-      completedSets: 12,
-      exercisesCount: params.exercisesCount || 6,
+      totalSets: actualTotalSets,
+      completedSets: actualTotalSets,
+      exercisesCount: params.exercisesCount || targetWorkout?.exercises?.length || 6,
       durationMinutes: Math.max(1, params.durationMinutes),
       caloriesBurned: params.caloriesBurned,
     };
@@ -563,8 +632,8 @@ export function useWorkouts() {
       [dayKey]: {
         date: dayKey,
         percentage: 100,
-        completedSets: 12,
-        totalSets: 12
+        completedSets: actualTotalSets,
+        totalSets: actualTotalSets
       }
     }));
 
@@ -597,6 +666,7 @@ export function useWorkouts() {
   };
 
   const resetToDefault = () => {
+    setSessionStartedAt(null);
     setWorkouts(DEFAULT_WORKOUTS);
     setActiveWorkoutId(DEFAULT_WORKOUTS[0].id);
   };
@@ -608,6 +678,7 @@ export function useWorkouts() {
     setActiveWorkoutId,
     activeWorkout,
     progress,
+    estimatedDurationMinutes,
     history,
     setHistory,
     preferences,
@@ -620,6 +691,7 @@ export function useWorkouts() {
     addExercise,
     removeExercise,
     createWorkout,
+    deleteWorkout,
     resetWorkout,
     finishWorkout,
     addPastWorkoutEntry,

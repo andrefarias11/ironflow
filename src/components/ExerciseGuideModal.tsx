@@ -1,6 +1,7 @@
 import React from 'react';
 import { Exercise } from '../types/workout';
 import { X, Play, CheckCircle2, AlertTriangle, Lightbulb, ExternalLink, Target } from 'lucide-react';
+import { useDialogClose } from '../hooks/useDialogClose';
 
 interface ExerciseGuideModalProps {
   exercise: Exercise | null;
@@ -11,6 +12,8 @@ export const ExerciseGuideModal: React.FC<ExerciseGuideModalProps> = ({
   exercise,
   onClose
 }) => {
+  useDialogClose(!!exercise, onClose);
+
   if (!exercise) return null;
 
   const guide = exercise.guide;
@@ -19,8 +22,16 @@ export const ExerciseGuideModal: React.FC<ExerciseGuideModalProps> = ({
   )}`;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-      <div className="w-full sm:max-w-md max-h-[90vh] rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 flex flex-col shadow-2xl overflow-hidden">
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Guia de execução: ${exercise.name}`}
+        className="ironflow-dialog w-full sm:max-w-md max-h-[90vh] rounded-t-3xl sm:rounded-3xl bg-zinc-900 border border-white/10 flex flex-col shadow-2xl overflow-hidden"
+      >
         {/* Header do Guia */}
         <div className="p-4 border-b border-white/10 flex items-center justify-between sticky top-0 bg-zinc-900/90 backdrop-blur-md z-10">
           <div>
@@ -33,6 +44,8 @@ export const ExerciseGuideModal: React.FC<ExerciseGuideModalProps> = ({
             </h2>
           </div>
           <button
+            type="button"
+            aria-label="Fechar guia do exercício"
             onClick={onClose}
             className="p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5"
           >

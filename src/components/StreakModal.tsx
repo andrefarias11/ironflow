@@ -1,6 +1,7 @@
 import React from 'react';
 import { Flame, X, Sparkles, Check, Clock } from 'lucide-react';
 import { DayActivity, isScheduledRestDay } from '../utils/streak';
+import { useDialogClose } from '../hooks/useDialogClose';
 
 interface StreakModalProps {
   isOpen: boolean;
@@ -19,6 +20,8 @@ export const StreakModal: React.FC<StreakModalProps> = ({
   isTodayRestDay,
   streakHistory
 }) => {
+  useDialogClose(isOpen, onClose);
+
   if (!isOpen) return null;
 
   const isSuperHot = percentage === 100;
@@ -68,10 +71,20 @@ export const StreakModal: React.FC<StreakModalProps> = ({
   const weekDays = getWeekDaysStatus();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-sm max-h-[85vh] rounded-3xl bg-zinc-900 border border-white/10 flex flex-col shadow-2xl overflow-hidden relative">
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fadeIn"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Sequência de treinos"
+        className="ironflow-dialog w-full max-w-sm max-h-[85vh] rounded-3xl bg-zinc-900 border border-white/10 flex flex-col shadow-2xl overflow-hidden relative"
+      >
         {/* Botão de Fechar fixo no topo direito */}
         <button
+          type="button"
+          aria-label="Fechar sequência de treinos"
           onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full text-zinc-400 hover:text-white hover:bg-white/5 z-20"
         >

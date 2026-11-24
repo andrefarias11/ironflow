@@ -14,6 +14,7 @@ import {
 import { useAuth } from '../contexts/AuthContext';
 import { WorkoutRoom, RoomMember } from '../types/auth';
 import { Workout } from '../types/workout';
+import { useDialogClose } from '../hooks/useDialogClose';
 
 interface WorkoutRoomModalProps {
   isOpen: boolean;
@@ -47,6 +48,8 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
   const [isCopied, setIsCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  useDialogClose(isOpen, onClose);
 
   useEffect(() => {
     if (currentWorkoutId) {
@@ -111,8 +114,16 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
   const chosenWorkout = workouts.find(w => w.id === selectedWorkoutId) || workouts[0];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
-      <div className="w-full max-w-sm rounded-3xl bg-[#121316] border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Treino em dupla"
+        className="ironflow-dialog w-full max-w-sm rounded-3xl bg-[#121316] border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col"
+      >
         {/* Header Modal */}
         <div className="px-6 pt-6 pb-4 border-b border-white/5 flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -124,11 +135,13 @@ export const WorkoutRoomModal: React.FC<WorkoutRoomModalProps> = ({
                 TREINO EM DUPLA
               </h2>
               <p className="text-[11px] text-zinc-400 font-medium">
-                Sincronize séries e cargas em tempo real
+                Sincronize séries e descansos em tempo real
               </p>
             </div>
           </div>
           <button
+            type="button"
+            aria-label="Fechar treino em dupla"
             onClick={onClose}
             className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
           >

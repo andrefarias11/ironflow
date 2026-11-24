@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   X, 
   Mail, 
@@ -12,6 +12,7 @@ import {
   Palette
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useDialogClose } from '../hooks/useDialogClose';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -35,11 +36,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [name, setName] = useState(profile?.name || '');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [selectedColor, setSelectedColor] = useState(profile?.color || '#FF6B00');
+  const [selectedColor, setSelectedColor] = useState(profile?.color || '#F07848');
   
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+
+  useDialogClose(isOpen, onClose);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    setTab(user ? 'profile' : 'login');
+    setName(profile?.name || '');
+    setSelectedColor(profile?.color || '#F07848');
+    setErrorMsg(null);
+    setSuccessMsg(null);
+  }, [isOpen, user, profile]);
 
   if (!isOpen) return null;
 
@@ -93,7 +105,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn">
+    <div
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fadeIn"
+    >
       <div role="dialog" aria-modal="true" aria-label="Conta Ironflow" className="ironflow-dialog w-full max-w-sm rounded-3xl bg-[#121316] border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.9)] overflow-hidden flex flex-col">
         {/* Header Modal */}
         <div className="px-6 pt-6 pb-4 border-b border-white/5 flex items-center justify-between">

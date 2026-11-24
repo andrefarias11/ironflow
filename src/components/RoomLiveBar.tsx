@@ -67,9 +67,10 @@ export const RoomLiveBar: React.FC<RoomLiveBarProps> = ({
 
         {/* Reações rápidas de 1 toque */}
         <div className="flex items-center gap-1.5">
-          <div className="hidden sm:flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/5">
+          <div className="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/5">
             {['💪', '🔥', '⚡'].map((emoji) => (
               <button
+                type="button"
                 key={emoji}
                 onClick={() => onSendReaction(emoji)}
                 className="w-6 h-6 flex items-center justify-center text-xs hover:scale-125 transition-transform active:scale-95"
